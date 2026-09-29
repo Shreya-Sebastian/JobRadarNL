@@ -1,47 +1,52 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{LANG}}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{COMPANY}}: tech jobs in the Netherlands | {{SITE_NAME}}</title>
+<title>{{TITLE}} | {{SITE_NAME}}</title>
 <meta name="description" content="{{DESCRIPTION}}">
-<link rel="canonical" href="{{SITE_URL}}/company/{{SLUG}}">
+<link rel="canonical" href="{{SITE_URL}}{{SELF_PATH}}">
+<link rel="alternate" hreflang="en" href="{{SITE_URL}}{{EN_PATH}}">
+<link rel="alternate" hreflang="nl" href="{{SITE_URL}}{{NL_PATH}}">
+<link rel="alternate" hreflang="x-default" href="{{SITE_URL}}{{EN_PATH}}">
 {{ROBOTS}}
-<link rel="stylesheet" href="/static/style.css?v=8">
+<link rel="stylesheet" href="/static/style.css?v=13">
 <script type="application/ld+json">{{JSONLD}}</script>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <div>
-      <h1><a href="/" style="color:inherit;text-decoration:none">{{SITE_NAME}}</a></h1>
-      <p class="tag">{{SITE_TAGLINE}}</p>
+      <h1><a href="{{HOME}}" style="color:inherit;text-decoration:none">{{SITE_NAME}}</a></h1>
+      <p class="tag">{{TAGLINE}}</p>
     </div>
   </div>
   <nav class="tabs wrap">
-    <a href="/">Overview</a><a href="/#jobs">Jobs</a><a href="/#market">Market</a><a href="/companies" class="on">Employers</a><a href="/#coverage">Coverage</a>
+    <a href="{{HOME}}">{{L_OVERVIEW}}</a><a href="{{HOME}}#jobs">{{L_JOBS}}</a><a href="{{HOME}}#market">{{L_MARKET}}</a><a href="{{COMPANIES}}" class="on">{{L_EMPLOYERS}}</a><a href="{{HOME}}#coverage">{{L_COVERAGE}}</a>
+    <div class="tab-controls"><div class="langswitch"><a class="btn{{NL_ON}}" href="{{NL_PATH}}">NL</a><a class="btn{{EN_ON}}" href="{{EN_PATH}}">EN</a></div></div>
   </nav>
 </header>
 <main class="wrap">
   <div class="card">
-    <h2>{{COMPANY}} <span class="hint">tech jobs in the Netherlands</span></h2>
+    <h2>{{COMPANY}} <span class="hint">{{L_SUBTITLE}}</span></h2>
     <div class="kpis">
-      <div class="kpi"><b>{{COUNT}}</b><span>open tech roles</span></div>
-      <div class="kpi"><b>{{ENGLISH}}</b><span>need no Dutch</span></div>
-      <div class="kpi"><b>{{VISA}}</b><span>mention visa sponsorship</span></div>
+      <div class="kpi"><b>{{COUNT}}</b><span>{{L_OPEN}}</span></div>
+      <div class="kpi"><b>{{ENGLISH}}</b><span>{{L_NODUTCH}}</span></div>
+      <div class="kpi"><b>{{VISA}}</b><span>{{L_VISA}}</span></div>
+      {{EMPLOYEES_KPI}}
     </div>
-    <p class="small"><b>Cities:</b> {{CITIES}}</p>
-    <p class="small"><b>Skills asked for:</b></p>
+    <p class="small"><b>{{L_CITIES}}:</b> {{CITIES}}</p>
+    <p class="small"><b>{{L_SKILLS}}:</b></p>
     <div class="chips">{{SKILLS}}</div>
-    <p class="small"><a class="btn" href="/#company={{COMPANY_URLENC}}">Open the interactive view</a> <span class="muted">match scores, filters and charts</span></p>
+    <p class="small"><a class="btn" href="{{HOME}}#company={{COMPANY_URLENC}}">{{L_INTERACTIVE}}</a> <span class="muted">{{L_INTERACTIVE_HINT}}</span></p>
   </div>
   <div class="card">
-    <h2>Open tech roles <span class="hint">newest first; each title links to the employer's own page</span></h2>
-    <table class="table"><thead><tr><th>Age</th><th>Title</th><th>City</th><th>Level</th><th>Skills</th><th>Language</th></tr></thead>
+    <h2>{{L_ROLES}} <span class="hint">{{L_ROLES_HINT}}</span></h2>
+    <table class="table"><thead><tr><th>{{L_AGE}}</th><th>{{L_T_TITLE}}</th><th>{{L_CITY}}</th><th>{{L_LEVEL}}</th><th>{{L_SKILLS_COL}}</th><th>{{L_LANGUAGE}}</th></tr></thead>
     <tbody>{{ROWS}}</tbody></table>
   </div>
-  <p class="muted small">Postings are read from {{COMPANY}}'s own career site and refreshed every few hours. Language shows EN when no Dutch is required. <a href="/companies">All employers</a>.</p>
+  <p class="muted small">{{L_FOOTNOTE}} <a href="{{COMPANIES}}">{{L_ALL}}</a>.</p>
 </main>
-<footer class="wrap muted"><p><b>{{SITE_NAME}}</b> lists tech vacancies in the Netherlands read directly from employers' career sites. Every listing links to the original page.</p></footer>
+<footer class="wrap muted"><p><b>{{SITE_NAME}}</b> {{L_FOOTER}}</p></footer>
 </body>
 </html>

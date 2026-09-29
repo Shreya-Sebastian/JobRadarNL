@@ -403,3 +403,19 @@ def test_security_guard_at_a_datacenter_is_not_a_tech_job():
 
     assert not is_tech("Beveiliger datacenter", "")
     assert is_tech("Datacenter Engineer", "")
+
+
+def test_dutch_employer_pages(fresh_db):
+    with session_scope() as s:
+        src = _source(s, company="Acme Robotics B.V.", slug="acme-robotics")
+        ingest(s, src, [_raw("1", "Senior Backend Engineer"), _raw("3", "Data Engineer")])
+    from radar.api import app
+
+    client = TestClient(app)
+    nl = client.get("/nl/bedrijf/acme-robotics")
+    assert nl.status_code == 200 and '<html lang="nl">' in nl.text and "techvacatures in Nederland" in nl.text
+    assert 'rel="canonical" href="https://techjobsradar.nl/nl/bedrijf/acme-robotics"' in nl.text
+    assert 'hreflang="en" href="https://techjobsradar.nl/company/acme-robotics"' in nl.text
+    en = client.get("/company/acme-robotics").text
+    assert 'hreflang="nl" href="https://techjobsradar.nl/nl/bedrijf/acme-robotics"' in en and "{{" not in en
+    assert "/nl/bedrijf/acme-robotics</loc>" in client.get("/sitemap.xml").text

@@ -261,7 +261,7 @@ def _entry(r: stats.Row) -> bool:
 
 
 def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> str:
-    from radar.pages import slugify
+    from radar.pages import company_path, slugify
 
     T = _T[lang]
     base = settings.site_url.rstrip("/")
@@ -297,7 +297,7 @@ def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> s
         for s, c in skills.most_common(12)
     )
     emp_html = "".join(
-        f'<li><a href="/company/{slugify(e)}">{escape(e)}</a> <span class="muted">{c}</span></li>'
+        f'<li><a href="{company_path(slugify(e), lang)}">{escape(e)}</a> <span class="muted">{c}</span></li>'
         for e, c in employers.most_common(10)
     )
     city_html = ""
@@ -334,7 +334,7 @@ def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> s
 
     rows_html = "".join(
         f'<tr><td><a href="{escape(r.url)}" rel="noopener">{escape(r.title)}</a></td>'
-        f'<td><a href="/company/{slugify(r.company)}">{escape(r.company)}</a></td>'
+        f'<td><a href="{company_path(slugify(r.company), lang)}">{escape(r.company)}</a></td>'
         f"<td>{escape(city_nl(r.city) if lang == 'nl' and r.city else (r.city or ''))}</td>"
         f"<td>{escape(level(r))}</td><td>{'EN' if r.ex.get('english_only') else 'NL'}</td>"
         f'<td class="muted">{age(r)}</td></tr>'

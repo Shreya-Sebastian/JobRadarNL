@@ -10,6 +10,7 @@
   const EXP = ["none", "1", "2-3", "4-5", "6+", "unspecified"];
   const DEGREES = ["bachelor", "master", "phd", "mbo", "unstated"];
   const SIZES = ["small", "medium", "large"];
+  const EMPS = ["1-49", "50-249", "250-4999", "5000+", "unknown"];
 
   // ---------- translations ----------
   const I18N = {
@@ -99,9 +100,11 @@
       "adm.force": "Ignore the 10-minute cool-down", "adm.due": "Crawl sources that are due", "adm.one": "Crawl this employer", "adm.all": "Crawl everything",
       "adm.hint": "Only for the site owner. Needs the token set in RADAR_ADMIN_TOKEN; it is kept for this browser tab only. Crawls respect every employer's rate limit and robots.txt.",
       "f.exp": "Experience asked", "p.exp": "Experience asked", "mk.exp": "Experience asked", "yrs": "yrs",
-      "f.size": "Organisation size", "f.sort.small": "Smaller organisations first", "f.sort.large": "Larger organisations first",
-      "f.size.title": "Estimated from how many roles the organisation has open across all fields. Small teams often mean broader roles and more ownership; large organisations more structured training, graduate intakes and visa sponsorship.",
-      "size.small": "small team (under 10 open roles)", "size.medium": "mid-size (10–99)", "size.large": "large organisation (100+)",
+      "f.size": "Hiring activity (open roles)", "f.sort.small": "Smaller organisations first", "f.sort.large": "Larger organisations first",
+      "f.emp": "Company size (employees)", "f.emp.title": "Headcount from Wikidata and Wikipedia where known; worldwide for international companies. Smaller companies are often unknown.",
+      "emp.1-49": "under 50", "emp.50-249": "50–249", "emp.250-4999": "250–4,999", "emp.5000+": "5,000+", "emp.unknown": "unknown",
+      "f.size.title": "How many roles the organisation has open right now, in all fields. This says how actively it is hiring, not how big it is: see company size for that.",
+      "size.small": "a few openings (under 10)", "size.medium": "10–99 openings", "size.large": "100+ openings",
       "f.noenrol": "Exclude internships that require enrolment", "f.noenrol.title": "Drops internships whose text says you must be enrolled at a university or school; internships that do not say so stay",
       "enrol.required": "enrolment required", "enrol.open": "open to graduates",
       "f.degree": "Degree asked", "f.degree.title": "The minimum degree the posting asks for. HBO counts as a bachelor's; \"HBO or WO\" counts as HBO.",
@@ -199,9 +202,11 @@
       "adm.force": "Wachttijd van 10 minuten negeren", "adm.due": "Bronnen verversen die aan de beurt zijn", "adm.one": "Deze werkgever verversen", "adm.all": "Alles verversen",
       "adm.hint": "Alleen voor de beheerder. Vereist het token uit RADAR_ADMIN_TOKEN; het blijft alleen in dit tabblad bewaard. Crawls houden zich aan de limieten en robots.txt van elke werkgever.",
       "f.exp": "Gevraagde ervaring", "p.exp": "Gevraagde ervaring", "mk.exp": "Gevraagde ervaring", "yrs": "jr",
-      "f.size": "Omvang organisatie", "f.sort.small": "Kleinere organisaties eerst", "f.sort.large": "Grotere organisaties eerst",
-      "f.size.title": "Geschat op basis van het aantal openstaande vacatures in alle vakgebieden. Kleine teams betekenen vaak bredere rollen en meer eigenaarschap; grote organisaties meer gestructureerde opleiding, traineeships en visumsponsoring.",
-      "size.small": "klein team (minder dan 10 vacatures)", "size.medium": "middelgroot (10–99)", "size.large": "grote organisatie (100+)",
+      "f.size": "Wervingsactiviteit (open vacatures)", "f.sort.small": "Kleinere organisaties eerst", "f.sort.large": "Grotere organisaties eerst",
+      "f.emp": "Bedrijfsgrootte (medewerkers)", "f.emp.title": "Aantal medewerkers uit Wikidata en Wikipedia waar bekend; wereldwijd voor internationale bedrijven. Van kleinere bedrijven is het vaak onbekend.",
+      "emp.1-49": "minder dan 50", "emp.50-249": "50–249", "emp.250-4999": "250–4.999", "emp.5000+": "5.000+", "emp.unknown": "onbekend",
+      "f.size.title": "Hoeveel vacatures de organisatie nu open heeft, in alle vakgebieden. Dat zegt hoe actief ze werft, niet hoe groot ze is: zie daarvoor bedrijfsgrootte.",
+      "size.small": "enkele vacatures (minder dan 10)", "size.medium": "10–99 vacatures", "size.large": "100+ vacatures",
       "f.noenrol": "Stages die inschrijving bij een opleiding eisen verbergen", "f.noenrol.title": "Verbergt stages waarvan de tekst zegt dat je ingeschreven moet staan bij een universiteit of school; stages die daar niets over zeggen blijven staan",
       "enrol.required": "inschrijving vereist", "enrol.open": "ook voor afgestudeerden",
       "f.degree": "Gevraagde opleiding", "f.degree.title": "De minimale opleiding die de vacature vraagt. Hbo telt als bachelor; \"hbo of wo\" telt als hbo.",
@@ -284,6 +289,7 @@
   const expLabel = (e) => t("exp." + e);
   const degreeLabel = (d) => t("deg." + d);
   const sizeLabel = (z) => t("size." + z);
+  const empLabel = (e) => t("emp." + e);
   // NL: Dutch is enough; EN: no Dutch needed; NL + EN: both asked for
   const langKey = (i) => (i.english_only ? "en" : i.english_required === false ? "nl" : "both");
   const langCell = (i) => `<span class="lang-${langKey(i)}" title="${t("lang." + langKey(i) + ".title")}">${t("lang." + langKey(i))}</span>`;
@@ -304,7 +310,7 @@
   }
 
   // ---------- state ----------
-  const emptyProfile = () => ({ roles: [], levels: [], exp: [], degrees: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
+  const emptyProfile = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
     language: "", visa: false, agencies: false, noenrol: false });
   const state = {
     tab: "overview", page: 1, size: 40, sort: "newest", skill: null,
@@ -319,6 +325,7 @@
   if (state.profile.english && !state.profile.language) state.profile.language = "en";  // older profiles
   if (!Array.isArray(state.profile.exp)) state.profile.exp = [];
   if (!Array.isArray(state.profile.degrees)) state.profile.degrees = [];
+  if (!Array.isArray(state.profile.emps)) state.profile.emps = [];
   if (!Array.isArray(state.profile.sizes)) state.profile.sizes = [];
   let jobFilters = null;
 
@@ -337,6 +344,7 @@
     if (p.levels.length) q.set("seniority", p.levels.join(","));
     if (p.exp.length) q.set("experience", p.exp.join(","));
     if (p.degrees.length) q.set("degree", p.degrees.join(","));
+    if (p.emps.length) q.set("employees", p.emps.join(","));
     if (p.sizes.length) q.set("org_size", p.sizes.join(","));
     if (p.remote.length) q.set("remote", p.remote.join(","));
     if (p.cities.length) q.set("city", p.cities.join(","));
@@ -578,8 +586,8 @@
     if (jobFilters) return jobFilters;
     const p = state.profile;
     jobFilters = state.personalised
-      ? { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false }
-      : { roles: [], levels: [], exp: [], degrees: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false };
+      ? { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false }
+      : { roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false };
     return jobFilters;
   }
   function jobParams() {
@@ -589,6 +597,7 @@
     if (f.levels.length) q.set("seniority", f.levels.join(","));
     if (f.exp.length) q.set("experience", f.exp.join(","));
     if (f.degrees.length) q.set("degree", f.degrees.join(","));
+    if (f.emps.length) q.set("employees", f.emps.join(","));
     if (f.sizes.length) q.set("org_size", f.sizes.join(","));
     if (f.remote.length) q.set("remote", f.remote.join(","));
     if (f.cities.length) q.set("city", f.cities.join(","));
@@ -612,6 +621,7 @@
     toggles($("#f-levels"), LEVELS, f.levels, levelLabel, () => refreshJobs(true));
     toggles($("#f-exp"), EXP, f.exp, expLabel, () => refreshJobs(true));
     toggles($("#f-degree"), DEGREES, f.degrees, degreeLabel, () => refreshJobs(true));
+    toggles($("#f-emp"), EMPS, f.emps, empLabel, () => refreshJobs(true));
     toggles($("#f-size"), SIZES, f.sizes, sizeLabel, () => refreshJobs(true));
     toggles($("#f-remote"), REMOTE, f.remote, remoteLabel, () => refreshJobs(true));
     chipInput($("#f-cities"), f.cities, [...state.options.cities, "Remote"], () => refreshJobs(true), t("ph.city"), null, cityLabel);
@@ -716,6 +726,7 @@
     toggles($("#p-levels"), LEVELS, p.levels, levelLabel);
     toggles($("#p-exp"), EXP, p.exp, expLabel);
     toggles($("#p-degree"), DEGREES, p.degrees, degreeLabel);
+    toggles($("#p-emp"), EMPS, p.emps, empLabel);
     toggles($("#p-size"), SIZES, p.sizes, sizeLabel);
     toggles($("#p-remote"), REMOTE, p.remote, remoteLabel);
     chipInput($("#p-cities"), p.cities, [...state.options.cities, "Remote"], null, t("ph.city"), null, cityLabel);

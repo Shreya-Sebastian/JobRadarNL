@@ -43,6 +43,7 @@ class Row:
     link_status: str | None = None
     valid_through: datetime | None = None
     also_in: list[str] = field(default_factory=list)  # other cities of the same vacancy
+    employees: int | None = None  # headcount where known (radar/sizes.py), else None
 
     @property
     def confirmed_at(self) -> datetime | None:
@@ -52,7 +53,14 @@ class Row:
 
     @property
     def org_size(self) -> str:
+        """Hiring activity: how many roles the organisation has open, all fields (not its headcount)."""
         return org_size_band(self.org_roles)
+
+    @property
+    def employee_band(self) -> str:
+        from radar.sizes import band
+
+        return band(self.employees)
 
     @property
     def skills(self) -> list[str]:
@@ -141,6 +149,7 @@ class Filters:
     org_size: str | None = None  # comma list of ORG_SIZE_BANDS
     confirmed_days: int | None = None  # only postings confirmed live within this many days
     degree: str | None = None  # comma list of DEGREE_GROUPS: the minimum degree the posting asks for
+    employees: str | None = None  # comma list of radar.sizes.EMPLOYEE_BANDS: headcount of the organisation
 
     def apply(self, rows: list[Row]) -> list[Row]:
         out = rows
@@ -170,6 +179,9 @@ class Filters:
         degrees = _csv(self.degree)
         if degrees:
             out = [r for r in out if r.degree in degrees]
+        heads = _csv(self.employees)
+        if heads:
+            out = [r for r in out if r.employee_band in heads]
         if self.confirmed_days:
             since = datetime.utcnow() - timedelta(days=self.confirmed_days)
             out = [r for r in out if r.confirmed_at and r.confirmed_at >= since]
@@ -294,6 +306,8 @@ def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
         .where(Posting.is_tech.is_(True), Posting.duplicate_of.is_(None))
         .where((Posting.closed_at.is_(None)) | (Posting.closed_at >= cutoff))
     )
+    from radar.sizes import employees
+
     open_roles = dict(session.execute(
         select(Posting.company, func.count())
         .where(Posting.closed_at.is_(None), Posting.duplicate_of.is_(None))
@@ -321,6 +335,7 @@ def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
                 p.link_status,
                 p.valid_through,
                 p.also_in or [],
+                employees(p.company),
             )
         )
     return rows
@@ -437,6 +452,8 @@ def breakdown(rows: list[Row], key: str, top: int = 20) -> list[dict[str, Any]]:
             v = r.experience
         elif key == "degree":
             v = r.degree
+        elif key == "employees":
+            v = r.employee_band
         elif key == "org_size":
             v = r.org_size
         elif key == "ats":
@@ -508,9 +525,10 @@ def posting_dicts(
     if sort == "match" and have:
         rows = sorted(rows, key=lambda r: (match_score(r, have), r.posted_at or r.first_seen), reverse=True)
     elif sort == "size_small":
-        rows = sorted(newest, key=lambda r: r.org_roles)  # stable: newest first within an organisation
+        # by headcount where known, unknown sizes after them; stable: newest first within an organisation
+        rows = sorted(newest, key=lambda r: (r.employees is None, r.employees or 0, r.org_roles))
     elif sort == "size_large":
-        rows = sorted(newest, key=lambda r: -r.org_roles)
+        rows = sorted(newest, key=lambda r: (r.employees is None, -(r.employees or 0), -r.org_roles))
     else:
         rows = newest
     total = len(rows)
@@ -532,6 +550,7 @@ def posting_dicts(
             "years": r.ex.get("years_experience"),
             "experience": r.experience,
             "degree": r.degree,
+            "employees": r.employees,
             "enrollment_required": r.ex.get("enrollment_required"),
             "skills": r.skills[:12],
             "english_only": r.ex.get("english_only"),

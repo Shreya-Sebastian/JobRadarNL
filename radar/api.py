@@ -91,10 +91,11 @@ def filters(
     org_size: str | None = None,
     confirmed_days: int | None = Query(None, ge=1, le=90),
     degree: str | None = None,
+    employees: str | None = None,
 ) -> stats.Filters:
     return stats.Filters(role, seniority, city, company, english_only, sponsorship, remote, days, q, skill,
                          include_closed, exclude_agencies, exclude_companies, since, skills_any, ids, language,
-                         experience, enrollment, org_size, confirmed_days, degree)
+                         experience, enrollment, org_size, confirmed_days, degree, employees)
 
 
 def _rows(session: Session, f: stats.Filters) -> list[stats.Row]:
@@ -134,7 +135,7 @@ def cooccurrence(request: Request, top: int = Query(30, le=80), f: stats.Filters
 def breakdown(request: Request, key: str, top: int = Query(20, le=100), f: stats.Filters = Depends(filters),
               session: Session = Depends(db)):
     allowed = {"city", "company", "ats", "seniority", "role_family", "remote_policy", "degree_required",
-               "posting_language", "experience", "org_size", "degree"}
+               "posting_language", "experience", "org_size", "degree", "employees"}
     if key not in allowed:
         raise HTTPException(400, f"key must be one of {sorted(allowed)}")
 
@@ -422,7 +423,8 @@ def sitemap(session: Session = Depends(db)):
             urls += [(base + lp.nl_path, day), (base + lp.en_path, day)]
         for _, slug, n in pages.companies(tech):
             if n >= pages.MIN_INDEXED_POSTINGS:
-                urls.append((f"{base}/company/{slug}", lastmod(pages.company_rows(tech, slug))))
+                day = lastmod(pages.company_rows(tech, slug))
+                urls += [(f"{base}/company/{slug}", day), (f"{base}/nl/bedrijf/{slug}", day)]
         body = "".join(f"<url><loc>{xml_escape(u)}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>"
                        for u, d in urls)
         return (f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
@@ -439,15 +441,20 @@ def companies_page(session: Session = Depends(db)):
                     media_type="text/html")
 
 
+@app.get("/nl/bedrijf/{slug}", include_in_schema=False)
+def company_page_nl(slug: str, session: Session = Depends(db)):
+    return company_page(slug, session, lang="nl")
+
+
 @app.get("/company/{slug}", include_in_schema=False)
-def company_page(slug: str, session: Session = Depends(db)):
+def company_page(slug: str, session: Session = Depends(db), lang: str = "en"):
     from radar import pages
 
     rows = _live_tech_rows(session)
     name = pages.find_company(rows, slug)
     if name is None:
         raise HTTPException(404, "no employer with live tech postings under that name")
-    return Response(cached(f"page:company:{slug}", lambda: pages.render_company(name, rows), ttl=3600),
+    return Response(cached(f"page:company:{lang}:{slug}", lambda: pages.render_company(name, rows, lang), ttl=3600),
                     media_type="text/html")
 
 
