@@ -81,6 +81,9 @@
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
       "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
       "acct.go": "Sign in or create an account",
+      "alerts.label": "E-mail me new jobs that match my profile", "alerts.off": "Off", "alerts.daily": "Daily", "alerts.weekly": "Weekly",
+      "alerts.hint": "Uses your saved profile. Every e-mail has an unsubscribe link.", "alerts.saved": "Saved.",
+      "alerts.noprofile": "Saved. Set roles, cities or skills in your profile below, or the alert matches every new job.",
       "acct.login": "Log in", "acct.account": "Account", "acct.title": "Keep your profile on every device",
       "acct.hint": 'Log in with your e-mail address to keep your profile and saved jobs on your phone and laptop. No password: we send you a link that works once. Without an account everything stays in this browser. <a href="/privacy">Privacy</a>',
       "acct.email.ph": "you@example.com", "acct.send": "Send login link", "acct.sending": "Sending…",
@@ -183,6 +186,9 @@
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
       "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
       "acct.go": "Inloggen of account maken",
+      "alerts.label": "Mail me nieuwe vacatures die bij mijn profiel passen", "alerts.off": "Uit", "alerts.daily": "Dagelijks", "alerts.weekly": "Wekelijks",
+      "alerts.hint": "Gebruikt je opgeslagen profiel. Elke e-mail heeft een afmeldlink.", "alerts.saved": "Opgeslagen.",
+      "alerts.noprofile": "Opgeslagen. Kies functies, steden of skills in je profiel hieronder, anders past elke nieuwe vacature.",
       "acct.login": "Inloggen", "acct.account": "Account", "acct.title": "Je profiel op elk apparaat",
       "acct.hint": 'Log in met je e-mailadres om je profiel en bewaarde vacatures op je telefoon en laptop te hebben. Geen wachtwoord: je krijgt een link die één keer werkt. Zonder account blijft alles in deze browser. <a href="/nl/privacy">Privacy</a>',
       "acct.email.ph": "jij@voorbeeld.nl", "acct.send": "Stuur inloglink", "acct.sending": "Versturen…",
@@ -798,7 +804,11 @@
     btn.classList.toggle("in", !!me);
     btn.title = me ? me.email : "";
     $("#acct-out").hidden = !!me; $("#acct-in").hidden = !me;
-    if (me) $("#acct-who").textContent = me.email;
+    if (me) {
+      $("#acct-who").textContent = me.email;
+      fetch("/api/me/alerts", { credentials: "same-origin" }).then((r) => r.ok ? r.json() : null)
+        .then((a) => { if (a) $("#acct-alerts").value = a.frequency; }).catch(() => {});
+    }
   }
   function bindAccount() {
     const loginUrl = () => (LANG === "nl" ? "/nl/inloggen" : "/login");
@@ -808,6 +818,12 @@
       setTimeout(() => $("#acct-card").scrollIntoView({ block: "start" }), 50);
     });
     $("#acct-go").addEventListener("click", (e) => { e.preventDefault(); location.href = loginUrl(); });
+    $("#acct-alerts").addEventListener("change", async (e) => {
+      const r = await account.post("/api/me/alerts", "PUT", { frequency: e.target.value, lang: LANG });
+      const p = state.profile;
+      const empty = !p.roles.length && !p.cities.length && !p.skills.length && !p.levels.length;
+      $("#acct-alerts-status").textContent = r.ok ? t(e.target.value !== "off" && empty ? "alerts.noprofile" : "alerts.saved") : t("acct.fail");
+    });
     $("#acct-logout").addEventListener("click", async () => {
       await account.post("/api/auth/logout"); account.me = null; renderAccount();
     });

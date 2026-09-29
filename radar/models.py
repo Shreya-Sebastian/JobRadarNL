@@ -109,6 +109,8 @@ class User(Base):
     lang: Mapped[str] = mapped_column(String(2), default="en")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    alerts: Mapped[str] = mapped_column(String(10), default="off")  # off | daily | weekly (radar/alerts.py)
+    alerts_sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class LoginToken(Base):

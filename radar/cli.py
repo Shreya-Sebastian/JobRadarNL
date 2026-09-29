@@ -445,6 +445,13 @@ def cmd_analytics_nightly(_: argparse.Namespace) -> None:
     print(analytics_nightly())
 
 
+def cmd_send_alerts(_: argparse.Namespace) -> None:
+    """E-mail due job alerts (Kubernetes CronJob)."""
+    from radar.tasks import send_alerts
+
+    print(send_alerts())
+
+
 def cmd_schedule(_: argparse.Namespace) -> None:
     """Enqueue every due source (Kubernetes CronJob)."""
     from radar.tasks import schedule
@@ -619,6 +626,7 @@ def main(argv: list[str] | None = None) -> None:
 
     sub.add_parser("schedule", help="enqueue due sources onto the Redis queue").set_defaults(fn=cmd_schedule)
     sub.add_parser("analytics-nightly", help="roll up visit statistics").set_defaults(fn=cmd_analytics_nightly)
+    sub.add_parser("send-alerts", help="e-mail due job alerts").set_defaults(fn=cmd_send_alerts)
     sub.add_parser("finalize", help="dedup + gauges + cache version bump").set_defaults(fn=cmd_finalize)
     p = sub.add_parser("worker", help="run a queue worker")
     p.add_argument("--burst", action="store_true", help="exit when the queue is empty")

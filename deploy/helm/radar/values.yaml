@@ -80,6 +80,8 @@ finalizer:
   schedule: "5,35 * * * *"    # dedup + gauges + cache version bump twice an hour
 linkcheck:
   schedule: "15 3 * * *"      # nightly: re-fetch the oldest live postings, close the ones that are gone
+alerts:
+  schedule: "30 6 * * *"      # daily: e-mail new matching jobs to users with alerts on
 analytics:
   schedule: "10 0 * * *"      # nightly: keep daily visit totals, drop old raw page views
 qualitycheck:

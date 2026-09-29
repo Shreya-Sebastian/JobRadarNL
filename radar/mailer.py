@@ -17,11 +17,13 @@ log = logging.getLogger(__name__)
 OUTBOX: list[EmailMessage] = []  # console backend keeps the last messages, for tests and local use
 
 
-def send(to: str, subject: str, text: str, html: str | None = None) -> None:
+def send(to: str, subject: str, text: str, html: str | None = None, headers: dict | None = None) -> None:
     msg = EmailMessage()
     msg["From"] = settings.mail_from
     msg["To"] = to
     msg["Subject"] = subject
+    for k, v in (headers or {}).items():
+        msg[k] = v
     msg.set_content(text)
     if html:
         msg.add_alternative(html, subtype="html")

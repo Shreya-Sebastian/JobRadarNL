@@ -231,13 +231,57 @@ def put_data(body: DataBody, request: Request, user: User = Depends(require_user
     return {"ok": True, "updated_at": row.updated_at.isoformat()}
 
 
+class AlertsBody(BaseModel):
+    frequency: str = Field(pattern="^(off|daily|weekly)$")
+    lang: str = "en"
+
+
+@router.get("/api/me/alerts")
+def get_alerts(user: User = Depends(require_user)):
+    return {"frequency": user.alerts or "off"}
+
+
+@router.put("/api/me/alerts")
+def put_alerts(body: AlertsBody, request: Request, user: User = Depends(require_user),
+               session: Session = Depends(_db)):
+    _require_json_header(request)
+    u = session.get(User, user.id)
+    if u.alerts != body.frequency and body.frequency != "off":
+        u.alerts_sent_at = datetime.utcnow()  # the first alert covers jobs from now on, not the whole backlog
+    u.alerts = body.frequency
+    u.lang = "nl" if body.lang == "nl" else "en"
+    session.commit()
+    return {"frequency": u.alerts}
+
+
+@router.get("/alerts/unsubscribe", include_in_schema=False)
+@router.post("/alerts/unsubscribe", include_in_schema=False)  # RFC 8058 one-click, sent by mail clients
+def alerts_unsubscribe(u: int, t: str, session: Session = Depends(_db)):
+    from radar import alerts
+
+    ok = alerts.unsubscribe(session, u, t)
+    msg = ("You won't get job alerts any more. You can turn them back on under My profile." if ok
+           else "This unsubscribe link is not valid. You can turn alerts off under My profile.")
+    nl = ("Je krijgt geen vacature-alerts meer. Je kunt ze weer aanzetten onder Mijn profiel." if ok
+          else "Deze afmeldlink is niet geldig. Je kunt alerts uitzetten onder Mijn profiel.")
+    html = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" '
+            f'content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>'
+            f'{escape(settings.site_name)}</title><link rel="stylesheet" href="/static/style.css?v=13"></head>'
+            f'<body style="background:var(--bg)"><main class="wrap" style="max-width:560px;padding-top:12vh">'
+            f'<div class="card"><h2>{"Unsubscribed" if ok else "Link not valid"}</h2><p>{escape(msg)}</p>'
+            f'<p class="muted">{escape(nl)}</p><p><a class="btn" href="/#profile">{escape(settings.site_name)}</a>'
+            f"</p></div></main></body></html>")
+    return Response(html, media_type="text/html", status_code=200 if ok else 400)
+
+
 @router.get("/api/me/export")
 def export(user: User = Depends(require_user), session: Session = Depends(_db)):
     """Everything stored about this account, as one JSON file (GDPR data portability)."""
     row = session.get(UserData, user.id)
     body = {"email": user.email, "created_at": user.created_at.isoformat(),
             "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
-            "profile": row.profile if row else {}, "saved_job_ids": row.saved if row else []}
+            "profile": row.profile if row else {}, "saved_job_ids": row.saved if row else [],
+            "job_alerts": user.alerts or "off"}
     return Response(content=json.dumps(body, indent=2), media_type="application/json",
                     headers={"Content-Disposition": 'attachment; filename="my-tech-jobs-radar-data.json"'})
 

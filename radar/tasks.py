@@ -181,3 +181,14 @@ def analytics_nightly() -> dict:
         out = analytics.nightly(s)
     log.info("analytics: %s", out)
     return out
+
+
+def send_alerts() -> dict:
+    """Daily: e-mail new matching jobs to users who turned on job alerts."""
+    from radar import alerts
+
+    init_db()
+    with session_scope() as s:
+        out = alerts.run(s)
+    log.info("alerts: %s", out)
+    return out
