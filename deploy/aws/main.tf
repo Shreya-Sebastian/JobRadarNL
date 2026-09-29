@@ -1,5 +1,5 @@
 # Production on AWS: one EC2 server running k3s, Postgres on the same host outside Kubernetes, a fixed public IP,
-# and Amazon SES for the login e-mails. About USD 40 a month in eu-west-1 (t3.medium, 30 GB gp3, one public IPv4).
+# and Amazon SES for the login e-mails. About USD 23 a month in eu-west-1 (t3.small, 30 GB gp3, one public IPv4).
 #
 #   aws login                                   # short-lived credentials for your IAM admin user
 #   terraform init
@@ -27,8 +27,8 @@ provider "aws" {
 variable "region" { default = "eu-west-1" }
 variable "domain" { default = "techjobsradar.nl" }
 variable "instance_type" {
-  description = "t3.medium (2 vCPU, 4 GB) runs k3s, Postgres, the API and two crawl workers"
-  default     = "t3.medium"
+  description = "t3.small (2 vCPU, 2 GB, allowed on the Free plan) runs k3s, Postgres, the API and one crawl worker"
+  default     = "t3.small"
 }
 variable "ssh_public_key_path" { default = "~/.ssh/id_ed25519.pub" }
 variable "test_recipient" {
@@ -66,7 +66,7 @@ resource "aws_security_group" "radar" {
   vpc_id      = data.aws_vpc.default.id
 
   ingress {
-    description = "HTTP (Let's Encrypt challenge and redirect)"
+    description = "HTTP (Lets Encrypt challenge and redirect)"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"

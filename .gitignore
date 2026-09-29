@@ -39,3 +39,4 @@ data/recall/
 deploy/aws/.terraform/
 deploy/aws/*.tfstate*
 deploy/aws/.terraform.lock.hcl
+deploy/aws/tfplan

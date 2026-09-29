@@ -265,12 +265,25 @@ def cmd_copy_db(args: argparse.Namespace) -> None:
     dst = create_engine(args.to, future=True)
     Base.metadata.create_all(dst)
     with src.connect() as sc, dst.begin() as dc:
+        if args.replace:  # children before parents, so foreign keys never block the delete
+            for table in reversed(Base.metadata.sorted_tables):
+                dc.execute(table.delete())
         for table in Base.metadata.sorted_tables:
             rows = [dict(r._mapping) for r in sc.execute(select(table))]
-            if args.replace:
-                dc.execute(table.delete())
+            # a column pointing at its own table (postings.duplicate_of) may reference a row inserted later:
+            # insert with it empty, then fill it in once every row exists
+            self_refs = [c.name for c in table.c if any(fk.column.table is table for fk in c.foreign_keys)]
+            later = [{"pk": r["id"], **{c: r[c] for c in self_refs}} for r in rows if any(r[c] for c in self_refs)]
             for i in range(0, len(rows), 1000):
-                dc.execute(insert(table), rows[i : i + 1000])
+                batch = [{**r, **{c: None for c in self_refs}} for r in rows[i : i + 1000]]
+                dc.execute(insert(table), batch)
+            for c in self_refs:
+                from sqlalchemy import bindparam, update
+
+                stmt = update(table).where(table.c.id == bindparam("pk")).values({c: bindparam(c)})
+                todo = [{"pk": r["pk"], c: r[c]} for r in later if r[c] is not None]
+                for i in range(0, len(todo), 1000):
+                    dc.execute(stmt, todo[i : i + 1000])
             print(f"{table.name}: {len(rows)} rows copied")
         if args.to.startswith("postgresql"):
             from sqlalchemy import text

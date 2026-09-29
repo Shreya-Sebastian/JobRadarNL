@@ -26,13 +26,13 @@ config:
   siteAliases: "TechJobsRadar, TechJobsNL, Tech Jobs NL, ICT vacatures, IT vacatures, tech jobs Netherlands"
   siteUrl: "https://techjobsradar.nl"
 
-# sized for one 4 GB node
+# sized for one 2 GB node (t3.small)
 api:
   replicas: 1
   autoscaling:
     enabled: false
 worker:
-  replicas: 2
+  replicas: 1
 
 ingress:
   host: techjobsradar.nl
