@@ -35,7 +35,8 @@ _PATTERNS: list[tuple[str, re.Pattern]] = [
     ("workday", re.compile(r"https?://([a-z0-9-]+\.wd\d+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Z]{2}/)?([A-Za-z0-9_-]+)")),
     ("personio", re.compile(r"https?://([a-z0-9-]+)\.jobs\.personio\.(?:de|com)", re.I)),
     ("smartrecruiters", re.compile(r"(?:careers|jobs)\.smartrecruiters\.com/([A-Za-z0-9_-]+)")),
-    ("homerun", re.compile(r"https?://([a-z0-9-]+)\.homerun\.co", re.I)),
+    # not Homerun's own hosts (static., cdn., feed., app., www.), which appear in every Homerun page's markup
+    ("homerun", re.compile(r"https?://(?!(?:static|cdn|feed|app|www|api)\.)([a-z0-9-]+)\.homerun\.co", re.I)),
 ]
 _WORKABLE_SKIP = {"api", "j", "jobs", "widget"}
 # Subdomains of ATS vendors that are assets or shared infrastructure, never a company board.
