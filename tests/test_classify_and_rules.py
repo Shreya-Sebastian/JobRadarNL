@@ -287,3 +287,31 @@ def test_engineering_titles_need_real_software_work_not_one_stray_word():
         assert is_tech(t, mech), t
     # Dutch "rust" (rest) is not the Rust language
     assert not is_tech("Production Engineer", "Werken in rust en ruimte, met een ERP-pakket." + filler)
+
+
+def test_degree_is_the_lowest_level_named():
+    from radar.extract.rules import extract_rules
+
+    def deg(text):
+        return extract_rules("Software Engineer", text).degree_required
+
+    assert deg("Je hebt een afgeronde hbo- of wo-opleiding in informatica.") == "hbo"
+    assert deg("You have a Bachelor's or Master's degree in Computer Science.") == "bsc"
+    assert deg("You hold a Master's degree; a PhD is a plus.") == "msc"
+    assert deg("You have a PhD in physics or a related field.") == "phd"
+    assert deg("Mbo- of hbo-werk- en denkniveau.") == "mbo"
+    assert deg("A degree is not required, skills matter.") == "none"
+
+
+def test_degree_filter_groups_hbo_with_bachelors(fresh_db):
+    from datetime import datetime
+
+    from radar.stats import Filters, Row
+
+    def row(i, degree):
+        return Row(i, "Dev", "Acme", "Utrecht", False, "u", None, datetime(2026, 9, 1), None, "lever",
+                   {"degree_required": degree})
+    rows = [row(1, "hbo"), row(2, "bsc"), row(3, "msc"), row(4, "phd"), row(5, "unknown"), row(6, "none")]
+    assert [r.id for r in Filters(degree="bachelor").apply(rows)] == [1, 2]
+    assert [r.id for r in Filters(degree="master,phd").apply(rows)] == [3, 4]
+    assert [r.id for r in Filters(degree="unstated").apply(rows)] == [5, 6]

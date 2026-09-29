@@ -90,10 +90,11 @@ def filters(
     enrollment: str | None = None,
     org_size: str | None = None,
     confirmed_days: int | None = Query(None, ge=1, le=90),
+    degree: str | None = None,
 ) -> stats.Filters:
     return stats.Filters(role, seniority, city, company, english_only, sponsorship, remote, days, q, skill,
                          include_closed, exclude_agencies, exclude_companies, since, skills_any, ids, language,
-                         experience, enrollment, org_size, confirmed_days)
+                         experience, enrollment, org_size, confirmed_days, degree)
 
 
 def _rows(session: Session, f: stats.Filters) -> list[stats.Row]:
@@ -133,7 +134,7 @@ def cooccurrence(request: Request, top: int = Query(30, le=80), f: stats.Filters
 def breakdown(request: Request, key: str, top: int = Query(20, le=100), f: stats.Filters = Depends(filters),
               session: Session = Depends(db)):
     allowed = {"city", "company", "ats", "seniority", "role_family", "remote_policy", "degree_required",
-               "posting_language", "experience", "org_size"}
+               "posting_language", "experience", "org_size", "degree"}
     if key not in allowed:
         raise HTTPException(400, f"key must be one of {sorted(allowed)}")
 

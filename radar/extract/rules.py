@@ -7,7 +7,7 @@ import re
 from radar.extract.schema import Extraction
 from radar.taxonomy import find_skills
 
-RULES_VERSION = "rules-v10"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
+RULES_VERSION = "rules-v11"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
 
 _NL_WORDS = re.compile(
     r"\b(de|het|een|en|van|voor|met|je|jij|wij|bij|niet|zijn|werken|ervaring|functie|wat|jouw|onze|ook|"
@@ -245,6 +245,7 @@ _DEGREE = [
     ("mbo", r"\bmbo\b"),
 ]
 _DEGREE_RX = [(k, re.compile(rx, re.I)) for k, rx in _DEGREE]
+_DEGREE_LEVEL = {"mbo": 0, "hbo": 1, "bsc": 1, "msc": 2, "phd": 3}  # hbo is a bachelor's level
 _NO_DEGREE = re.compile(
     r"(no|without a?|regardless of) (?:formal )?(?:degree|diploma)|degree (?:is )?not required", re.I
 )
@@ -356,13 +357,13 @@ def extract_rules(title: str, description: str) -> Extraction:
     if _NO_DEGREE.search(text):
         degree = "none"
     else:
-        # the requirement is the lowest academic level named: "Bachelor's or Master's degree" asks for a bachelor
+        # the requirement is the lowest level named: "Bachelor's or Master's" asks for a bachelor, and the Dutch
+        # "hbo/wo-niveau" (applied or research university) for hbo, not for a master's
         found = [key for key, rx in _DEGREE_RX if rx.search(core)] or [key for key, rx in _DEGREE_RX if rx.search(text)]
-        academic = [k for k in ("bsc", "msc", "phd") if k in found]
-        if academic:
-            degree = academic[0]
-        elif found:
-            degree = found[0]
+        if found:
+            low = min(_DEGREE_LEVEL[k] for k in found)
+            lowest = [k for k in found if _DEGREE_LEVEL[k] == low]
+            degree = "bsc" if "bsc" in lowest else lowest[0]
 
     lo, hi = parse_salary(text)
     return Extraction(

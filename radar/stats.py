@@ -65,8 +65,15 @@ class Row:
     def experience(self) -> str:
         return experience_band(self.ex, self.title)
 
+    @property
+    def degree(self) -> str:
+        """Minimum degree asked, grouped: phd, master, bachelor (hbo or a university bachelor), mbo, unstated."""
+        return _DEGREE_GROUP.get(self.ex.get("degree_required") or "", "unstated")
+
 
 ORG_SIZE_BANDS = ("small", "medium", "large")
+DEGREE_GROUPS = ("phd", "master", "bachelor", "mbo", "unstated")
+_DEGREE_GROUP = {"phd": "phd", "msc": "master", "bsc": "bachelor", "hbo": "bachelor", "mbo": "mbo"}
 
 
 def org_size_band(open_roles: int) -> str:
@@ -133,6 +140,7 @@ class Filters:
     enrollment: str | None = None  # "open": drop postings that require study enrolment; "required": only those
     org_size: str | None = None  # comma list of ORG_SIZE_BANDS
     confirmed_days: int | None = None  # only postings confirmed live within this many days
+    degree: str | None = None  # comma list of DEGREE_GROUPS: the minimum degree the posting asks for
 
     def apply(self, rows: list[Row]) -> list[Row]:
         out = rows
@@ -159,6 +167,9 @@ class Filters:
         bands = _csv(self.experience)
         if bands:
             out = [r for r in out if r.experience in bands]
+        degrees = _csv(self.degree)
+        if degrees:
+            out = [r for r in out if r.degree in degrees]
         if self.confirmed_days:
             since = datetime.utcnow() - timedelta(days=self.confirmed_days)
             out = [r for r in out if r.confirmed_at and r.confirmed_at >= since]
@@ -424,6 +435,8 @@ def breakdown(rows: list[Row], key: str, top: int = 20) -> list[dict[str, Any]]:
             v = r.company
         elif key == "experience":
             v = r.experience
+        elif key == "degree":
+            v = r.degree
         elif key == "org_size":
             v = r.org_size
         elif key == "ats":
@@ -518,6 +531,7 @@ def posting_dicts(
             "seniority": r.ex.get("seniority"),
             "years": r.ex.get("years_experience"),
             "experience": r.experience,
+            "degree": r.degree,
             "enrollment_required": r.ex.get("enrollment_required"),
             "skills": r.skills[:12],
             "english_only": r.ex.get("english_only"),

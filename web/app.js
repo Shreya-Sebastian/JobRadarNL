@@ -8,6 +8,7 @@
   const LEVELS = ["intern", "trainee", "junior", "medior", "senior", "lead", "staff", "manager"];
   const REMOTE = ["remote", "hybrid", "onsite"];
   const EXP = ["none", "1", "2-3", "4-5", "6+", "unspecified"];
+  const DEGREES = ["bachelor", "master", "phd", "mbo", "unstated"];
   const SIZES = ["small", "medium", "large"];
 
   // ---------- translations ----------
@@ -102,6 +103,8 @@
       "size.small": "small team (under 10 open roles)", "size.medium": "mid-size (10–99)", "size.large": "large organisation (100+)",
       "f.noenrol": "Exclude internships that require enrolment", "f.noenrol.title": "Drops internships whose text says you must be enrolled at a university or school; internships that do not say so stay",
       "enrol.required": "enrolment required", "enrol.open": "open to graduates",
+      "f.degree": "Degree asked", "f.degree.title": "The minimum degree the posting asks for. HBO counts as a bachelor's; \"HBO or WO\" counts as HBO.",
+      "deg.bachelor": "Bachelor's (HBO / WO)", "deg.master": "Master's", "deg.phd": "PhD", "deg.mbo": "MBO", "deg.unstated": "not stated",
       "exp.none": "none asked (entry level)", "exp.1": "≤ 1 year", "exp.2-3": "2–3 years", "exp.4-5": "4–5 years", "exp.6+": "6+ years", "exp.unspecified": "not stated",
       "co.back": "← Market", "co.skills": "Skills asked for", "co.level": "Seniority", "co.lang": "Posting language", "co.roles": "Open tech roles",
       "co.kpi.roles": "open tech roles", "co.kpi.cities": "cities", "co.kpi.en": "need no Dutch", "co.kpi.visa": "mention visa sponsorship", "co.kpi.new": "new in 30 days",
@@ -199,6 +202,8 @@
       "size.small": "klein team (minder dan 10 vacatures)", "size.medium": "middelgroot (10–99)", "size.large": "grote organisatie (100+)",
       "f.noenrol": "Stages die inschrijving bij een opleiding eisen verbergen", "f.noenrol.title": "Verbergt stages waarvan de tekst zegt dat je ingeschreven moet staan bij een universiteit of school; stages die daar niets over zeggen blijven staan",
       "enrol.required": "inschrijving vereist", "enrol.open": "ook voor afgestudeerden",
+      "f.degree": "Gevraagde opleiding", "f.degree.title": "De minimale opleiding die de vacature vraagt. Hbo telt als bachelor; \"hbo of wo\" telt als hbo.",
+      "deg.bachelor": "Bachelor (hbo / wo)", "deg.master": "Master", "deg.phd": "PhD", "deg.mbo": "Mbo", "deg.unstated": "niet vermeld",
       "exp.none": "geen ervaring gevraagd (starter)", "exp.1": "≤ 1 jaar", "exp.2-3": "2–3 jaar", "exp.4-5": "4–5 jaar", "exp.6+": "6+ jaar", "exp.unspecified": "niet vermeld",
       "co.back": "← Markt", "co.skills": "Gevraagde skills", "co.level": "Niveau", "co.lang": "Taal van de vacature", "co.roles": "Open techvacatures",
       "co.kpi.roles": "open techvacatures", "co.kpi.cities": "steden", "co.kpi.en": "zonder Nederlands", "co.kpi.visa": "noemen visumsponsoring", "co.kpi.new": "nieuw in 30 dagen",
@@ -275,6 +280,7 @@
   const levelLabel = (l) => t("level." + l) === "level." + l ? l : t("level." + l);
   const remoteLabel = (r) => t("remote." + r);
   const expLabel = (e) => t("exp." + e);
+  const degreeLabel = (d) => t("deg." + d);
   const sizeLabel = (z) => t("size." + z);
   // NL: Dutch is enough; EN: no Dutch needed; NL + EN: both asked for
   const langKey = (i) => (i.english_only ? "en" : i.english_required === false ? "nl" : "both");
@@ -296,7 +302,7 @@
   }
 
   // ---------- state ----------
-  const emptyProfile = () => ({ roles: [], levels: [], exp: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
+  const emptyProfile = () => ({ roles: [], levels: [], exp: [], degrees: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
     language: "", visa: false, agencies: false, noenrol: false });
   const state = {
     tab: "overview", page: 1, size: 40, sort: "newest", skill: null,
@@ -310,6 +316,7 @@
   };
   if (state.profile.english && !state.profile.language) state.profile.language = "en";  // older profiles
   if (!Array.isArray(state.profile.exp)) state.profile.exp = [];
+  if (!Array.isArray(state.profile.degrees)) state.profile.degrees = [];
   if (!Array.isArray(state.profile.sizes)) state.profile.sizes = [];
   let jobFilters = null;
 
@@ -327,6 +334,7 @@
     if (p.roles.length) q.set("role", p.roles.join(","));
     if (p.levels.length) q.set("seniority", p.levels.join(","));
     if (p.exp.length) q.set("experience", p.exp.join(","));
+    if (p.degrees.length) q.set("degree", p.degrees.join(","));
     if (p.sizes.length) q.set("org_size", p.sizes.join(","));
     if (p.remote.length) q.set("remote", p.remote.join(","));
     if (p.cities.length) q.set("city", p.cities.join(","));
@@ -568,8 +576,8 @@
     if (jobFilters) return jobFilters;
     const p = state.profile;
     jobFilters = state.personalised
-      ? { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false }
-      : { roles: [], levels: [], exp: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false };
+      ? { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false }
+      : { roles: [], levels: [], exp: [], degrees: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false };
     return jobFilters;
   }
   function jobParams() {
@@ -578,6 +586,7 @@
     if (f.roles.length) q.set("role", f.roles.join(","));
     if (f.levels.length) q.set("seniority", f.levels.join(","));
     if (f.exp.length) q.set("experience", f.exp.join(","));
+    if (f.degrees.length) q.set("degree", f.degrees.join(","));
     if (f.sizes.length) q.set("org_size", f.sizes.join(","));
     if (f.remote.length) q.set("remote", f.remote.join(","));
     if (f.cities.length) q.set("city", f.cities.join(","));
@@ -600,6 +609,7 @@
     toggles($("#f-roles"), state.options.roles, f.roles, roleLabel, () => refreshJobs(true));
     toggles($("#f-levels"), LEVELS, f.levels, levelLabel, () => refreshJobs(true));
     toggles($("#f-exp"), EXP, f.exp, expLabel, () => refreshJobs(true));
+    toggles($("#f-degree"), DEGREES, f.degrees, degreeLabel, () => refreshJobs(true));
     toggles($("#f-size"), SIZES, f.sizes, sizeLabel, () => refreshJobs(true));
     toggles($("#f-remote"), REMOTE, f.remote, remoteLabel, () => refreshJobs(true));
     chipInput($("#f-cities"), f.cities, [...state.options.cities, "Remote"], () => refreshJobs(true), t("ph.city"), null, cityLabel);
@@ -703,6 +713,7 @@
     toggles($("#p-roles"), state.options.roles, p.roles, roleLabel);
     toggles($("#p-levels"), LEVELS, p.levels, levelLabel);
     toggles($("#p-exp"), EXP, p.exp, expLabel);
+    toggles($("#p-degree"), DEGREES, p.degrees, degreeLabel);
     toggles($("#p-size"), SIZES, p.sizes, sizeLabel);
     toggles($("#p-remote"), REMOTE, p.remote, remoteLabel);
     chipInput($("#p-cities"), p.cities, [...state.options.cities, "Remote"], null, t("ph.city"), null, cityLabel);
