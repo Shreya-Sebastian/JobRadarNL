@@ -111,9 +111,11 @@ resource "aws_instance" "radar" {
   instance_type          = var.instance_type
   key_name               = aws_key_pair.radar.key_name
   vpc_security_group_ids = [aws_security_group.radar.id]
+  iam_instance_profile   = aws_iam_instance_profile.server.name
   user_data = templatefile("${path.module}/cloud-init.yaml", {
     public_ip         = aws_eip.radar.public_ip
     postgres_password = random_password.postgres.result
+    backup_bucket     = aws_s3_bucket.backups.bucket
   })
 
   root_block_device {

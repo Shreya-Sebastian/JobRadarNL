@@ -23,14 +23,19 @@ write_files:
     permissions: "0755"
     content: |
       #!/bin/bash
+      # nightly dump: 14 days on the server, 30 days in S3 (off the server)
+      set -eo pipefail
       mkdir -p /var/backups/radar
-      sudo -u postgres pg_dump radar | gzip > /var/backups/radar/radar-$(date +%F).sql.gz
+      f=/var/backups/radar/radar-$(date +%F).sql.gz
+      sudo -u postgres pg_dump radar | gzip > "$f"
       find /var/backups/radar -mtime +14 -delete
+      /snap/bin/aws s3 cp "$f" "s3://${backup_bucket}/daily/$(basename "$f")" --only-show-errors
 runcmd:
   # 2 GB swap as a cushion on a 4 GB machine
   - fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
   - echo '/swapfile none swap sw 0 0' >> /etc/fstab
   - /root/setup-postgres.sh
+  - snap install aws-cli --classic
   - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --tls-san ${public_ip}" sh -
   - sleep 30
   - /usr/local/bin/kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
