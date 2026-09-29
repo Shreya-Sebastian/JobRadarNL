@@ -1,3 +1,4 @@
+{{- if not .Values.worker.timetable }}
 {{- $root := . -}}
 {{- range $job := list (dict "name" "scheduler" "cmd" "schedule" "schedule" .Values.scheduler.schedule) (dict "name" "finalizer" "cmd" "finalize" "schedule" .Values.finalizer.schedule) (dict "name" "linkcheck" "cmd" "linkcheck" "schedule" .Values.linkcheck.schedule) (dict "name" "qualitycheck" "cmd" "check" "schedule" .Values.qualitycheck.schedule) }}
 ---
@@ -39,4 +40,5 @@ spec:
               resources:
                 requests: {cpu: 100m, memory: 256Mi}
                 limits: {cpu: "1", memory: 1Gi}
+{{- end }}
 {{- end }}

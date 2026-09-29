@@ -463,7 +463,12 @@ def cmd_worker(args: argparse.Namespace) -> None:
     init_db()
     if args.metrics_port:
         start_http_server(args.metrics_port)
-    queues = [get_queue(CRAWL_QUEUE), get_queue(MAINT_QUEUE)]
+    if settings.worker_timetable:  # periodic jobs from this worker instead of CronJobs (radar/timetable.py)
+        from radar import timetable
+
+        timetable.start(get_redis())
+    # maintenance first: a dedup or link check waits for the running crawl job, not for the whole crawl queue
+    queues = [get_queue(MAINT_QUEUE), get_queue(CRAWL_QUEUE)]
     cls = SimpleWorker if (args.simple or sys.platform == "win32") else Worker
     worker = cls(queues, connection=get_redis())
     worker.work(burst=args.burst, with_scheduler=False)

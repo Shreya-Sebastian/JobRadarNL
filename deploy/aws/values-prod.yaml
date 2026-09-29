@@ -26,19 +26,35 @@ config:
   siteAliases: "TechJobsRadar, TechJobsNL, Tech Jobs NL, ICT vacatures, IT vacatures, tech jobs Netherlands"
   siteUrl: "https://techjobsradar.nl"
 
-# sized for one 2 GB node (t3.small)
+# sized for one 2 GB node (t3.small): k3s, Postgres, Traefik and cert-manager use about 1 GB, so the app gets
+# the rest, with a hard cap per pod so one process cannot push the node into swap
 api:
   replicas: 1
   autoscaling:
     enabled: false
+  # stop the old pod first: a deploy costs ~30 s of downtime, but never runs two API processes at once
+  strategy:
+    rollingUpdate: {maxSurge: 0, maxUnavailable: 1}
+  resources:
+    requests: {cpu: 100m, memory: 200Mi}
+    limits: {cpu: "1", memory: 450Mi}
 worker:
   replicas: 1
+  timetable: true             # periodic jobs from the worker, no CronJob pods
+  resources:
+    requests: {cpu: 100m, memory: 200Mi}
+    limits: {cpu: "1", memory: 600Mi}
   # stop the old worker before starting the new one, so a deploy never runs two on a 2 GB node
-  # (a crawl job in flight is re-queued; the API keeps its zero-downtime rolling update)
+  # (a crawl job in flight is re-queued)
   strategy:
     rollingUpdate:
       maxSurge: 0
       maxUnavailable: 1
+
+redis:
+  resources:
+    requests: {cpu: 50m, memory: 32Mi}
+    limits: {cpu: 250m, memory: 128Mi}
 
 ingress:
   host: techjobsradar.nl

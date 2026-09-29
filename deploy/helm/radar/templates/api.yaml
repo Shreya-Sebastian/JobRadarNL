@@ -24,9 +24,7 @@ spec:
   {{- if not .Values.api.autoscaling.enabled }}
   replicas: {{ .Values.api.replicas }}
   {{- end }}
-  strategy:
-    type: RollingUpdate
-    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  strategy: {{- toYaml .Values.api.strategy | nindent 4 }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "radar.name" . }}

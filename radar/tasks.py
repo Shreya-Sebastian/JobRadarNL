@@ -146,3 +146,27 @@ def finalize() -> dict:
     bump_data_version()
     log.info("finalize: live=%s tech=%s duplicates=%s", live, tech, dups)
     return {"live": live, "tech": tech, "duplicates_marked": dups}
+
+
+def linkcheck() -> dict:
+    """Nightly: re-fetch the oldest live postings' pages and close the ones that are gone."""
+    from radar.integrity import link_check
+
+    init_db()
+    with session_scope() as s:
+        out = link_check(s)
+    log.info("linkcheck: %s", out)
+    return out
+
+
+def qualitycheck() -> dict:
+    """Nightly: the data-quality report. Threshold violations are logged as errors (the alert)."""
+    from radar.integrity import quality_report, violations
+
+    init_db()
+    with session_scope() as s:
+        report = quality_report(s)
+    bad = violations(report)
+    for v in bad:
+        log.error("quality violation: %s", v)
+    return {"violations": bad}

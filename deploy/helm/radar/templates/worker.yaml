@@ -43,6 +43,10 @@ spec:
             - name: metrics
               containerPort: {{ .Values.worker.metricsPort }}
           env: {{- include "radar.env" . | nindent 12 }}
+            {{- if .Values.worker.timetable }}
+            - name: RADAR_WORKER_TIMETABLE
+              value: "true"
+            {{- end }}
           livenessProbe:
             httpGet: {path: /metrics, port: metrics}
             periodSeconds: 30
