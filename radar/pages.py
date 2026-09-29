@@ -32,19 +32,36 @@ def live_tech(rows: list[Row]) -> list[Row]:
     return [r for r in rows if r.closed_at is None and r.ex.get("is_tech", True)]
 
 
+# Employer pages with fewer live tech jobs than this are kept for visitors but marked noindex and left out of the
+# sitemap: a page with one listing is thin content to a search engine
+MIN_INDEXED_POSTINGS = 2
+
+
 def companies(rows: list[Row]) -> list[tuple[str, str, int]]:
-    """(name, slug, live tech postings) for every employer with at least one, most postings first."""
+    """(name, slug, live tech postings) for every employer with at least one, most postings first.
+    Spellings that share a slug ("SURF" and "Surf") are one employer with one page, shown under the most used
+    spelling."""
     counts = Counter(r.company for r in rows)
-    out = [(name, slugify(name), n) for name, n in counts.items()]
+    by_slug: dict[str, list[tuple[str, int]]] = {}
+    for name, n in counts.items():
+        by_slug.setdefault(slugify(name), []).append((name, n))
+    out = []
+    for slug, names in by_slug.items():
+        names.sort(key=lambda t: (-t[1], t[0]))
+        out.append((names[0][0], slug, sum(n for _, n in names)))
     out.sort(key=lambda t: (-t[2], t[0].lower()))
     return out
 
 
 def find_company(rows: list[Row], slug: str) -> str | None:
-    for name in {r.company for r in rows}:
-        if slugify(name) == slug:
+    for name, s, _ in companies(rows):
+        if s == slug:
             return name
     return None
+
+
+def company_rows(rows: list[Row], slug: str) -> list[Row]:
+    return [r for r in rows if slugify(r.company) == slug]
 
 
 def _template(name: str) -> str:
@@ -63,9 +80,9 @@ def _age(r: Row) -> str:
 
 
 def render_company(name: str, rows: list[Row]) -> str:
-    mine = sorted((r for r in rows if r.company == name), key=lambda r: r.posted_at or r.first_seen, reverse=True)
-    base = settings.site_url.rstrip("/")
     slug = slugify(name)
+    mine = sorted(company_rows(rows, slug), key=lambda r: r.posted_at or r.first_seen, reverse=True)
+    base = settings.site_url.rstrip("/")
     cities = Counter(r.city for r in mine if r.city)
     skills = Counter(s for r in mine for s in r.skills)
     english = sum(1 for r in mine if r.ex.get("english_only"))
@@ -95,6 +112,8 @@ def render_company(name: str, rows: list[Row]) -> str:
     html = _template("company.html")
     return _brand(html).replace("{{COMPANY}}", escape(name)) \
         .replace("{{SLUG}}", slug) \
+        .replace("{{ROBOTS}}", "" if len(mine) >= MIN_INDEXED_POSTINGS
+                 else '<meta name="robots" content="noindex, follow">') \
         .replace("{{COUNT}}", str(len(mine))) \
         .replace("{{CITIES}}", escape(", ".join(f"{c} ({n})" for c, n in cities.most_common(6))) or "–") \
         .replace("{{SKILLS}}", "".join(f"<span class=\"chip\">{escape(s)} <span class=\"muted\">{n}</span></span>"

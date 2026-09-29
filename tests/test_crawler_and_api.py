@@ -168,7 +168,11 @@ def test_api_endpoints(fresh_db):
 def test_company_pages_and_sitemap(fresh_db):
     with session_scope() as s:
         src = _source(s, company="Acme Robotics B.V.", slug="acme-robotics")
-        ingest(s, src, [_raw("1", "Senior Backend Engineer"), _raw("2", "Office Manager")])
+        ingest(s, src, [_raw("1", "Senior Backend Engineer"), _raw("2", "Office Manager"),
+                        _raw("3", "Data Engineer")])
+        # one listing under another spelling of the same employer, one lone listing elsewhere
+        ingest(s, _source(s, company="ACME Robotics", slug="acme-2"), [_raw("4", "Frontend Developer")])
+        ingest(s, _source(s, company="Tiny Labs", slug="tiny"), [_raw("5", "Python Developer")])
     from radar.api import app
     from radar.pages import slugify
 
@@ -177,13 +181,19 @@ def test_company_pages_and_sitemap(fresh_db):
     page = client.get("/company/acme-robotics")  # norm_company drops the B.V. suffix
     assert page.status_code == 200
     assert "Senior Backend Engineer" in page.text and "Office Manager" not in page.text  # tech only
+    assert "Frontend Developer" in page.text  # both spellings on one page
     assert 'rel="canonical" href="https://techjobsradar.nl/company/acme-robotics"' in page.text
-    assert '"@type": "CollectionPage"' in page.text and "{{" not in page.text
+    assert '"@type": "CollectionPage"' in page.text and "{{" not in page.text and "noindex" not in page.text
+    assert 'content="noindex, follow"' in client.get("/company/tiny-labs").text  # one listing: thin page
     assert client.get("/company/nobody").status_code == 404
     idx = client.get("/companies").text
-    assert "Acme Robotics" in idx and 'href="/company/acme-robotics"' in idx
+    assert "Acme Robotics" in idx and idx.count('href="/company/acme-robotics"') == 1
     sm = client.get("/sitemap.xml").text
-    assert "/companies</loc>" in sm and "/company/acme-robotics</loc>" in sm
+    assert "/companies</loc>" in sm and sm.count("/company/acme-robotics</loc>") == 1
+    assert "/company/tiny-labs</loc>" not in sm and "<lastmod>20" in sm and "changefreq" not in sm
+    robots = client.get("/robots.txt").text
+    assert "Disallow: /api/\n" not in robots and "Disallow: /api/me" in robots and "Disallow: /auth/" in robots
+    assert client.get("/api/overview").headers["x-robots-tag"] == "noindex"
 
 
 def test_experience_band_never_leaks_experienced_roles_into_none():

@@ -40,6 +40,8 @@ async def _metrics_middleware(request: Request, call_next):
     t0 = time.perf_counter()
     response = await call_next(request)
     path = request.url.path
+    if path.startswith("/api/"):
+        response.headers["X-Robots-Tag"] = "noindex"  # fetched to render pages, never a search result itself
     if path.startswith("/api/") or path in ("/", "/healthz", "/readyz"):
         # collapse dynamic segments so label cardinality stays small
         label = "/api/breakdown/*" if path.startswith("/api/breakdown/") else path
@@ -324,7 +326,10 @@ def metrics():
 
 @app.get("/robots.txt", include_in_schema=False)
 def robots():
-    return Response(f"User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: {settings.site_url.rstrip('/')}/sitemap.xml\n",
+    # The dashboard builds its content from /api/, so search engines may fetch it to render the page; the API
+    # responses themselves carry X-Robots-Tag: noindex. Accounts, login links and admin stay out.
+    return Response("User-agent: *\nAllow: /\nDisallow: /api/admin/\nDisallow: /api/me\nDisallow: /api/auth/\n"
+                    f"Disallow: /auth/\nSitemap: {settings.site_url.rstrip('/')}/sitemap.xml\n",
                     media_type="text/plain")
 
 
@@ -340,13 +345,27 @@ def sitemap(session: Session = Depends(db)):
 
     base = settings.site_url.rstrip("/")
 
+    def lastmod(rows) -> str | None:
+        # when the newest listing on the page appeared: search engines re-crawl pages whose date moved
+        newest = max((r.first_seen for r in rows), default=None)
+        return newest.date().isoformat() if newest else None
+
     def compute():
-        urls = [(f"{base}/", "hourly"), (f"{base}/nl/", "hourly"), (f"{base}/companies", "daily")]
-        _, landing_pages = _pages_objects(session)
+        from radar import seo
+
+        tech = _live_tech_rows(session)
+        rows, landing_pages = _pages_objects(session)
+        live = [r for r in rows if r.closed_at is None]
+        home = lastmod(tech)
+        urls = [(f"{base}/", home), (f"{base}/nl/", home), (f"{base}/companies", home)]
         for lp in landing_pages:
-            urls += [(base + lp.nl_path, "daily"), (base + lp.en_path, "daily")]
-        urls += [(f"{base}/company/{slug}", "daily") for _, slug, _ in pages.companies(_live_tech_rows(session))]
-        body = "".join(f"<url><loc>{xml_escape(u)}</loc><changefreq>{f}</changefreq></url>" for u, f in urls)
+            day = lastmod(seo._filtered(live, lp.filters, lp.city))
+            urls += [(base + lp.nl_path, day), (base + lp.en_path, day)]
+        for _, slug, n in pages.companies(tech):
+            if n >= pages.MIN_INDEXED_POSTINGS:
+                urls.append((f"{base}/company/{slug}", lastmod(pages.company_rows(tech, slug))))
+        body = "".join(f"<url><loc>{xml_escape(u)}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>"
+                       for u, d in urls)
         return (f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
                 f"{body}</urlset>")
 
