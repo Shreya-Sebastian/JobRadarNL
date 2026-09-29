@@ -150,6 +150,11 @@ _RESCUE_FRAGMENTS = [
     r"game (?:developer|designer|programmer|engineer)",
     r"gameplay",
     r"trading systems?",
+    r"\bnoc\b",
+    r"\bpcb\b",
+    r"\brf engineer",
+    r"forward[- ]deployed",
+    r"(?:it|ict|technical|application) support (?:engineer|specialist|analyst)",
     r"communication systems? engineer",
     r"systems? engineer",
 ]
@@ -195,11 +200,17 @@ _GENERIC_TITLE = re.compile(
     r"\b(?:senior|junior|starter|medior|lead|principal|staff|chief|expert|young|graduate|trainee|"
     r"research|scientists?|researchers?|onderzoek\w*|engineers?|engineering|ingenieurs?|\bphd\b|postdoc\w*|promov\w*|"
     r"analysts?|analist(?:en)?|specialist|consultant|adviseur|advisor|"
-    r"simulat\w*|cfd|computational|numerical|model\w*|finite[- ]element|fea|fem|multiphysics)\b",
+    r"simulat\w*|cfd|computational|numerical|model\w*|finite[- ]element|fea|fem|multiphysics|"
+    # words that sound technical but name no field: "Sales Engineer", "System Engineer", "Technical Lead",
+    # "Advanced Dispensing Systems", "Project Engineer" are as often mechanical, electrical or civil
+    r"sales|systems?|technical|technisch\w*|solutions?|technolog\w*|projects?)\b",
     re.I,
 )
 _SOFTWARE_TEXT = re.compile(
-    r"\bpython\b|c\+\+|\bfortran\b|\bjulia\b|\bc#|\brust\b|\bjava\b|\bmatlab\b|\bprogramm(?:ing|er|eur|eren)\b|"
+    # "rust" alone is the Dutch word for rest, so the language needs context
+    r"\bpython\b|c\+\+|\bfortran\b|\bjulia\b|\bc#|\brust(?: programming|lang|-lang| developer|, | and |/)|"
+    r"\bjava\b|\bmatlab\b|\bprogramm(?:ing|er|eur|eren)\b|javascript|typescript|\breact\b|\.net\b|\bgolang\b|"
+    r"kubernetes|\bdocker\b|terraform|ansible|\baws\b|\bazure\b|\bgcp\b|devops|ci/cd|\bmicroservices?\b|"
     r"\bprogrammeer\w*|\bscripting\b|\bcoding\b|\bsoftware\b|softwareontwikkel\w*|"
     r"(?:develop\w*|ontwikkel\w*|implement\w*|writ\w*|maintain\w*) (?:\w+ ){0,3}(?:code|solvers?|algorithms?)\b|"
     r"\bhpc\b|high[- ]performance computing|parallel computing|\bgpu\b|\bcuda\b|\bmpi\b|machine learning|"
@@ -220,19 +231,26 @@ def tech_score(title: str, description: str = "") -> float:
     """Return a score in [0, 1]; >= 0.5 counts as tech."""
     score = _title_score(title, description)
     if score >= 0.5 and _generic_title(title) and len(description or "") >= 300 and \
-            not _SOFTWARE_TEXT.search(description or ""):
-        # "Starter Scientist Military CFD", "Cost Engineer", "Chemisch Analist": the title only says "professional"
-        # and the text never mentions software, code, data or IT, so this is another field's engineering or science
+            len(software_signals(description)) < 2:
+        # "Starter Scientist Military CFD", "Cost Engineer", "Electrical Project Engineer": the title only says
+        # "professional", and the text shows at most one software word (often boilerplate such as "our ERP" or
+        # "ICT allowance"), so this is another field's engineering or science
         return 0.3
     return score
+
+
+def software_signals(description: str) -> set[str]:
+    """Distinct software, IT or data terms in a text ("python", "sql", "agile", ...)."""
+    return {" ".join(m.group(0).lower().split()) for m in _SOFTWARE_TEXT.finditer(description or "")}
 
 
 def _generic_title(title: str) -> bool:
     t = title or ""
     if not _GENERIC_TITLE.search(t):
         return False
-    # a tech phrase that is more than generic words ("Support Engineer", "Data Scientist") makes the title specific
-    for rx in (_RESCUE_STRONG, _STRONG):
+    # a tech phrase that is more than generic words ("Support Engineer", "Data Scientist") makes the title specific,
+    # and so does a product name ("Azure Competence Lead", "ServiceNow Specialist")
+    for rx in (_RESCUE, _STRONG):
         for m in rx.finditer(t):
             if _GENERIC_TITLE.sub("", m.group(0)).strip(" -/"):
                 return False

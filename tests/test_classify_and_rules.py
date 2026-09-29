@@ -267,3 +267,23 @@ def test_simulation_skill_requires_technical_context():
     assert "Simulation/CAE" in find_skills("You build CFD and FEA simulation models in Ansys.")
     assert "Simulation/CAE" in find_skills("Experience with numerical simulations of multiphase flow.")
     assert "Simulation/CAE" not in find_skills("You take part in a sales simulation during the assessment day.")
+
+
+def test_engineering_titles_need_real_software_work_not_one_stray_word():
+    from radar.classify import is_tech
+
+    filler = " We offer a permanent contract, a pension scheme and 30 days of leave in a friendly team." * 4
+    mech = ("You design hydraulic systems for dredging vessels and visit the yard. Our ERP system handles the "
+            "orders." + filler)
+    soft = "You build our backend in Python and SQL, run it on Kubernetes in the cloud, and work in an agile team." \
+        + filler
+    for t in ("Sales Engineer Werktuigbouw", "Electrical Project Engineer", "Project Engineer", "System Engineer",
+              "Factory Engineer / Werkvoorbereider", "Mechatronic Engineer - Advanced Dispensing Systems"):
+        assert not is_tech(t, mech), t
+    assert is_tech("Sales Engineer", soft) and is_tech("System Engineer", soft)
+    # product names and specific IT or electronics roles stand on their own
+    for t in ("Azure Competence Lead", "NOC Engineer", "PCB Design and Verification Engineer", "Senior RF engineer",
+              "Technical Support Specialist"):
+        assert is_tech(t, mech), t
+    # Dutch "rust" (rest) is not the Rust language
+    assert not is_tech("Production Engineer", "Werken in rust en ruimte, met een ERP-pakket." + filler)
