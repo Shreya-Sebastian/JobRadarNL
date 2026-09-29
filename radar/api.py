@@ -521,6 +521,14 @@ if WEB_DIR.exists():
     def index_nl(session: Session = Depends(db)):
         return Response(cached("page:index:nl", lambda: _render_index(session, "nl"), ttl=300), media_type="text/html")
 
+    @app.get("/login", include_in_schema=False)
+    @app.get("/nl/inloggen", include_in_schema=False)
+    def login_page(request: Request):
+        lang = "nl" if request.url.path.startswith("/nl") else "en"
+        html = (WEB_DIR / "login.html").read_text(encoding="utf-8")
+        return Response(html.replace("{{HTML_LANG}}", lang).replace("{{SITE_NAME}}", settings.site_name),
+                        media_type="text/html", headers={"X-Robots-Tag": "noindex"})
+
     @app.get("/admin/analytics", include_in_schema=False)
     def analytics_page():
         return Response((WEB_DIR / "analytics.html").read_text(encoding="utf-8")

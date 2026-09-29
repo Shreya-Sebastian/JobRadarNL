@@ -79,6 +79,7 @@
       "f.confirmed.title": "Keeps postings that the employer's own careers site still listed at a crawl in the last 7 days, or whose page was opened and checked in that time.",
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
       "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
+      "acct.go": "Sign in or create an account",
       "acct.login": "Log in", "acct.account": "Account", "acct.title": "Keep your profile on every device",
       "acct.hint": 'Log in with your e-mail address to keep your profile and saved jobs on your phone and laptop. No password: we send you a link that works once. Without an account everything stays in this browser. <a href="/privacy">Privacy</a>',
       "acct.email.ph": "you@example.com", "acct.send": "Send login link", "acct.sending": "Sending…",
@@ -178,6 +179,7 @@
       "f.confirmed.title": "Houdt vacatures die de eigen carrièresite van de werkgever bij een crawl in de laatste 7 dagen nog toonde, of waarvan de pagina in die tijd is geopend en gecontroleerd.",
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
       "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
+      "acct.go": "Inloggen of account maken",
       "acct.login": "Inloggen", "acct.account": "Account", "acct.title": "Je profiel op elk apparaat",
       "acct.hint": 'Log in met je e-mailadres om je profiel en bewaarde vacatures op je telefoon en laptop te hebben. Geen wachtwoord: je krijgt een link die één keer werkt. Zonder account blijft alles in deze browser. <a href="/nl/privacy">Privacy</a>',
       "acct.email.ph": "jij@voorbeeld.nl", "acct.send": "Stuur inloglink", "acct.sending": "Versturen…",
@@ -788,21 +790,13 @@
     if (me) $("#acct-who").textContent = me.email;
   }
   function bindAccount() {
+    const loginUrl = () => (LANG === "nl" ? "/nl/inloggen" : "/login");
     $("#acct-btn").addEventListener("click", () => {
+      if (!account.me) { location.href = loginUrl(); return; }
       if (location.hash !== "#profile") location.hash = "#profile";
-      setTimeout(() => { const card = $("#acct-card"); card.scrollIntoView({ block: "start" }); if (!account.me) $("#acct-email").focus(); }, 50);
+      setTimeout(() => $("#acct-card").scrollIntoView({ block: "start" }), 50);
     });
-    $("#acct-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const status = $("#acct-status"); status.textContent = t("acct.sending");
-      try {
-        const r = await account.post("/api/auth/request", "POST", { email: $("#acct-email").value.trim(), lang: LANG });
-        const d = r.ok ? await r.json() : {};
-        status.textContent = !r.ok ? (r.status === 422 ? t("acct.bad") : r.status === 429 ? t("acct.slow") : t("acct.fail"))
-          : d.delivery === "console" ? t("acct.nomail") : t("acct.sent");
-        if (d.dev_link) status.insertAdjacentHTML("beforeend", ` <a href="${esc(d.dev_link)}">${esc(t("acct.devlink"))}</a>`);
-      } catch { status.textContent = t("acct.fail"); }
-    });
+    $("#acct-go").addEventListener("click", (e) => { e.preventDefault(); location.href = loginUrl(); });
     $("#acct-logout").addEventListener("click", async () => {
       await account.post("/api/auth/logout"); account.me = null; renderAccount();
     });

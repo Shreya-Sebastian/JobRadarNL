@@ -164,7 +164,7 @@ def verify(token: str, request: Request, session: Session = Depends(_db)):
     row = session.scalar(select(LoginToken).where(LoginToken.token_hash == _hash(token)))
     now = datetime.utcnow()
     if row is None or row.used_at is not None or row.expires_at < now:
-        return RedirectResponse("/?login=expired#profile", status_code=303)
+        return RedirectResponse("/login?expired=1", status_code=303)
     row.used_at = now
     user = session.scalar(select(User).where(User.email == row.email))
     if user is None:

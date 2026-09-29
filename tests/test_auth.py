@@ -36,7 +36,7 @@ def test_magic_link_login_sync_and_logout(client):
     assert client.get("/api/me").json()["email"] == "ada@example.org"
     # the link works once
     r = client.get(f"/auth/verify?token={token}", follow_redirects=False)
-    assert r.headers["location"] == "/?login=expired#profile"
+    assert r.headers["location"] == "/login?expired=1"
     # only hashes are stored
     with session_scope() as s:
         assert s.query(LoginToken).one().token_hash != token
@@ -91,7 +91,7 @@ def test_expired_links_and_sessions(client):
     token = parse_qs(urlparse(next(w for w in body.split() if "token=" in w)).query)["token"][0]
     with session_scope() as s:
         s.query(LoginToken).filter(LoginToken.email == "cy@example.org").one().expires_at = datetime.utcnow()
-    assert client.get(f"/auth/verify?token={token}", follow_redirects=False).headers["location"].endswith("expired#profile")
+    assert client.get(f"/auth/verify?token={token}", follow_redirects=False).headers["location"] == "/login?expired=1"
 
 
 def test_cleanup_removes_expired_state_and_inactive_accounts(client):
@@ -136,3 +136,10 @@ def test_a_refused_login_mail_is_a_clear_502(client, monkeypatch):
     monkeypatch.setattr(mailer, "send", refuse)
     r = client.post("/api/auth/request", json={"email": "sandbox@example.org"}, headers=H)
     assert r.status_code == 502 and r.json()["detail"] == "the login e-mail could not be sent"
+
+
+def test_sign_in_page_in_both_languages(client):
+    en = client.get("/login")
+    assert en.status_code == 200 and '<html lang="en">' in en.text and "noindex" in en.headers["x-robots-tag"]
+    assert "Create account" in en.text and "{{" not in en.text
+    assert '<html lang="nl">' in client.get("/nl/inloggen").text

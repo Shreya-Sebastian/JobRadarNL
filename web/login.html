@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="{{HTML_LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title class="en">Sign in · {{SITE_NAME}}</title>
+<link rel="stylesheet" href="/static/style.css?v=13">
+<style>
+  html[lang="nl"] .en, html[lang="en"] .nl { display: none !important; }
+  body { background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; }
+  .auth-top { display: flex; align-items: center; justify-content: space-between; max-width: 1040px; width: 100%;
+    margin: 0 auto; padding: 18px 16px; }
+  .auth-top a.brand { color: var(--ink); text-decoration: none; font-weight: 700; font-size: 18px; }
+  .auth-top a.brand span { color: var(--accent); }
+  .auth-top .back { color: var(--muted); font-size: 14px; text-decoration: none; }
+  .auth-top .back:hover { color: var(--accent); }
+  .auth { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 40px; align-items: center;
+    max-width: 1040px; width: 100%; margin: 0 auto; padding: 16px 16px 48px; }
+  .pitch h1 { font-size: 34px; line-height: 1.15; margin: 0 0 14px; letter-spacing: -0.01em; }
+  .pitch p { color: var(--muted); font-size: 16px; max-width: 460px; margin: 0 0 22px; }
+  .pitch ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; max-width: 460px; }
+  .pitch li { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; font-size: 15px; }
+  .pitch li b { display: block; }
+  .pitch li span.muted { font-size: 14px; }
+  .pitch .ic { width: 30px; height: 30px; border-radius: 8px; background: var(--chip); color: var(--accent);
+    display: grid; place-items: center; font-size: 15px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .12); }
+  .panel h2 { font-size: 22px; margin: 0 0 6px; }
+  .panel .lead { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border: 1px solid var(--line);
+    border-radius: 10px; padding: 4px; margin-bottom: 22px; }
+  .seg button { border: 0; background: transparent; padding: 8px 10px; border-radius: 7px; font-weight: 600;
+    color: var(--muted); cursor: pointer; }
+  .seg button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+  .panel label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .panel input[type=email] { width: 100%; padding: 11px 12px; font-size: 16px; border-radius: 9px;
+    background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+  .panel input[type=email]:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .panel button.go { width: 100%; margin-top: 14px; padding: 12px; font-size: 15px; font-weight: 600; border-radius: 9px; }
+  .panel .fine { color: var(--muted); font-size: 12.5px; margin: 16px 0 0; line-height: 1.5; }
+  .panel .fine a { color: var(--muted); }
+  .msg { border-radius: 9px; padding: 10px 12px; font-size: 14px; margin-bottom: 16px; }
+  .msg.err { background: color-mix(in srgb, var(--bad) 14%, transparent); color: var(--bad); }
+  .msg.info { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--ink); }
+  .sent { text-align: center; }
+  .sent .big { width: 56px; height: 56px; border-radius: 50%; margin: 4px auto 14px; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); font-size: 26px; }
+  .sent p { color: var(--muted); font-size: 14px; }
+  .sent .who { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+  .sent .row2 { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .lang { display: flex; gap: 2px; }
+  .lang a { padding: 3px 8px; font-size: 12px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted);
+    text-decoration: none; }
+  .lang a.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  @media (max-width: 820px) {
+    .auth { grid-template-columns: 1fr; gap: 24px; }
+    .panel { order: -1; padding: 22px; }
+    .pitch h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<header class="auth-top">
+  <a class="brand" href="/" data-home>{{SITE_NAME}}</a>
+  <div style="display:flex;gap:14px;align-items:center">
+    <a class="back" href="/" data-home><span class="en">← Back to the jobs</span><span class="nl">← Terug naar de vacatures</span></a>
+    <div class="lang"><a href="/nl/inloggen" data-l="nl">NL</a><a href="/login" data-l="en">EN</a></div>
+  </div>
+</header>
+
+<main class="auth">
+  <section class="pitch">
+    <h1><span class="en">Your job search, on every device</span><span class="nl">Je zoektocht, op elk apparaat</span></h1>
+    <p><span class="en">An account is optional. Without one, your profile and saved jobs stay in this browser.</span>
+       <span class="nl">Een account is niet nodig. Zonder account blijven je profiel en bewaarde vacatures in deze browser.</span></p>
+    <ul>
+      <li><span class="ic">★</span><div><b class="en">Saved jobs everywhere</b><b class="nl">Bewaarde vacatures overal</b>
+        <span class="muted en">Star a job on your laptop, find it on your phone.</span><span class="muted nl">Markeer een vacature op je laptop, vind hem terug op je telefoon.</span></div></li>
+      <li><span class="ic">◎</span><div><b class="en">Your profile, kept</b><b class="nl">Je profiel, bewaard</b>
+        <span class="muted en">Roles, cities, skills and filters follow you, with match scores and gap analysis.</span><span class="muted nl">Functies, steden, skills en filters gaan mee, met matchscores en gap-analyse.</span></div></li>
+      <li><span class="ic">✉</span><div><b class="en">No password</b><b class="nl">Geen wachtwoord</b>
+        <span class="muted en">We e-mail you a link that works once. Nothing to remember or leak.</span><span class="muted nl">Je krijgt een link die één keer werkt. Niets om te onthouden of te lekken.</span></div></li>
+      <li><span class="ic">✕</span><div><b class="en">Leave any time</b><b class="nl">Altijd weg te halen</b>
+        <span class="muted en">Download your data or delete your account from your profile.</span><span class="muted nl">Download je gegevens of verwijder je account vanuit je profiel.</span></div></li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-live="polite">
+    <div id="form-view">
+      <div class="seg" role="tablist">
+        <button type="button" role="tab" id="t-in" class="on"><span class="en">Sign in</span><span class="nl">Inloggen</span></button>
+        <button type="button" role="tab" id="t-up"><span class="en">Create account</span><span class="nl">Account maken</span></button>
+      </div>
+      <h2 id="h-in"><span class="en">Welcome back</span><span class="nl">Welkom terug</span></h2>
+      <h2 id="h-up" hidden><span class="en">Create your free account</span><span class="nl">Maak je gratis account</span></h2>
+      <p class="lead" id="l-in"><span class="en">Enter your e-mail address and we'll send you a sign-in link.</span><span class="nl">Vul je e-mailadres in en je krijgt een link om in te loggen.</span></p>
+      <p class="lead" id="l-up" hidden><span class="en">Enter your e-mail address. Your account is created when you open the link we send.</span><span class="nl">Vul je e-mailadres in. Je account wordt gemaakt zodra je de link opent die we sturen.</span></p>
+      <div class="msg err" id="err" hidden></div>
+      <div class="msg info" id="info" hidden></div>
+      <form id="form" novalidate>
+        <label for="email"><span class="en">E-mail address</span><span class="nl">E-mailadres</span></label>
+        <input type="email" id="email" name="email" autocomplete="email" inputmode="email" required placeholder="you@example.com">
+        <button class="primary go" type="submit" id="go"><span class="en" id="go-en">Send sign-in link</span><span class="nl" id="go-nl">Stuur inloglink</span></button>
+      </form>
+      <p class="fine"><span class="en">By continuing you agree that we store your e-mail address, profile and saved jobs for your account, as described in the</span><span class="nl">Door verder te gaan ga je ermee akkoord dat we je e-mailadres, profiel en bewaarde vacatures voor je account opslaan, zoals beschreven in de</span>
+        <a href="/privacy" data-privacy><span class="en">privacy statement</span><span class="nl">privacyverklaring</span></a>.</p>
+    </div>
+
+    <div id="sent-view" class="sent" hidden>
+      <div class="big">✉</div>
+      <h2><span class="en">Check your inbox</span><span class="nl">Kijk in je inbox</span></h2>
+      <p><span class="en">We sent a sign-in link to</span><span class="nl">We hebben een inloglink gestuurd naar</span><br><span class="who" id="who"></span></p>
+      <p><span class="en">The link works once and for 15 minutes. Not there after a minute? Check your spam folder.</span><span class="nl">De link werkt één keer en 15 minuten lang. Na een minuut nog niets? Kijk in je spammap.</span></p>
+      <div class="row2">
+        <button type="button" id="resend" disabled><span class="en">Resend</span><span class="nl">Opnieuw sturen</span> <span id="wait"></span></button>
+        <button type="button" class="link" id="other"><span class="en">Use a different address</span><span class="nl">Ander adres gebruiken</span></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const lang = document.documentElement.lang === "nl" ? "nl" : "en";
+  const T = {
+    en: { bad: "That doesn't look like an e-mail address.", slow: "Too many requests. Please try again in an hour.",
+          fail: "We couldn't send the e-mail right now. Please try again in a few minutes.",
+          net: "No connection. Check your internet and try again.", expired: "That sign-in link has expired or was already used. Send yourself a new one.",
+          signed: "You're already signed in.", sending: "Sending…", upBtn: "Send link to create account", inBtn: "Send sign-in link",
+          nomail: "E-mail isn't set up on this server, so no e-mail was sent." },
+    nl: { bad: "Dat lijkt geen e-mailadres.", slow: "Te veel verzoeken. Probeer het over een uur opnieuw.",
+          fail: "De e-mail kon nu niet worden verstuurd. Probeer het over een paar minuten opnieuw.",
+          net: "Geen verbinding. Controleer je internet en probeer het opnieuw.", expired: "Die inloglink is verlopen of al gebruikt. Stuur jezelf een nieuwe.",
+          signed: "Je bent al ingelogd.", sending: "Versturen…", upBtn: "Stuur link om account te maken", inBtn: "Stuur inloglink",
+          nomail: "E-mail is op deze server niet ingesteld, dus er is geen e-mail verstuurd." },
+  }[lang];
+  const home = lang === "nl" ? "/nl/" : "/";
+  document.querySelectorAll("[data-home]").forEach((a) => { a.href = home; });
+  document.querySelectorAll("[data-privacy]").forEach((a) => { a.href = lang === "nl" ? "/nl/privacy" : "/privacy"; });
+  document.querySelectorAll(".lang a").forEach((a) => a.classList.toggle("on", a.dataset.l === lang));
+  document.title = (lang === "nl" ? "Inloggen · " : "Sign in · ") + "{{SITE_NAME}}";
+
+  let mode = new URLSearchParams(location.search).get("mode") === "signup" ? "up" : "in";
+  let lastEmail = "", timer = null;
+  const show = (el, on) => { el.hidden = !on; };
+  function setMode(m) {
+    mode = m;
+    $("#t-in").classList.toggle("on", m === "in"); $("#t-up").classList.toggle("on", m === "up");
+    show($("#h-in"), m === "in"); show($("#h-up"), m === "up"); show($("#l-in"), m === "in"); show($("#l-up"), m === "up");
+    $("#go-en").textContent = m === "up" ? T.upBtn : T.inBtn;
+    if (lang === "nl") $("#go-nl").textContent = m === "up" ? T.upBtn : T.inBtn;
+  }
+  function error(msg) { $("#err").textContent = msg || ""; show($("#err"), !!msg); }
+  $("#t-in").addEventListener("click", () => setMode("in"));
+  $("#t-up").addEventListener("click", () => setMode("up"));
+
+  async function send(email) {
+    const btn = $("#go"); btn.disabled = true; const label = btn.innerHTML; btn.textContent = T.sending; error("");
+    try {
+      const r = await fetch("/api/auth/request", { method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "radar" }, body: JSON.stringify({ email, lang }) });
+      if (!r.ok) { error(r.status === 422 ? T.bad : r.status === 429 ? T.slow : T.fail); return false; }
+      const d = await r.json();
+      if (d.delivery === "console") { $("#info").textContent = T.nomail; show($("#info"), true); }
+      lastEmail = email; $("#who").textContent = email;
+      show($("#form-view"), false); show($("#sent-view"), true); cooldown(30);
+      return true;
+    } catch { error(T.net); return false; } finally { btn.disabled = false; btn.innerHTML = label; setMode(mode); }
+  }
+  function cooldown(s) {
+    const b = $("#resend"); b.disabled = true; clearInterval(timer);
+    const tick = () => { $("#wait").textContent = s > 0 ? `(${s})` : ""; if (s-- <= 0) { clearInterval(timer); b.disabled = false; } };
+    tick(); timer = setInterval(tick, 1000);
+  }
+  $("#form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = $("#email").value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) { error(T.bad); $("#email").focus(); return; }
+    send(email);
+  });
+  $("#resend").addEventListener("click", () => send(lastEmail));
+  $("#other").addEventListener("click", () => { show($("#sent-view"), false); show($("#form-view"), true); $("#email").focus(); });
+
+  setMode(mode);
+  if (new URLSearchParams(location.search).get("expired")) error(T.expired);
+  fetch("/api/me", { credentials: "same-origin" }).then((r) => r.json()).then((me) => {
+    if (me.signed_in) { location.replace(home + "#profile"); }
+  }).catch(() => {});
+  $("#email").focus();
+})();
+</script>
+</body>
+</html>
