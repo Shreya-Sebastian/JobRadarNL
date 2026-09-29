@@ -103,7 +103,6 @@ a.co:hover { color: var(--accent); }
 details summary { cursor: pointer; color: var(--accent); }
 footer { padding: 24px 16px 40px; font-size: 12px; }
 @media (max-width: 720px) {
-  .table.postings th:nth-child(7), .table.postings td:nth-child(7), .table.postings th:nth-child(8), .table.postings td:nth-child(8) { display: none; }
   .chart.tall { height: 360px; }
   .kpi { min-width: 90px; }
   /* phones: the header scrolls away instead of covering half the screen, figures in two columns,
@@ -120,6 +119,26 @@ footer { padding: 24px 16px 40px; font-size: 12px; }
 }
 @media (max-width: 360px) {
   .tabs a { padding: 9px 3px; font-size: 12.5px; }
+}
+/* phones: each job becomes a card instead of a 10-column table row.
+   cells: 1 star, 2 age, 3 title, 4 employer, 5 city, 6 level, 7 skills, 8 match, 9 language, 10 visa */
+@media (max-width: 720px) {
+  .table.postings, .table.postings tbody { display: block; width: 100%; }
+  .table.postings thead { display: none; }
+  .table.postings tr { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; position: relative;
+    padding: 10px 0 10px 34px; border-bottom: 1px solid var(--line); }
+  .table.postings td { display: block; padding: 0; border: 0; }
+  .table.postings td:nth-child(1) { position: absolute; left: 0; top: 7px; }
+  .table.postings td:nth-child(3) { order: 1; flex-basis: 100%; font-weight: 600; line-height: 1.3; }
+  .table.postings td:nth-child(4), .table.postings td:nth-child(5) { order: 2; font-size: 13px; }
+  .table.postings td:nth-child(5):not(:empty)::before { content: "· "; color: var(--muted); }
+  .table.postings td:nth-child(6), .table.postings td:nth-child(9), .table.postings td:nth-child(10),
+  .table.postings td:nth-child(2) { order: 3; font-size: 12px; color: var(--muted); }
+  .table.postings td:nth-child(6):empty, .table.postings td:nth-child(10):has(> .muted) { display: none; }
+  .table.postings td:nth-child(2) { margin-left: auto; }
+  .table.postings td:nth-child(7) { display: block; order: 4; flex-basis: 100%; margin-top: 2px; }
+  .table.postings td:nth-child(7) .chip:nth-child(n+5):not(.more) { display: none; }
+  .table.postings td:nth-child(8) { display: none; }
 }
 
 .banner { position: sticky; top: 0; z-index: 6; background: var(--accent); color: #fff; padding: 8px 16px; display: flex; gap: 12px; align-items: center; justify-content: center; font-size: 14px; }
