@@ -53,6 +53,7 @@ _CAREERS_LINK = re.compile(
     r"open[- ]positions|opportunities|werkenbij|recruitment|we'?re hiring|hiring",
     re.I,
 )
+# homerun is handled separately, through its sitemap (see register_discovery)
 _HAS_ADAPTER = {"greenhouse", "lever", "ashby", "workable", "recruitee", "teamtailor", "personio", "workday",
                 "smartrecruiters"}
 _GUESS_ATS = ["greenhouse", "lever", "ashby", "recruitee", "teamtailor", "personio", "workable"]
@@ -175,6 +176,10 @@ def discover_domain(domain: str, client: httpx.Client | None = None, guess: bool
     return result
 
 
+def homerun_sitemap(slug: str) -> str:
+    return f"https://{slug}.homerun.co/sitemap.xml"
+
+
 def register_discovery(session: Session, company: str, res: dict) -> int:
     """Verify candidates with the adapter probe and add working sources. Returns number added."""
     added = 0
@@ -190,6 +195,13 @@ def register_discovery(session: Session, company: str, res: dict) -> int:
             # recorded as such, so `radar verify-sources` reviews it
             how = "discovery-guess" if res.get("guessed") else "discovery"
             _, new = upsert_source(session, company, ats, slug, res.get("careers_url"), discovered_by=how)
+            added += int(new)
+            return added
+        if ats == "homerun":
+            # Homerun career sites list every job in a sitemap and each job page carries JobPosting data, so the
+            # generic JSON-LD adapter reads them
+            _, new = upsert_source(session, company, "jsonld", homerun_sitemap(slug), res.get("careers_url"),
+                                   discovered_by="discovery")
             added += int(new)
             return added
         # ATS known but no adapter yet: record inactive so the adapter backlog is visible.

@@ -160,3 +160,23 @@ def test_job_location_given_as_plain_strings():
     raw = _to_raw({"@type": "JobPosting", "title": "Applicatiebeheerder", "jobLocation": ["Amersfoort"]},
                   "https://www.werkenvoor.example.nl/vacatures/1")
     assert raw.location == "Amersfoort"
+
+
+
+@respx.mock
+def test_sitemap_skips_application_form_pages():
+    respx.get("https://avy.example/sitemap.xml").mock(return_value=httpx.Response(200, headers={"content-type": "application/xml"},
+        text="<urlset><url><loc>https://avy.example/drone-engineer</loc></url>"
+             "<url><loc>https://avy.example/drone-engineer/en/apply</loc></url>"
+             "<url><loc>https://avy.example/vacature/data-analist/solliciteren</loc></url></urlset>"))
+    urls = JsonLdAdapter(httpx.Client())._sitemap_urls("https://avy.example/sitemap.xml")
+    assert urls == ["https://avy.example/drone-engineer"]
+
+
+def test_homerun_boards_become_sitemap_sources(fresh_db):
+    from radar.discovery import register_discovery
+
+    with session_scope() as s:
+        added = register_discovery(s, "Avy", {"candidates": [("homerun", "avy")], "careers_url": None, "jsonld": False})
+        src = s.query(Source).one()
+        assert added == 1 and src.ats == "jsonld" and src.slug == "https://avy.homerun.co/sitemap.xml" and src.active

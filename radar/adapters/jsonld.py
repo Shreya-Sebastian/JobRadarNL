@@ -25,6 +25,7 @@ from radar.adapters.base import Adapter, AdapterError, RawPosting, html_to_text,
 _JOB_LINK = re.compile(r"(job|jobs|career|careers|vacature|vacatures|vacancy|vacancies|position|opening)", re.I)
 
 
+_APPLY_PAGE = re.compile(r"/(?:[a-z]{2}/)?(?:apply|solliciteer|solliciteren|application(?:-form)?)/?(?:\?.*)?$", re.I)
 _NL_URL_CACHE: re.Pattern | None = None
 
 
@@ -170,6 +171,8 @@ class JsonLdAdapter(Adapter):
             for child in children[:10]:
                 out.extend(self._sitemap_urls(child, depth + 1))
             return out
+        # application forms repeat the job's data and would show up as a second copy of every posting
+        locs = [u for u in locs if not _APPLY_PAGE.search(u)]
         return [u for u in locs if _JOB_LINK.search(u)] or locs
 
 
