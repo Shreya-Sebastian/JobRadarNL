@@ -287,17 +287,22 @@ def mark_duplicates(session: Session) -> int:
             for dup in members[1:]:
                 mark(dup, members[0])
 
-    marked = 0
+    changes = []
     for r in rows:
         target = root(r.id) if r.id in canonical_of else None
         cities = (sorted(also_in.get(r.id, ())) or None) if target is None else None
         if r.duplicate_of != target or (r.also_in or None) != cities:
-            p = session.get(Posting, r.id)
-            p.duplicate_of = target
-            p.also_in = cities
-            marked += 1
-    session.flush()
-    return marked
+            changes.append({"pid": r.id, "dup": target, "cities": cities})
+    # plain UPDATEs in batches: loading each changed posting (description and all) would need hundreds of MB on
+    # a first run, more than a small worker has
+    from sqlalchemy import bindparam, update
+
+    stmt = update(Posting).where(Posting.id == bindparam("pid")) \
+        .values(duplicate_of=bindparam("dup"), also_in=bindparam("cities", type_=Posting.also_in.type))
+    for i in range(0, len(changes), 1000):
+        session.connection().execute(stmt, changes[i:i + 1000])
+    session.expire_all()
+    return len(changes)
 
 
 _LANGS = {"en", "nl", "de", "fr", "es", "it", "pt", "pl", "el", "sv", "da", "fi", "no", "nb", "cs", "hu", "ro", "tr",
@@ -382,18 +387,28 @@ def _bilingual_pairs(session: Session) -> list[tuple[int, int]]:
 
     rows = session.execute(
         select(Posting.id, Posting.source_id, Posting.url, Posting.title, Posting.company, Posting.city,
-               Posting.posted_at, Posting.first_seen, Posting.description)
+               Posting.posted_at, Posting.first_seen)
         .where(Posting.closed_at.is_(None))
     ).all()
-    per_source: dict[int, list[dict]] = {}
+    # which sources publish in both languages, from the URLs alone; texts are loaded for those sources only
     langs: dict[int, set[str]] = {}
     for r in rows:
+        langs.setdefault(r.source_id, set()).add(path_language(r.url) or "none")
+    bilingual = {sid for sid, seen in langs.items() if {"nl", "en"} <= seen or {"nl", "none"} <= seen}
+    ids = [r.id for r in rows if r.source_id in bilingual]
+    text: dict[int, str] = {}
+    for i in range(0, len(ids), 500):
+        chunk = ids[i:i + 500]
+        text.update(session.execute(select(Posting.id, Posting.description).where(Posting.id.in_(chunk))).all())
+    per_source: dict[int, list[dict]] = {}
+    for r in rows:
+        if r.source_id not in bilingual:
+            continue
         lang = path_language(r.url)
-        langs.setdefault(r.source_id, set()).add(lang or "none")
         day = (r.posted_at or r.first_seen)
         per_source.setdefault(r.source_id, []).append(
             {"id": r.id, "url": r.url, "title": r.title, "company": r.company, "city": r.city, "lang": lang,
-             "day": day.date().isoformat() if day else None, "description": r.description or ""})
+             "day": day.date().isoformat() if day else None, "description": text.get(r.id) or ""})
     out: list[tuple[int, int]] = []
     for sid, posts in per_source.items():
         seen = langs[sid]
