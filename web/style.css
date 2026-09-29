@@ -27,7 +27,8 @@ h1 { margin: 0; font-size: 24px; letter-spacing: -0.01em; }
 .tabs { display: flex; gap: 4px; align-items: center; margin-top: 12px; overflow-x: auto; }
 .tabs a { padding: 10px 14px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; white-space: nowrap; font-weight: 500; }
 .tabs a.on { color: var(--ink); border-bottom-color: var(--accent); }
-.tabs .personalised { margin-left: auto; font-size: 13px; padding-bottom: 8px; }
+.tabs .personalised { font-size: 13px; padding-bottom: 8px; }
+.tab-controls { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .langswitch { display: flex; gap: 2px; margin-left: 10px; padding-bottom: 6px; }
 .langswitch button { padding: 3px 8px; font-size: 12px; border-radius: 6px; }
 .langswitch button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -105,6 +106,20 @@ footer { padding: 24px 16px 40px; font-size: 12px; }
   .table.postings th:nth-child(7), .table.postings td:nth-child(7), .table.postings th:nth-child(8), .table.postings td:nth-child(8) { display: none; }
   .chart.tall { height: 360px; }
   .kpi { min-width: 90px; }
+  /* phones: the header scrolls away instead of covering half the screen, figures in two columns,
+     the controls get their own row above the tabs, and the five tabs fit without sideways scrolling */
+  .top { position: static; padding-top: 12px; }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  .kpi { min-width: 0; padding: 6px 10px; }
+  .kpi b { font-size: 17px; overflow-wrap: anywhere; }
+  .tabs { flex-wrap: wrap; overflow: visible; gap: 0; margin-top: 10px; }
+  .tabs a { flex: 1 1 auto; text-align: center; padding: 9px 6px; font-size: 13.5px; }
+  .tab-controls { order: -1; width: 100%; justify-content: flex-end; margin: 0 0 4px; flex-wrap: wrap; }
+  .tab-controls .personalised { margin-right: auto; padding-bottom: 0; }
+  .tab-controls .acct-btn, .tab-controls .langswitch { margin: 0; padding-bottom: 0; }
+}
+@media (max-width: 360px) {
+  .tabs a { padding: 9px 3px; font-size: 12.5px; }
 }
 
 .banner { position: sticky; top: 0; z-index: 6; background: var(--accent); color: #fff; padding: 8px 16px; display: flex; gap: 12px; align-items: center; justify-content: center; font-size: 14px; }
@@ -116,7 +131,7 @@ footer { padding: 24px 16px 40px; font-size: 12px; }
 .seo-links a { color: var(--muted); text-decoration: none; }
 .seo-links a:hover { color: var(--accent); }
 
-.acct-btn { margin-left: auto; margin-bottom: 6px; padding: 3px 10px; font-size: 13px; border-radius: 6px; }
+.acct-btn { margin-bottom: 6px; padding: 3px 10px; font-size: 13px; border-radius: 6px; }
 .acct-btn.in { background: var(--chip); color: var(--chip-ink); }
 .card.account #acct-email { min-width: 240px; flex: 1 1 240px; max-width: 360px; }
 .card.account form.row { flex-wrap: wrap; }

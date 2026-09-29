@@ -15,7 +15,7 @@
 <meta property="og:type" content="website">
 {{VERIFY}}
 <script type="application/ld+json">{{SITE_JSONLD}}</script>
-<link rel="stylesheet" href="/static/style.css?v=10">
+<link rel="stylesheet" href="/static/style.css?v=11">
 <script src="/static/vendor/chart.umd.min.js"></script>
 <script src="/static/vendor/d3.min.js"></script>
 </head>
@@ -34,9 +34,11 @@
     <a href="#market" data-tab="market" data-i18n="tab.market">Market</a>
     <a href="#profile" data-tab="profile" data-i18n="tab.profile">My profile</a>
     <a href="#coverage" data-tab="coverage" data-i18n="tab.coverage">Coverage</a>
-    <label class="check personalised" data-i18n-title="personalised.title"><input type="checkbox" id="personalised"> <span data-i18n="personalised">Personalised</span></label>
-    <button class="acct-btn" id="acct-btn" data-i18n="acct.login">Log in</button>
-    <div class="langswitch" id="langswitch"><button data-lang="nl">NL</button><button data-lang="en">EN</button></div>
+    <div class="tab-controls">
+      <label class="check personalised" data-i18n-title="personalised.title"><input type="checkbox" id="personalised"> <span data-i18n="personalised">Personalised</span></label>
+      <button class="acct-btn" id="acct-btn" data-i18n="acct.login">Log in</button>
+      <div class="langswitch" id="langswitch"><button data-lang="nl">NL</button><button data-lang="en">EN</button></div>
+    </div>
   </nav>
 </header>
 
