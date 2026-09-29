@@ -16,8 +16,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 import secrets
+import smtplib
 import threading
 import time
 from collections import deque
@@ -35,6 +37,7 @@ from radar import mailer
 from radar.config import settings
 from radar.models import LoginToken, User, UserData, UserSession
 
+log = logging.getLogger(__name__)
 COOKIE = "radar_session"
 TOKEN_MINUTES = 15
 MAX_PER_EMAIL_PER_HOUR = 5
@@ -127,7 +130,12 @@ def request_link(body: LinkRequest, request: Request, session: Session = Depends
         # The link always points at the configured public site, never at the Host header of this request (which
         # a caller controls). Only the console backend, which sends nothing, uses the local address.
         base = str(request.base_url) if settings.mail_backend == "console" else settings.site_url
-        link = _send_link(email, token, "nl" if body.lang == "nl" else "en", base)
+        try:
+            link = _send_link(email, token, "nl" if body.lang == "nl" else "en", base)
+        except (smtplib.SMTPException, OSError) as e:
+            # the mail service refused or could not be reached: say so, and log one line instead of a trace
+            log.error("login mail to %s not sent: %s", mailer._mask(email), e)
+            raise HTTPException(502, "the login e-mail could not be sent") from None
         if settings.mail_backend == "console" and settings.dev_login_links and ip in {"127.0.0.1", "::1"}:
             out["dev_link"] = link
     # same answer either way, so the endpoint does not reveal who has an account or who is rate-limited

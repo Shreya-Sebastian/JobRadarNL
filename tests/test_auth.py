@@ -125,3 +125,14 @@ def test_console_backend_says_no_mail_was_sent_and_dev_links_need_opt_in(client,
     monkeypatch.setattr(mailer, "send", lambda *a, **k: None)
     r = client.post("/api/auth/request", json={"email": "dev2@example.org"}, headers=H).json()
     assert r == {"ok": True}  # a real mail backend never returns the link
+
+
+def test_a_refused_login_mail_is_a_clear_502(client, monkeypatch):
+    import smtplib
+
+    def refuse(*a, **k):
+        raise smtplib.SMTPDataError(554, b"Message rejected: Email address is not verified.")
+
+    monkeypatch.setattr(mailer, "send", refuse)
+    r = client.post("/api/auth/request", json={"email": "sandbox@example.org"}, headers=H)
+    assert r.status_code == 502 and r.json()["detail"] == "the login e-mail could not be sent"
