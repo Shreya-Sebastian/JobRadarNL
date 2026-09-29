@@ -114,7 +114,7 @@ def test_api_endpoints(fresh_db):
     client = TestClient(app)
     assert client.get("/healthz").json() == {"ok": True}
     home = client.get("/").text
-    assert "{{" not in home and "<h1>NL Tech Job Radar</h1>" in home and "TechJobsNL" in home
+    assert "{{" not in home and "<h1>Tech Jobs Radar</h1>" in home and "TechJobsNL" in home
     assert '"@type": "WebSite"' in home
     assert "Sitemap:" in client.get("/robots.txt").text and "<urlset" in client.get("/sitemap.xml").text
     ov = client.get("/api/overview").json()
@@ -177,7 +177,7 @@ def test_company_pages_and_sitemap(fresh_db):
     page = client.get("/company/acme-robotics")  # norm_company drops the B.V. suffix
     assert page.status_code == 200
     assert "Senior Backend Engineer" in page.text and "Office Manager" not in page.text  # tech only
-    assert 'rel="canonical" href="http://localhost:8000/company/acme-robotics"' in page.text
+    assert 'rel="canonical" href="https://techjobsradar.nl/company/acme-robotics"' in page.text
     assert '"@type": "CollectionPage"' in page.text and "{{" not in page.text
     assert client.get("/company/nobody").status_code == 404
     idx = client.get("/companies").text
@@ -301,3 +301,25 @@ def test_organisation_size_filter_and_sort(fresh_db):
     first = lambda sort: client.get("/api/postings", params={"sort": sort, "size": 1}).json()["items"][0]  # noqa: E731
     assert first("size_small")["company"] == "Tinyco" and first("size_small")["org_size"] == "small"
     assert first("size_large")["company"] == "Bigcorp" and first("size_large")["org_roles"] == 12
+
+
+def test_search_landing_pages_bilingual_and_in_sitemap(fresh_db):
+    with session_scope() as s:
+        src = _source(s, company="Acme Robotics", slug="acme")
+        ingest(s, src, [_raw(str(i), f"Data Engineer {i}", desc="Python, SQL and Spark. English is our working language.")
+                        for i in range(10)])
+    from radar.api import app
+
+    client = TestClient(app)
+    nl = client.get("/vacatures/ict-amsterdam")
+    en = client.get("/jobs/tech-amsterdam")
+    assert nl.status_code == 200 and en.status_code == 200
+    assert "<title>ICT vacatures Amsterdam (10)" in nl.text and 'lang="nl"' in nl.text
+    assert "<title>Tech jobs in Amsterdam (10)" in en.text and 'hreflang="nl" href="https://techjobsradar.nl/vacatures/ict-amsterdam"' in en.text
+    assert "Data Engineer 0" in en.text and "{{" not in en.text
+    assert client.get("/jobs/english-speaking").status_code == 200
+    assert client.get("/jobs/tech-groningen").status_code == 404  # no postings there: no thin page
+    home_nl = client.get("/nl/").text
+    assert 'lang="nl"' in home_nl and "ICT en tech vacatures in Nederland" in home_nl and "/vacatures/ict-amsterdam" in home_nl
+    sm = client.get("/sitemap.xml").text
+    assert "/vacatures/ict-amsterdam</loc>" in sm and "/jobs/english-speaking</loc>" in sm and "/nl/</loc>" in sm

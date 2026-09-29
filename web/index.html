@@ -1,16 +1,19 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{HTML_LANG}}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{SITE_NAME}}: tech jobs in the Netherlands, read from employers' own career sites</title>
-<meta name="description" content="{{SITE_TAGLINE}} Also known as {{SITE_ALIASES}}. Tech vacatures in Nederland, rechtstreeks van de werkgevers.">
-<meta name="keywords" content="{{SITE_ALIASES}}, tech vacatures, IT vacatures Nederland, software engineer jobs Netherlands, data science jobs Netherlands, developer vacatures">
-<link rel="canonical" href="{{SITE_URL}}/">
-<meta property="og:title" content="{{SITE_NAME}}">
-<meta property="og:description" content="{{SITE_TAGLINE}}">
-<meta property="og:url" content="{{SITE_URL}}/">
+<title>{{PAGE_TITLE}}</title>
+<meta name="description" content="{{META_DESCRIPTION}}">
+<link rel="canonical" href="{{SITE_URL}}{{HOME_PATH}}">
+<link rel="alternate" hreflang="en" href="{{SITE_URL}}/">
+<link rel="alternate" hreflang="nl" href="{{SITE_URL}}/nl/">
+<link rel="alternate" hreflang="x-default" href="{{SITE_URL}}/">
+<meta property="og:title" content="{{PAGE_TITLE}}">
+<meta property="og:description" content="{{META_DESCRIPTION}}">
+<meta property="og:url" content="{{SITE_URL}}{{HOME_PATH}}">
 <meta property="og:type" content="website">
+{{VERIFY}}
 <script type="application/ld+json">{{SITE_JSONLD}}</script>
 <link rel="stylesheet" href="/static/style.css?v=9">
 <script src="/static/vendor/chart.umd.min.js"></script>
@@ -249,9 +252,10 @@
 
 </main>
 
+<nav class="wrap muted small seo-links">{{SEO_LINKS}}</nav>
 <footer class="wrap muted">
   <p><b>{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs never leave your browser; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.</span></p>
 </footer>
-<script src="/static/app.js?v=25"></script>
+<script src="/static/app.js?v=27"></script>
 </body>
 </html>

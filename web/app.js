@@ -130,7 +130,7 @@
       "footer": "toont tech-, software-, data- en IT-vacatures in Nederland, rechtstreeks gelezen van de carrièresites van werkgevers en de openbare vacatureborden van de platforms die zij gebruiken, en elke paar uur ververst. Elke vacature linkt naar de originele pagina van de werkgever. Gemaakt door Shreya Sebastian. Je profiel en bewaarde vacatures verlaten je browser nooit; geplakte cv-tekst wordt één keer gebruikt om skills te herkennen en niet opgeslagen. Salariscijfers tonen steekproefgroottes met een reden.",
       "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.sources": "bronnen gezond", "kpi.new7": "nieuw in 7 dagen", "kpi.newvisit": "nieuw sinds je laatste bezoek", "kpi.crawl": "laatste crawl",
       "tagline": "{n} open techvacatures van {m} Nederlandse werkgevers, rechtstreeks van hun eigen carrièresites en elke paar uur ververst.",
-      "title": "{n} techvacatures in Nederland",
+      "title": "{n} ICT en tech vacatures in Nederland",
       "scope.all": "alle open techvacatures", "scope.profile": "gefilterd op je profiel", "scope.label": "Bereik: {s}.",
       "since.first": "eerste bezoek: de nieuwste", "since": "sinds {d}", "since.profile": ", passend bij je profiel",
       "new.none": "Nog niets nieuws dat bij je profiel past.", "match.hint": "op overlap met je {n} skills", "match.hint.profile": ", binnen je profielfilters",
@@ -184,7 +184,9 @@
     get(k, d) { try { const v = localStorage.getItem("radar." + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
     set(k, v) { try { localStorage.setItem("radar." + k, JSON.stringify(v)); } catch { /* private mode */ } },
   };
-  let LANG = store.get("lang", null) || ((navigator.language || "").toLowerCase().startsWith("nl") ? "nl" : "en");
+  // stored choice first; then the page itself (/nl/ is served in Dutch); then the browser
+  const pageLang = location.pathname.startsWith("/nl") ? "nl" : null;
+  let LANG = store.get("lang", null) || pageLang || ((navigator.language || "").toLowerCase().startsWith("nl") ? "nl" : "en");
   const t = (key, vars = {}) => {
     let s = (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key;
     Object.entries(vars).forEach(([k, v]) => { s = s.replace(new RegExp(`\\{${k}\\}`, "g"), v); });

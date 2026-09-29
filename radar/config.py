@@ -26,9 +26,11 @@ class Settings(BaseSettings):
     cors_origins: str = "*"  # comma-separated; set to the public domain in production
     # Branding and search: the site name goes into the title, headings and structured data; the aliases are
     # phrases people may search for ("TechJobsNL"); the URL is the canonical public address.
-    site_name: str = "NL Tech Job Radar"
-    site_aliases: str = "TechJobsNL, Tech Jobs NL, Dutch tech jobs"
-    site_url: str = "http://localhost:8000"
+    site_name: str = "Tech Jobs Radar"
+    site_aliases: str = "TechJobsRadar, TechJobsNL, Tech Jobs NL, ICT vacatures, IT vacatures, tech jobs Netherlands"
+    site_url: str = "https://techjobsradar.nl"
+    # Google Search Console verification token (the content of its <meta name="google-site-verification">)
+    google_site_verification: str | None = None
     site_tagline: str = ("Tech jobs read directly from Dutch employers' own career sites, with the skills, language "
                          "and visa facts extracted, and every listing linking to the employer's own page.")
     # Browser-shaped so career sites that block unknown bots (Coolblue) serve the sitemap; still names the crawler.

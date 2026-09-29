@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}} ({{COUNT}}) | {{SITE_NAME}}</title>
+<meta name="description" content="{{DESCRIPTION}}">
+<link rel="canonical" href="{{SITE_URL}}{{PATH}}">
+<link rel="alternate" hreflang="nl" href="{{SITE_URL}}{{NL_PATH}}">
+<link rel="alternate" hreflang="en" href="{{SITE_URL}}{{EN_PATH}}">
+<link rel="alternate" hreflang="x-default" href="{{SITE_URL}}{{EN_PATH}}">
+<meta property="og:title" content="{{TITLE}} ({{COUNT}})">
+<meta property="og:description" content="{{DESCRIPTION}}">
+<meta property="og:url" content="{{SITE_URL}}{{PATH}}">
+<meta property="og:type" content="website">
+{{VERIFY}}
+<link rel="stylesheet" href="/static/style.css?v=9">
+<script type="application/ld+json">{{JSONLD}}</script>
+<style>.cols{columns:2 220px;column-gap:24px;list-style:none;padding:0;margin:0}.cols li{padding:3px 0;break-inside:avoid}.cols a{color:var(--accent);text-decoration:none}</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div>
+      <p class="small"><a href="{{HOME}}" style="color:inherit;text-decoration:none"><b>{{SITE_NAME}}</b></a> · <a href="{{OTHER_PATH}}">{{OTHER_LANG}}</a></p>
+      <h1>{{TITLE}}</h1>
+      <p class="tag">{{INTRO}}</p>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <div class="card">
+    <div class="kpis">{{KPIS}}</div>
+    {{SALARY}}
+    <p class="small"><a class="btn" href="{{HOME}}#jobs">{{INTERACTIVE}}</a> <span class="muted">{{INTERACTIVE_HINT}} · {{UPDATED}}</span></p>
+  </div>
+  <div class="grid two">
+    <div class="card"><h2>{{SKILLS_H}}</h2><div class="chips">{{SKILLS}}</div></div>
+    <div class="card"><h2>{{HIRING_H}}</h2><ul class="cols">{{EMPLOYERS}}</ul></div>
+  </div>
+  {{CITIES}}
+  <div class="card">
+    <h2>{{NEWEST_H}}</h2>
+    <table class="table"><thead><tr>{{TH}}</tr></thead><tbody>{{ROWS}}</tbody></table>
+  </div>
+  <div class="card"><h2>{{RELATED_H}}</h2><ul class="cols">{{RELATED}}</ul></div>
+  <p class="muted small"><a href="{{HOME}}">{{HOME_LABEL}}</a> · <a href="/companies">Employers</a></p>
+</main>
+<footer class="wrap muted"><p><b>{{SITE_NAME}}</b> · {{SITE_URL}}</p></footer>
+</body>
+</html>

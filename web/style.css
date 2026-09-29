@@ -111,3 +111,7 @@ footer { padding: 24px 16px 40px; font-size: 12px; }
 .banner button.link { color: #fff; }
 .banner button.primary { background: #fff; color: var(--accent); }
 #adm-status { white-space: pre-wrap; background: var(--bg); padding: 8px; border-radius: 8px; min-height: 2em; }
+
+.seo-links { padding: 8px 16px 0; line-height: 1.9; }
+.seo-links a { color: var(--muted); text-decoration: none; }
+.seo-links a:hover { color: var(--accent); }

@@ -340,7 +340,10 @@ def sitemap(session: Session = Depends(db)):
     base = settings.site_url.rstrip("/")
 
     def compute():
-        urls = [(f"{base}/", "hourly"), (f"{base}/companies", "daily")]
+        urls = [(f"{base}/", "hourly"), (f"{base}/nl/", "hourly"), (f"{base}/companies", "daily")]
+        _, landing_pages = _pages_objects(session)
+        for lp in landing_pages:
+            urls += [(base + lp.nl_path, "daily"), (base + lp.en_path, "daily")]
         urls += [(f"{base}/company/{slug}", "daily") for _, slug, _ in pages.companies(_live_tech_rows(session))]
         body = "".join(f"<url><loc>{xml_escape(u)}</loc><changefreq>{f}</changefreq></url>" for u, f in urls)
         return (f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
@@ -369,12 +372,46 @@ def company_page(slug: str, session: Session = Depends(db)):
                     media_type="text/html")
 
 
-def _render_index() -> str:
-    """index.html with the branding placeholders filled from settings, so renaming the site is one env var."""
+def _seo_pages(session: Session):
+    from radar import seo
+
+    rows = stats.CACHE.rows(session)
+    return rows, cached("seo:pages", lambda: [p.__dict__ for p in seo.build_pages(rows)], ttl=600)
+
+
+def _pages_objects(session: Session):
+    from radar import seo
+
+    rows, dicts = _seo_pages(session)
+    return rows, [seo.Page(**d) for d in dicts]
+
+
+def _render_index(session: Session | None = None, lang: str = "en") -> str:
+    """index.html with branding, a localised title and description carrying the live count, hreflang, and a
+    footer of popular search pages. Renaming the site is one env var."""
     import json as _json
+
+    from radar import seo
 
     html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
     aliases = [a.strip() for a in settings.site_aliases.split(",") if a.strip()]
+    n, m, links = 0, 0, ""
+    if session is not None:
+        rows, pages = _pages_objects(session)
+        live = [r for r in rows if r.closed_at is None]
+        n, m = len(live), len({r.company for r in live})
+        links = seo.popular_links(pages, lang)
+    count = f"{n:,}".replace(",", "." if lang == "nl" else ",") if n else ""
+    if lang == "nl":
+        title = f"{settings.site_name}: {count + ' ' if count else ''}ICT en tech vacatures in Nederland"
+        desc = (f"{count + ' ' if count else ''}actuele IT- en ICT-vacatures van {m or 'honderden'} werkgevers, "
+                "rechtstreeks van hun eigen carrièresites: developer, data, AI, cloud en security. Filter op "
+                "Engelstalig, visumsponsoring, junior, traineeship en stad.")
+    else:
+        title = f"{settings.site_name}: {count + ' ' if count else ''}tech jobs in the Netherlands"
+        desc = (f"{count + ' ' if count else ''}live IT and tech jobs from {m or 'hundreds of'} Dutch employers' own "
+                "career sites: software, data, AI, cloud, security. Filter on English-speaking, visa sponsorship, "
+                "junior, traineeship and city.")
     ld = {
         "@context": "https://schema.org", "@type": "WebSite", "name": settings.site_name,
         "alternateName": aliases, "url": settings.site_url, "description": settings.site_tagline,
@@ -384,12 +421,36 @@ def _render_index() -> str:
                 .replace("{{SITE_URL}}", settings.site_url.rstrip("/"))
                 .replace("{{SITE_TAGLINE}}", settings.site_tagline)
                 .replace("{{SITE_ALIASES}}", ", ".join(aliases))
-                .replace("{{SITE_JSONLD}}", _json.dumps(ld)))
+                .replace("{{SITE_JSONLD}}", _json.dumps(ld))
+                .replace("{{HTML_LANG}}", lang)
+                .replace("{{HOME_PATH}}", "/nl/" if lang == "nl" else "/")
+                .replace("{{PAGE_TITLE}}", title)
+                .replace("{{META_DESCRIPTION}}", desc)
+                .replace("{{VERIFY}}", seo.verification_meta())
+                .replace("{{SEO_LINKS}}", links))
 
 
 if WEB_DIR.exists():
     app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 
     @app.get("/", include_in_schema=False)
-    def index():
-        return Response(_render_index(), media_type="text/html")
+    def index(session: Session = Depends(db)):
+        return Response(cached("page:index:en", lambda: _render_index(session, "en"), ttl=300), media_type="text/html")
+
+    @app.get("/nl/", include_in_schema=False)
+    @app.get("/nl", include_in_schema=False)
+    def index_nl(session: Session = Depends(db)):
+        return Response(cached("page:index:nl", lambda: _render_index(session, "nl"), ttl=300), media_type="text/html")
+
+    @app.get("/vacatures/{slug}", include_in_schema=False)
+    @app.get("/jobs/{slug}", include_in_schema=False)
+    def landing(slug: str, request: Request, session: Session = Depends(db)):
+        from radar import seo
+
+        rows, pages = _pages_objects(session)
+        hit = seo.find(pages, request.url.path)
+        if hit is None:
+            raise HTTPException(404, "no page for this search yet")
+        page, lang = hit
+        body = cached(f"page:landing:{request.url.path}", lambda: seo.render(page, lang, rows, pages), ttl=600)
+        return Response(body, media_type="text/html")
