@@ -43,7 +43,7 @@ engineering effort goes into finding and reading as many boards as possible, aut
   (cities, seniority, roles, employers, salaries with sample sizes, language, remote policy, weekly trend),
   **My profile** (roles, levels, experience asked, cities, remote, posting language, visa, hidden employers, editable skill list with
   CV extraction, gap analysis, saved jobs, export/import; stored in the browser only) and **Coverage**
-  (the tracked-employer list and every source's health). See `FEATURES.md` for the reasoning.
+  (the tracked-employer list and every source's health).
 - Ships an eval harness: a hand-reviewed golden set gates extraction changes in CI.
 
 ## Numbers after the first day (26 Sept 2026)
@@ -122,8 +122,9 @@ radar crawl
 radar serve                                          # http://127.0.0.1:8000
 ```
 
-`data/seeds/` holds the company-name and domain lists for the older `scripts/probe_slugs.py` and
-`radar discover` paths; enumeration through the archive index replaced them as the main source of boards.
+`data/seeds/` holds the curated employer lists used by discovery: the 541 largest Dutch employers
+(`top500.tsv`), IT recruitment and secondment agencies (`agencies_it.tsv`), traineeship providers, and the IND
+public register of recognised sponsors (`ind_sponsors.tsv`, read by `radar sponsors`).
 
 Other commands: `radar enumerate --ats recruitee` then `radar probe-boards --ats recruitee` and
 `radar register-probed --ats recruitee` (find every board on a platform), `radar discover <domains.txt>`,
@@ -188,7 +189,7 @@ hiring organisation named in each posting.
 ## Coverage and source health
 
 The dashboard's last section lists every source with its ATS, last status and yield. A source that returns
-nothing for 24 hours or fails five crawls in a row is deactivated and shows up there. `SOURCES.md` documents
+nothing for 24 hours or fails five crawls in a row is deactivated and shows up there. COMPLIANCE.md documents
 each source type and the basis for reading it. No LinkedIn or Indeed scraping.
 
 Recall against an independent sample is `radar recall`: it pulls up to 1,000 of Adzuna's IT postings for the
@@ -280,22 +281,8 @@ Bilingual career sites (TNO, Nedap, many universities) publish each vacancy twic
 
 ## Documents
 
-- `GO_LIVE.md`: the guide from laptop to public URL, launch and upkeep.
-- `DEPLOY.md`: compose, local cluster, Hetzner k3s with Terraform, Helm, CI.
-- `COVERAGE_PLAN.md`: where the remaining listings are and in what order to get them.
-- `FEATURES.md`: what the site does, what was cut, what comes next.
-- `SOURCES.md`: every source type and the basis for reading it.
-
-## Roadmap
-
-1. Coverage: run discovery over 1,500+ domains (IND sponsor register, Techleap, Brainport), add Workday,
-   SuccessFactors, SmartRecruiters and Homerun adapters, add the Adzuna feed and the weekly recall measurement.
-2. Extraction: independently label 150 postings, compare rules against an LLM and an open-weights model, and
-   train the tech classifier.
-3. Product: embeddings for semantic search and better CV matching, accounts with saved searches and a weekly
-   digest, trends once there are a few weeks of history.
-4. Production: Postgres on RDS, ECS Fargate for API and workers, EventBridge scheduling, Terraform,
-   OpenTelemetry traces, Grafana dashboards and alerts on dead sources and queue backlog.
+- `DEPLOY.md`: Docker Compose, a local cluster, Kubernetes with Helm, Terraform and CI.
+- `COMPLIANCE.md`: every source and service the project touches, its rules, and how the code complies.
 
 ## License
 

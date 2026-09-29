@@ -25,3 +25,14 @@ deploy/terraform/**/.terraform.lock.hcl
 *.tfvars
 !*.tfvars.example
 kubeconfig*
+
+# working data from discovery runs (kept locally, not part of the project)
+data/enumerated/
+data/seeds/*_missing*
+data/seeds/*_todo*
+data/seeds/*_domains.txt
+data/seeds/*_named.tsv
+data/seeds/candidates*.txt
+data/seeds/domains.txt
+data/seeds/big_employers*
+data/recall/

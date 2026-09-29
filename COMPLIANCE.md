@@ -1,8 +1,7 @@
 # Terms, robots and privacy review
 
-Reviewed 27 September 2026. This lists every external service the project touches, what the rules say, how the
-code complies, and what is still a judgement call. It is not legal advice; it is the evidence you need to make
-the calls and to answer the question in an interview.
+This lists every external service the project touches, what its rules say and how the code complies. It is not
+legal advice.
 
 ## Sources the radar reads
 
@@ -23,7 +22,7 @@ the calls and to answer the question in an interview.
 | AcademicTransfer | JSON-LD from vacancy pages | `robots.txt`: allow all except `/account/` and `/apply/`, `Crawl-delay: 10` | Was crawled at 2 req/s, now 1 request per 10 s as asked. Their terms page could not be fetched; check it once by hand |
 | Werken voor Nederland | JSON-LD from vacancy pages | `robots.txt`: `Request-rate: 10/1`, only `/login` disallowed; publishes a vacancy sitemap | Fine (we use 2 req/s) |
 | Wayback Machine CDX | One-off enumeration of board URLs per ATS | Public index API; Internet Archive asks for reasonable use. Not part of the recurring crawl | Fine |
-| Adzuna API | Recall check only (`radar recall`) | Free key. Terms: personal research allowed with acknowledgement; a 14-day trial for validating coverage; using data "in aggregation (vacancy counts...)" for ongoing work or publication needs written consent; "Jobs by Adzuna" attribution when adverts are displayed; contacting content providers via API data is forbidden; 25 calls/min, 250/day | Compliant by default: private report, no listings displayed, headline published only with `--publish`, which you should switch on only after Adzuna agrees in writing (api@adzuna.com) |
+| Adzuna API | Recall check only (`radar recall`) | Free key. Terms: personal research allowed with acknowledgement; a 14-day trial for validating coverage; using data "in aggregation (vacancy counts...)" for ongoing work or publication needs written consent; "Jobs by Adzuna" attribution when adverts are displayed; contacting content providers via API data is forbidden; 25 calls/min, 250/day | Compliant by default: private report, no listings displayed; the headline is published only with `--publish`, which requires Adzuna's written consent |
 | Rabobank (rabobank.jobs) | Not read | Its sitemap and pages answer 403 to a request whose User-Agent names this crawler, while a plain browser string gets 200. That is a site saying no to bots; we do not swap the agent to get around it | Source kept inactive with the reason |
 | LinkedIn, Indeed, Glassdoor | Never | Terms forbid scraping; no public listings API | Not touched |
 
@@ -36,19 +35,17 @@ link. It keeps the project well clear of copying employers' copy, which is where
 
 ## Identifying ourselves
 
-The crawler's User-Agent is browser-shaped (a few career sites return 403 to anything else) but ends with
-`nl-tech-job-radar/0.1 (+https://github.com/Shreya-Sebastian; contact: ...)`, so a site owner who looks at their
-logs can see who we are and reach us. **Decision for you:** keep the browser prefix (pragmatic, most job-data
-projects do this) or switch to a plain `TechJobsNL-Radar/0.2 (+url; contact)` agent and accept losing the
-sites that block it (Coolblue was one). Either way, note that the contact address in the agent will be public in
-the repo; use a project address rather than a personal one if you prefer.
+The crawler's User-Agent is browser-shaped, because a few career sites return 403 to anything else, but it ends
+with `JobRadarNL/0.2 (+https://github.com/Shreya-Sebastian/JobRadarNL; contact via GitHub issues)`, so a site
+owner who looks at their logs can see who is crawling and how to reach the maintainer. Sites that still refuse
+an identified crawler (Rabobank, SAP) are left out rather than fetched under a disguise.
 
 ## Privacy (GDPR / AVG)
 
 - Visitor profile, saved jobs and language choice live in `localStorage` in the visitor's browser. Nothing is sent
   to the server except the filter values in query strings (roles, cities, skills), which are not personal data.
 - Pasted CV text is posted to `/api/gap`, used in memory to detect skills, and never written to disk or logs. The
-  footer says so. If you later add accounts or store CVs, you need a privacy statement and a lawful basis.
+  footer says so. Accounts or stored CVs would need a privacy statement and a lawful basis; the project has neither.
 - Only functional storage is used, no analytics or third-party cookies, so no consent banner is required under
   the Dutch Telecommunicatiewet's functional-cookie exemption. Adding analytics would change that.
 - No external fonts, scripts or CDNs: Chart.js and D3 are vendored, so visitor IP addresses are not shared with
@@ -64,13 +61,7 @@ the repo; use a project address rather than a personal one if you prefer.
 - Ollama models planned: qwen2.5 (Apache 2.0), bge-m3 (MIT).
 - The project itself is MIT licensed (LICENSE file, `license` field in `pyproject.toml`).
 
-## Name
-
-"TechJobs NL" / "TechJobsNL" is descriptive, which is why it is hard to trademark and also why it is unlikely to
-infringe. Before buying the domain, search the Benelux register (boip.int) and the EU register (euipo.europa.eu)
-for "techjobs" marks in class 35 (recruitment services). A .nl domain purchase is handled by SIDN's registrars.
-
-## Changes made in this review
+## Safeguards in the code
 
 1. `radar/robots.py`: robots.txt fetched once per host; disallowed URLs skipped; `Crawl-delay` and
    `Request-rate` lower the per-host rate limit. Rules are matched the way Google and Bing do it (longest
@@ -83,14 +74,9 @@ for "techjobs" marks in class 35 (recruitment services). A .nl domain purchase i
 5. MIT licence added; e-mail addresses and phone numbers scrubbed from stored posting text, at ingest and once
    over the existing rows.
 
-## Rate limiting on multi-tenant platforms (added 28 Sept)
+## Rate limiting on multi-tenant platforms
 
 Recruitee, Teamtailor, Personio and Workday host every customer on its own subdomain but rate-limit by client
 IP across all of them. A crawl that paced itself per subdomain hit Recruitee's 429 on 569 boards in one run.
 Boards on these platforms now share one rate-limit bucket (`recruitee.com=2` requests per second and so on in
 `RADAR_HOST_RATE_LIMITS`), in both the thread-pool crawler and the queue workers.
-
-## Still to decide
-
-- User-Agent shape (above).
-- Ask Adzuna for written consent if you want the recall figure on the public Coverage tab.

@@ -1,6 +1,6 @@
 name: deploy
 
-# Manual until the AWS cluster exists (SETUP_CHECKLIST.md part 3); then restore the push trigger:
+# Manual until a production cluster exists; then restore the push trigger:
 #   push:
 #     branches: [main]
 on:

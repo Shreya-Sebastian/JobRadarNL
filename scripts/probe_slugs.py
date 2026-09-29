@@ -1,6 +1,6 @@
 """Probe candidate company slugs across every ATS adapter and write the hits to data/probe_results.json.
 
-Usage: python scripts/probe_slugs.py data/seeds/candidates.txt [out.json]
+Usage: python scripts/probe_slugs.py <file with one company name per line> [out.json]
 Superseded for bulk use by `radar enumerate` + `radar probe-boards`; kept for probing a short list of names.
 Each line of the candidates file is a company name; slugs are derived by lowercasing and
 stripping non-alphanumerics, plus a few common variants.
