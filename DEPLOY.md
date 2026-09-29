@@ -34,12 +34,36 @@ kubectl -n radar port-forward svc/radar-radar-api 8000:80
 
 A Postgres on the host (or `docker run postgres:16-alpine`) is enough for this.
 
-## 2. Public: one Hetzner server with k3s (about 5 to 8 euros a month)
+## 2. Production: one AWS server with k3s (techjobsradar.nl, about USD 40 a month)
+
+`deploy/aws` creates one EC2 t3.medium in eu-west-1 with an Elastic IP, a security group (web open, SSH and the
+Kubernetes API only from the admin's IP), Postgres on the host with a nightly `pg_dump`, k3s with Traefik and
+cert-manager, and Amazon SES for login e-mails with a send-only SMTP user.
+
+1. `aws login`, then `cd deploy/aws && terraform init && terraform apply`.
+2. Add the records from `terraform output dns_records` at the registrar: the A record for the site, three DKIM
+   CNAMEs and a DMARC TXT for mail.
+3. Kubeconfig: `scp ubuntu@<ip>:kubeconfig ~/.kube/radar.yaml` and `export KUBECONFIG=~/.kube/radar.yaml`.
+4. `kubectl apply -f deploy/k8s/cluster-issuer.yaml` (after the cert-manager pods are Running).
+5. Secrets, in namespace `radar`:
+   - `radar-db` with `RADAR_DATABASE_URL` = `terraform output -raw database_url_in_cluster`
+   - `radar-smtp` with `RADAR_SMTP_USER` / `RADAR_SMTP_PASSWORD` from the `smtp_user` / `smtp_password` outputs
+   - `radar-admin` with `RADAR_ADMIN_TOKEN`
+   - `ghcr`, a docker-registry secret for `ghcr.io` with a GitHub token that has `read:packages`
+6. Copy the data: open a tunnel (`ssh -N -L 5433:localhost:5432 ubuntu@<ip>`) and run
+   `radar copy-db --to "$(terraform output -raw database_url_via_tunnel)"` from the laptop.
+7. `helm upgrade --install radar deploy/helm/radar -n radar -f deploy/aws/values-prod.yaml`
+8. SES starts in a sandbox that only delivers to verified addresses (`-var test_recipient=you@...` verifies one).
+   Request production access in the SES console (Account dashboard) for login mail to reach everyone.
+
+The image is built by `.github/workflows/image.yml` on every push to main.
+
+## 2b. Alternative: one Hetzner server with k3s (about 5 to 8 euros a month)
 
 1. `cd deploy/terraform && terraform init && terraform apply -var ssh_public_key="$(cat ~/.ssh/id_ed25519.pub)" -var postgres_password=...`
    Creates the server, firewall, k3s, cert-manager, Postgres on the host, and a nightly `pg_dump` cron.
 2. Fetch the kubeconfig as printed by `terraform output next_steps`, point a DNS A record at the IP.
-3. `kubectl apply -f deploy/k8s/cluster-issuer.yaml` (edit the email first).
+3. `kubectl apply -f deploy/k8s/cluster-issuer.yaml`.
 4. `kubectl -n radar create secret generic radar-db --from-literal=RADAR_DATABASE_URL="$(terraform output -raw database_url)"`
 5. `helm upgrade --install radar deploy/helm/radar -n radar --create-namespace --set ingress.host=YOUR_DOMAIN --set database.existingSecret=radar-db --set config.corsOrigins=https://YOUR_DOMAIN`
 6. Seed once: `kubectl -n radar create job --from=cronjob/radar-radar-scheduler seed-1`, then load sources

@@ -2,6 +2,7 @@ image:
   repository: ghcr.io/shreya-sebastian/nl-tech-job-radar
   tag: latest
   pullPolicy: IfNotPresent
+  pullSecrets: []             # e.g. [ghcr] for a private GitHub package
 
 # Postgres lives outside the cluster (managed service or the VPS host). Put the URL in a Secret.
 database:
@@ -32,7 +33,7 @@ redis:
 config:
   countries: "NL"
   extractor: "rules"
-  hostRateLimits: "default=3,apply.workable.com=0.5,boards-api.greenhouse.io=4,api.lever.co=3"
+  hostRateLimits: ""          # empty = the tuned defaults in radar/config.py
   cadenceHighMinutes: 60
   cadenceNormalMinutes: 180
   cadenceLowMinutes: 720

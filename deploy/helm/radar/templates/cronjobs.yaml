@@ -24,6 +24,11 @@ spec:
             app.kubernetes.io/component: {{ $job.name }}
         spec:
           restartPolicy: Never
+          {{- with $root.Values.image.pullSecrets }}
+          imagePullSecrets: {{- range . }}
+            - name: {{ . }}
+          {{- end }}
+          {{- end }}
           securityContext: {{- toYaml $root.Values.podSecurityContext | nindent 12 }}
           containers:
             - name: {{ $job.name }}

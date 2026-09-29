@@ -1,0 +1,38 @@
+# Helm values for techjobsradar.nl on the single AWS server (deploy/aws). Secrets are created separately:
+#   radar-db (RADAR_DATABASE_URL), radar-admin (RADAR_ADMIN_TOKEN), radar-smtp (RADAR_SMTP_USER, RADAR_SMTP_PASSWORD),
+#   ghcr (image pull secret for the private GitHub package). See DEPLOY.md, "AWS".
+image:
+  repository: ghcr.io/shreya-sebastian/jobradarnl
+  tag: latest
+  pullPolicy: Always
+  pullSecrets: [ghcr]
+
+database:
+  existingSecret: radar-db
+
+admin:
+  existingSecret: radar-admin
+
+mail:
+  backend: smtp
+  from: "Tech Jobs Radar <login@techjobsradar.nl>"
+  smtpHost: email-smtp.eu-west-1.amazonaws.com
+  smtpPort: 587
+  existingSecret: radar-smtp
+
+config:
+  corsOrigins: "https://techjobsradar.nl"
+  siteName: "Tech Jobs Radar"
+  siteAliases: "TechJobsRadar, TechJobsNL, Tech Jobs NL, ICT vacatures, IT vacatures, tech jobs Netherlands"
+  siteUrl: "https://techjobsradar.nl"
+
+# sized for one 4 GB node
+api:
+  replicas: 1
+  autoscaling:
+    enabled: false
+worker:
+  replicas: 2
+
+ingress:
+  host: techjobsradar.nl

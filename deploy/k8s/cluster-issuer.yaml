@@ -6,7 +6,6 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: you@example.com   # set your own address before applying: Let's Encrypt sends certificate expiry warnings here
     privateKeySecretRef:
       name: letsencrypt-account-key
     solvers:

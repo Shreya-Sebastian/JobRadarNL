@@ -276,6 +276,8 @@ def cmd_copy_db(args: argparse.Namespace) -> None:
             from sqlalchemy import text
 
             for table in Base.metadata.sorted_tables:  # SQLite ids were explicit; move the sequences past them
+                if "id" not in table.c:
+                    continue
                 dc.execute(
                     text(
                         f"SELECT setval(pg_get_serial_sequence('{table.name}', 'id'), "

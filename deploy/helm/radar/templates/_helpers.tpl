@@ -67,8 +67,10 @@ redis://{{ include "radar.fullname" . }}-redis:6379/0
   value: {{ .Values.config.countries | quote }}
 - name: RADAR_EXTRACTOR
   value: {{ .Values.config.extractor | quote }}
+{{- if .Values.config.hostRateLimits }}
 - name: RADAR_HOST_RATE_LIMITS
   value: {{ .Values.config.hostRateLimits | quote }}
+{{- end }}
 - name: RADAR_CADENCE_HIGH_MINUTES
   value: {{ .Values.config.cadenceHighMinutes | quote }}
 - name: RADAR_CADENCE_NORMAL_MINUTES

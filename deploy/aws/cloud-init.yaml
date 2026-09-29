@@ -1,0 +1,39 @@
+#cloud-config
+# Ubuntu 24.04 on EC2: Postgres on the host (outside Kubernetes), then single-node k3s with Traefik and cert-manager.
+# The security group is the firewall; Postgres is never reachable from the internet.
+package_update: true
+packages: [postgresql, postgresql-contrib]
+write_files:
+  - path: /root/setup-postgres.sh
+    permissions: "0700"
+    content: |
+      #!/bin/bash
+      set -e
+      sudo -u postgres psql -c "CREATE USER radar WITH PASSWORD '${postgres_password}';" || true
+      sudo -u postgres psql -c "CREATE DATABASE radar OWNER radar;" || true
+      PGCONF=$(ls /etc/postgresql/*/main/postgresql.conf)
+      PGHBA=$(ls /etc/postgresql/*/main/pg_hba.conf)
+      sed -i "s/^#listen_addresses.*/listen_addresses = '*'/" "$PGCONF"
+      {
+        echo "host radar radar 10.42.0.0/16 scram-sha-256"   # k3s pod network
+        echo "host radar radar 10.43.0.0/16 scram-sha-256"   # k3s service network
+      } >> "$PGHBA"
+      systemctl restart postgresql
+  - path: /etc/cron.daily/radar-pgdump
+    permissions: "0755"
+    content: |
+      #!/bin/bash
+      mkdir -p /var/backups/radar
+      sudo -u postgres pg_dump radar | gzip > /var/backups/radar/radar-$(date +%F).sql.gz
+      find /var/backups/radar -mtime +14 -delete
+runcmd:
+  # 2 GB swap as a cushion on a 4 GB machine
+  - fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
+  - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+  - /root/setup-postgres.sh
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --tls-san ${public_ip}" sh -
+  - sleep 30
+  - /usr/local/bin/kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml
+  # kubeconfig for the laptop: scp ubuntu@${public_ip}:kubeconfig ~/.kube/radar.yaml
+  - sed "s/127.0.0.1/${public_ip}/" /etc/rancher/k3s/k3s.yaml > /home/ubuntu/kubeconfig
+  - chown ubuntu:ubuntu /home/ubuntu/kubeconfig && chmod 600 /home/ubuntu/kubeconfig
