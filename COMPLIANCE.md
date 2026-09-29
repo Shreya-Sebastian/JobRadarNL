@@ -50,8 +50,9 @@ an identified crawler (Rabobank, SAP) are left out rather than fetched under a d
   6(1)(b)). Login is a one-time e-mail link: no passwords, and only SHA-256 hashes of login and session tokens are
   stored. The IP address a link was requested from is kept with the link for two days, for abuse limits. Users can
   download their data (`/api/me/export`) and delete the account (`DELETE /api/me`) from the profile tab; accounts
-  without a login for two years are removed by the post-crawl cleanup. The login mail provider (e.g. Amazon SES in
-  eu-west-1) is a processor and needs a data processing agreement, which AWS includes in its service terms.
+  without a login for two years are removed by the post-crawl cleanup. The login mail provider is a processor: Resend
+  (domain in eu-west-1), whose data processing agreement is part of its terms; Amazon SES is configured as a
+  fallback (AWS includes a DPA in its service terms). AWS declined SES production access for the new account.
 - Pasted CV text is posted to `/api/gap`, used in memory to detect skills, and never written to disk or logs, also
   for logged-in users.
 - Only functional storage is used: `localStorage` and, for logged-in users, one HttpOnly session cookie. No

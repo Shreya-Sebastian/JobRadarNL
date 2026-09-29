@@ -13,10 +13,12 @@ database:
 admin:
   existingSecret: radar-admin
 
+# Login mail goes through Resend (free tier, no sending review); the secret holds user "resend" and an API key
+# with sending access only. Amazon SES (deploy/aws/main.tf) stays set up as a fallback.
 mail:
   backend: smtp
   from: "Tech Jobs Radar <login@techjobsradar.nl>"
-  smtpHost: email-smtp.eu-west-1.amazonaws.com
+  smtpHost: smtp.resend.com
   smtpPort: 587
   existingSecret: radar-smtp
 

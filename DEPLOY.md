@@ -53,8 +53,9 @@ cert-manager, and Amazon SES for login e-mails with a send-only SMTP user.
 6. Copy the data: open a tunnel (`ssh -N -L 5433:localhost:5432 ubuntu@<ip>`) and run
    `radar copy-db --to "$(terraform output -raw database_url_via_tunnel)"` from the laptop.
 7. `helm upgrade --install radar deploy/helm/radar -n radar -f deploy/aws/values-prod.yaml`
-8. SES starts in a sandbox that only delivers to verified addresses (`-var test_recipient=you@...` verifies one).
-   Request production access in the SES console (Account dashboard) for login mail to reach everyone.
+8. Login mail: production sends through Resend (`smtp.resend.com`, user `resend`, an API key with sending access,
+   the domain verified with Resend's DKIM, MX and SPF records). Amazon SES is set up too, but a new account starts
+   in a sandbox that only delivers to verified addresses and needs production access, which AWS may decline.
 
 The image is built by `.github/workflows/image.yml` on every push to main.
 
