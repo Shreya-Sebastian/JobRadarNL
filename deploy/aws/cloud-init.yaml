@@ -36,6 +36,10 @@ runcmd:
   - echo '/swapfile none swap sw 0 0' >> /etc/fstab
   - /root/setup-postgres.sh
   - snap install aws-cli --classic
+  # memory trims for a 2 GB node: no metrics-server, a soft memory cap for k3s, no multipathd (unused on EC2)
+  - mkdir -p /etc/rancher/k3s && printf 'disable:\n  - metrics-server\n' > /etc/rancher/k3s/config.yaml
+  - echo 'GOMEMLIMIT=400MiB' >> /etc/systemd/system/k3s.service.env
+  - systemctl disable --now multipathd.service multipathd.socket || true
   - curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server --tls-san ${public_ip}" sh -
   - sleep 30
   - /usr/local/bin/kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.3/cert-manager.yaml

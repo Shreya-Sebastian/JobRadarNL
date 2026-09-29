@@ -33,6 +33,12 @@ api:
     enabled: false
 worker:
   replicas: 1
+  # stop the old worker before starting the new one, so a deploy never runs two on a 2 GB node
+  # (a crawl job in flight is re-queued; the API keeps its zero-downtime rolling update)
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
 
 ingress:
   host: techjobsradar.nl
