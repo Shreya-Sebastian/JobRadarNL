@@ -155,3 +155,5 @@ footer { padding: 24px 16px 40px; font-size: 12px; }
 .card.account #acct-email { min-width: 240px; flex: 1 1 240px; max-width: 360px; }
 .card.account form.row { flex-wrap: wrap; }
 button.link.danger { color: var(--bad); }
+
+.more-cities { color: var(--muted); font-size: 12px; cursor: help; border-bottom: 1px dotted var(--muted); }

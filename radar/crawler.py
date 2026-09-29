@@ -198,12 +198,16 @@ def mark_duplicates(session: Session) -> int:
          counter ("...-2", "...-3"): the board really lists it twice,
       3. same original URL (ignoring query strings),
       4. the Dutch and English copy of one vacancy on a bilingual career site (see radar/bilingual.py); the
-         English copy is kept as canonical.
+         English copy is kept as canonical,
+      5. one vacancy advertised once per city: same board, employer and title, the same text apart from the city
+         names, posted within 14 days; the canonical copy lists the other cities in `also_in`,
+      6. the same page in another language: the URL differs only by a language segment (/fr/, /es/, /en-gb/).
     Same title on the same board with different text, or identical text under a different URL slug (often a
     different location encoded in the slug), is kept: that is usually a separate requisition."""
     rows = session.execute(
         select(Posting.id, Posting.dedup_key, Posting.source_id, Posting.first_seen, Posting.content_hash,
-               Posting.url, Source.ats, Source.kind)
+               Posting.url, Source.ats, Source.kind, Posting.company, Posting.title, Posting.city, Posting.posted_at,
+               Posting.also_in, Posting.duplicate_of)
         .join(Source, Source.id == Posting.source_id)
         .where(Posting.closed_at.is_(None))
     ).all()
@@ -224,14 +228,18 @@ def mark_duplicates(session: Session) -> int:
         if dup.id != canonical.id and dup.id not in canonical_of and root(canonical.id) != dup.id:
             canonical_of[dup.id] = root(canonical.id)
 
+    from radar.normalize import dedup_key
+
     by_key: dict[str, list] = {}
     by_url: dict[str, list] = {}
     twins: dict[tuple, list] = {}
     for r in rows:
-        by_key.setdefault(r.dedup_key, []).append(r)
+        # computed from the current employer, title and city: the stored key dates from the first crawl and goes
+        # stale when a city is corrected later
+        key = dedup_key(r.company or "", r.title or "", r.city)
+        by_key.setdefault(key, []).append(r)
         by_url.setdefault(_url_stem(r.url, strip_counter=False), []).append(r)
-        twins.setdefault((r.source_id, r.dedup_key, r.content_hash, _url_stem(r.url, strip_counter=True)),
-                         []).append(r)
+        twins.setdefault((r.source_id, key, r.content_hash, _url_stem(r.url, strip_counter=True)), []).append(r)
     # 1. same job on another source
     for members in by_key.values():
         if len(members) > 1:
@@ -256,16 +264,116 @@ def mark_duplicates(session: Session) -> int:
     for n_id, e_id in _bilingual_pairs(session):
         if n_id in by_id and e_id in by_id:
             mark(by_id[n_id], by_id[e_id])
+    # 5. one vacancy, one page per city
+    also_in: dict[int, set[str]] = {}
+    for group in _per_city_groups(session, rows):
+        # only copies no earlier rule has merged, so every city listed is one that is really folded in here
+        group = sort_members([r for r in group if r.id not in canonical_of])
+        if len(group) < 2:
+            continue
+        keep = group[0]
+        for dup in group[1:]:
+            mark(dup, keep)
+        cities = {r.city for r in group[1:] if r.city and r.city != keep.city}
+        if cities:
+            also_in.setdefault(root(keep.id), set()).update(cities)
+    # 6. the same page in other languages
+    by_lang: dict[tuple, list] = {}
+    for r in rows:
+        by_lang.setdefault((r.source_id, _lang_stem(r.url)), []).append(r)
+    for members in by_lang.values():
+        if len(members) > 1 and any(_lang_rank(r.url) != 1 for r in members):
+            members = sorted(members, key=lambda r: (_lang_rank(r.url), r.first_seen, r.id))
+            for dup in members[1:]:
+                mark(dup, members[0])
 
     marked = 0
     for r in rows:
         target = root(r.id) if r.id in canonical_of else None
-        p = session.get(Posting, r.id)
-        if p.duplicate_of != target:
+        cities = (sorted(also_in.get(r.id, ())) or None) if target is None else None
+        if r.duplicate_of != target or (r.also_in or None) != cities:
+            p = session.get(Posting, r.id)
             p.duplicate_of = target
+            p.also_in = cities
             marked += 1
     session.flush()
     return marked
+
+
+_LANGS = {"en", "nl", "de", "fr", "es", "it", "pt", "pl", "el", "sv", "da", "fi", "no", "nb", "cs", "hu", "ro", "tr",
+          "ja", "zh", "ko", "ru", "uk", "bg", "hr", "sk", "sl", "lt", "lv", "et", "ar", "he", "th", "vi", "id",
+          # country codes that sites use as language segments (/br/ for Brazilian Portuguese, /cn/, /jp/)
+          "br", "cn", "jp", "kr", "se", "dk", "cz", "gr", "ua", "gb", "us", "be", "at", "ch"}
+
+
+def _lang_segment(seg: str) -> str | None:
+    m = re.fullmatch(r"([a-z]{2})(?:[-_][a-z]{2})?", seg.lower())
+    return m.group(1) if m and m.group(1) in _LANGS else None
+
+
+def _lang_stem(url: str) -> str:
+    """The URL without its language segment (only the first two path segments count, so an id like /ai/ deeper
+    in the path is left alone): /job/339, /fr/job/339 and /en-gb/job/339 share one stem."""
+    u = urlparse(url)
+    segs = [s for s in u.path.split("/") if s]
+    kept = [s for i, s in enumerate(segs) if not (i < 2 and _lang_segment(s))]
+    return f"{u.netloc.lower().removeprefix('www.')}/{'/'.join(kept)}"
+
+
+def _lang_rank(url: str) -> int:
+    """English first, then no language segment, then Dutch, then the rest."""
+    segs = [s for s in urlparse(url).path.split("/") if s][:2]
+    langs = [lang for lang in (_lang_segment(s) for s in segs) if lang]
+    lang = langs[0] if langs else None
+    return {"en": 0, None: 1, "nl": 2}.get(lang, 3)
+
+
+def _per_city_groups(session: Session, rows: list) -> list[list]:
+    """Groups of postings that are one vacancy listed once per city (rule 5)."""
+    from radar.normalize import norm_company, norm_title
+
+    candidates: dict[tuple, list] = {}
+    for r in rows:
+        key = (r.source_id, norm_company(r.company or "").lower(), norm_title(r.title or ""))
+        candidates.setdefault(key, []).append(r)
+    candidates = {k: v for k, v in candidates.items() if len(v) > 1 and len({r.city for r in v}) > 1}
+    ids = [r.id for v in candidates.values() for r in v]
+    text: dict[int, str] = {}
+    for i in range(0, len(ids), 500):  # only the candidates' descriptions, never the whole table
+        chunk = ids[i:i + 500]
+        text.update(session.execute(select(Posting.id, Posting.description).where(Posting.id.in_(chunk))).all())
+    groups = []
+    for members in candidates.values():
+        cities = {c.lower() for r in members for c in (r.city, *(r.also_in or [])) if c}
+        by_sig: dict[str, list] = {}
+        for r in members:
+            by_sig.setdefault(_text_signature(text.get(r.id) or "", cities), []).append(r)
+        for sig, same in by_sig.items():
+            if not sig or len(same) < 2:
+                continue
+            same.sort(key=lambda r: r.posted_at or r.first_seen)
+            cluster = [same[0]]
+            for r in same[1:]:
+                if ((r.posted_at or r.first_seen) - (cluster[0].posted_at or cluster[0].first_seen)).days <= 14:
+                    cluster.append(r)
+                else:
+                    if len(cluster) > 1:
+                        groups.append(cluster)
+                    cluster = [r]
+            if len(cluster) > 1:
+                groups.append(cluster)
+    return groups
+
+
+def _text_signature(description: str, cities: set[str]) -> str:
+    """The description with city names, numbers and spacing removed, so per-city copies compare equal."""
+    import hashlib
+
+    t = description.lower()
+    for c in sorted(cities, key=len, reverse=True):
+        t = t.replace(c, " ")
+    t = re.sub(r"[\d\W_]+", " ", t).strip()
+    return hashlib.sha1(t[:6000].encode()).hexdigest() if len(t) >= 80 else ""
 
 
 def _bilingual_pairs(session: Session) -> list[tuple[int, int]]:

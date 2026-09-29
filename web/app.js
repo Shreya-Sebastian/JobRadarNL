@@ -91,6 +91,7 @@
       "acct.export": "Download my data", "acct.delete": "Delete my account",
       "acct.delete.confirm": "Delete your account? Your e-mail address, profile and saved jobs are removed from the server. This browser keeps its own copy.",
       "acct.deleted": "Your account is deleted.", "privacy": "Privacy",
+      "also.in": "Also advertised in {c}",
       "fresh.text": "New listings are in.", "fresh.reload": "Refresh", "fresh.later": "Later",
       "adm.title": "Admin: refresh listings", "adm.token": "Admin token", "adm.company": "Employer (for a single-employer crawl)",
       "adm.force": "Ignore the 10-minute cool-down", "adm.due": "Crawl sources that are due", "adm.one": "Crawl this employer", "adm.all": "Crawl everything",
@@ -187,6 +188,7 @@
       "acct.export": "Download mijn gegevens", "acct.delete": "Verwijder mijn account",
       "acct.delete.confirm": "Je account verwijderen? Je e-mailadres, profiel en bewaarde vacatures worden van de server verwijderd. Deze browser houdt zijn eigen kopie.",
       "acct.deleted": "Je account is verwijderd.", "privacy": "Privacy",
+      "also.in": "Ook geadverteerd in {c}",
       "fresh.text": "Er zijn nieuwe vacatures binnen.", "fresh.reload": "Vernieuwen", "fresh.later": "Later",
       "adm.title": "Beheer: vacatures verversen", "adm.token": "Beheertoken", "adm.company": "Werkgever (voor één werkgever)",
       "adm.force": "Wachttijd van 10 minuten negeren", "adm.due": "Bronnen verversen die aan de beurt zijn", "adm.one": "Deze werkgever verversen", "adm.all": "Alles verversen",
@@ -553,7 +555,7 @@
     $("#co-jobs tbody").innerHTML = items.length ? items.map((i) => `<tr>
       <td class="muted" title="${esc(i.posted_at)}">${age(i)}</td>
       <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a></td>
-      <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}</td>
+      <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}${i.also_in && i.also_in.length ? ` <span class="more-cities" title="${esc(t("also.in", { c: i.also_in.map(cityLabel).join(", ") }))}">+${i.also_in.length}</span>` : ""}</td>
       <td>${levelCell(i)}</td>
       <td><div class="chips">${i.skills.slice(0, 6).map((sk) => `<span class="chip${have.has(sk) ? " have" : ""}">${esc(sk)}</span>`).join("")}</div></td>
       <td>${langCell(i)}</td>
@@ -652,7 +654,7 @@
       <td class="muted" title="${esc(i.posted_at)}">${age(i)}${since && i.first_seen > since.replace("Z", "") ? `<span class="badge">${t("new")}</span>` : ""}${i.age_days > 90 ? `<span class="badge stale" title="${t("trust.old.title")}">${t("old")}</span>` : ""}</td>
       <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener" title="${esc(trustText(i))}">${esc(i.title)}</a>${trustBadge(i)}</td>
       <td>${companyLink(i.company)}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}</td>
-      <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}</td>
+      <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}${i.also_in && i.also_in.length ? ` <span class="more-cities" title="${esc(t("also.in", { c: i.also_in.map(cityLabel).join(", ") }))}">+${i.also_in.length}</span>` : ""}</td>
       <td>${levelCell(i)}</td>
       <td><div class="chips">${i.skills.slice(0, 6).map((s) => `<span class="chip${have.includes(s) ? " have" : ""}">${esc(s)}</span>`).join("")}${i.skills.length > 6 ? `<span class="chip more">+${i.skills.length - 6}</span>` : ""}</div></td>
       <td>${i.match != null ? `<span class="match-bar" title="${Math.round(i.match * 100)}%"><i style="width:${Math.round(i.match * 100)}%"></i></span>` : '<span class="muted">–</span>'}</td>

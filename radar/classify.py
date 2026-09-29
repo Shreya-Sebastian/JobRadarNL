@@ -102,7 +102,6 @@ _RESCUE_FRAGMENTS = [
     r"it-?specialist",
     r"it-?consultant",
     r"it-?beheer",
-    r"datacenter",
     r"devrel",
     r"\brust\b",
     r"\bscala\b",
@@ -159,6 +158,7 @@ _RESCUE_FRAGMENTS = [
     r"systems? engineer",
 ]
 _WEAK_RESCUE_FRAGMENTS = [
+    r"datacenter",  # "Beveiliger datacenter" is a security guard
     r"\bit\b",
     r"servicenow",
     r"dynatrace",

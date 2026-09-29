@@ -350,3 +350,56 @@ def test_unprefixed_english_pages_pair_with_nl_pages(fresh_db):
                         raw("b", "https://madisonpeople.example/nl/jobs/lead-engineer-137/")])
         mark_duplicates(s)
         assert s.query(Posting).filter(Posting.duplicate_of.is_(None)).count() == 1
+
+
+def test_one_vacancy_listed_per_city_becomes_one_listing_with_its_cities(fresh_db):
+    from radar.adapters.base import RawPosting
+    from radar.crawler import mark_duplicates
+    from radar.models import Posting
+
+    text = ("Als DevOps Engineer in {city} bouw je CI/CD-pipelines met Kubernetes en Terraform voor onze klanten. "
+            "Je werkt in een agile team met developers en beheerders.")
+
+    def raw(ext, city, day=20):
+        return RawPosting(external_id=ext, title="DevOps Engineer", location=f"{city}, Netherlands",
+                          url=f"https://agency.example/jobs/devops-engineer-{ext}", posted_at=datetime(2026, 9, day),
+                          description_html=text.format(city=city))
+    with session_scope() as s:
+        src = _source(s, company="Agency", ats="jsonld", slug="https://agency.example/sitemap.xml")
+        ingest(s, src, [raw("1", "Zwolle"), raw("2", "Emmen"), raw("3", "Assen", 22),
+                        raw("4", "Groningen", day=1)])  # same text but 19 days earlier: a separate round
+        mark_duplicates(s)
+        shown = s.query(Posting).filter(Posting.duplicate_of.is_(None)).all()
+        assert len(shown) == 2
+        merged = next(p for p in shown if p.also_in)
+        assert sorted([merged.city, *merged.also_in]) == ["Assen", "Emmen", "Zwolle"]
+
+    from radar.api import app
+    client = TestClient(app)
+    hit = client.get("/api/postings", params={"city": "Emmen"}).json()["items"]
+    assert len(hit) == 1 and "Emmen" in hit[0]["also_in"]  # found through one of its other cities
+
+
+def test_language_copies_of_one_page_are_one_listing(fresh_db):
+    from radar.adapters.base import RawPosting
+    from radar.crawler import mark_duplicates
+    from radar.models import Posting
+
+    def raw(prefix, title):
+        return RawPosting(external_id=prefix or "root", title=title, location="Rotterdam, Netherlands",
+                          url=f"https://marlink.example{prefix}/job/339", posted_at=datetime(2026, 9, 29),
+                          description_html=f"{title}: you run our network security products in Python and Go.")
+    with session_scope() as s:
+        src = _source(s, company="Marlink", ats="jsonld", slug="https://marlink.example/sitemap.xml")
+        ingest(s, src, [raw("", "Head of Security Products"), raw("/fr", "Responsable produits sécurité"),
+                        raw("/br", "Chefe de produtos"), raw("/en-gb", "Head of Security Products")])
+        mark_duplicates(s)
+        shown = s.query(Posting).filter(Posting.duplicate_of.is_(None)).all()
+        assert len(shown) == 1 and shown[0].url.endswith("/en-gb/job/339")  # the English copy is kept
+
+
+def test_security_guard_at_a_datacenter_is_not_a_tech_job():
+    from radar.classify import is_tech
+
+    assert not is_tech("Beveiliger datacenter", "")
+    assert is_tech("Datacenter Engineer", "")

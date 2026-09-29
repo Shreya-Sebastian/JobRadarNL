@@ -69,6 +69,8 @@ class Posting(Base):
     link_checked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     link_status: Mapped[str | None] = mapped_column(String(20), nullable=True)  # ok | gone | redirected | error
     valid_through: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)  # employer's own expiry date
+    # other cities of the same vacancy when the board lists one page per city (merged by mark_duplicates)
+    also_in: Mapped[list | None] = mapped_column(JSON, nullable=True)
 
     source: Mapped[Source] = relationship(back_populates="postings")
 

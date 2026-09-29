@@ -42,6 +42,7 @@ class Row:
     link_checked_at: datetime | None = None
     link_status: str | None = None
     valid_through: datetime | None = None
+    also_in: list[str] = field(default_factory=list)  # other cities of the same vacancy
 
     @property
     def confirmed_at(self) -> datetime | None:
@@ -172,7 +173,8 @@ class Filters:
             out = [r for r in out if r.ex.get("enrollment_required") is False]
         cities = _csv(self.city)
         if cities:
-            out = [r for r in out if (r.city or "").lower() in cities or ("remote" in cities and r.remote)]
+            out = [r for r in out if (r.city or "").lower() in cities or ("remote" in cities and r.remote)
+                   or any(c.lower() in cities for c in r.also_in)]
         if self.company:
             out = [r for r in out if r.company.lower() == self.company.lower()]
         excluded = _csv(self.exclude_companies)
@@ -307,6 +309,7 @@ def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
                 p.link_checked_at,
                 p.link_status,
                 p.valid_through,
+                p.also_in or [],
             )
         )
     return rows
@@ -505,6 +508,7 @@ def posting_dicts(
             "title": r.title,
             "company": r.company,
             "city": r.city,
+            "also_in": r.also_in,
             "remote": r.remote,
             "url": r.url,
             "posted_at": (r.posted_at or r.first_seen).date().isoformat(),
