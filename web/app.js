@@ -83,6 +83,8 @@
       "acct.email.ph": "you@example.com", "acct.send": "Send login link", "acct.sending": "Sending…",
       "acct.sent": "Check your inbox: the link works once and for 15 minutes.", "acct.bad": "That does not look like an e-mail address.",
       "acct.slow": "Too many requests. Try again in an hour.", "acct.fail": "Could not send the link. Try again later.",
+      "acct.nomail": "E-mail is not set up on this server yet, so no e-mail was sent. The login link is in the server log.",
+      "acct.devlink": "Open the login link (local mode)",
       "acct.expired": "That login link has expired or was already used. Request a new one.", "acct.welcome": "You are logged in.",
       "acct.in.title": "Your account", "acct.in.as": "Logged in as", "acct.in.sync": "Your profile and saved jobs are kept in your account.",
       "acct.synced": "Synced.", "acct.sync.fail": "Not synced; changes are kept in this browser.", "acct.logout": "Log out",
@@ -177,6 +179,8 @@
       "acct.email.ph": "jij@voorbeeld.nl", "acct.send": "Stuur inloglink", "acct.sending": "Versturen…",
       "acct.sent": "Kijk in je inbox: de link werkt één keer en 15 minuten lang.", "acct.bad": "Dat lijkt geen e-mailadres.",
       "acct.slow": "Te veel verzoeken. Probeer het over een uur opnieuw.", "acct.fail": "De link kon niet worden verstuurd. Probeer het later opnieuw.",
+      "acct.nomail": "E-mail is op deze server nog niet ingesteld, dus er is geen e-mail verstuurd. De inloglink staat in het serverlog.",
+      "acct.devlink": "Open de inloglink (lokale modus)",
       "acct.expired": "Die inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.", "acct.welcome": "Je bent ingelogd.",
       "acct.in.title": "Je account", "acct.in.as": "Ingelogd als", "acct.in.sync": "Je profiel en bewaarde vacatures staan in je account.",
       "acct.synced": "Gesynchroniseerd.", "acct.sync.fail": "Niet gesynchroniseerd; wijzigingen blijven in deze browser.", "acct.logout": "Uitloggen",
@@ -769,7 +773,10 @@
       const status = $("#acct-status"); status.textContent = t("acct.sending");
       try {
         const r = await account.post("/api/auth/request", "POST", { email: $("#acct-email").value.trim(), lang: LANG });
-        status.textContent = r.ok ? t("acct.sent") : r.status === 422 ? t("acct.bad") : r.status === 429 ? t("acct.slow") : t("acct.fail");
+        const d = r.ok ? await r.json() : {};
+        status.textContent = !r.ok ? (r.status === 422 ? t("acct.bad") : r.status === 429 ? t("acct.slow") : t("acct.fail"))
+          : d.delivery === "console" ? t("acct.nomail") : t("acct.sent");
+        if (d.dev_link) status.insertAdjacentHTML("beforeend", ` <a href="${esc(d.dev_link)}">${esc(t("acct.devlink"))}</a>`);
       } catch { status.textContent = t("acct.fail"); }
     });
     $("#acct-logout").addEventListener("click", async () => {

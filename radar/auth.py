@@ -116,6 +116,9 @@ def request_link(body: LinkRequest, request: Request, session: Session = Depends
     hour_ago = datetime.utcnow() - timedelta(hours=1)
     recent = session.scalar(select(func.count()).select_from(LoginToken)
                             .where(LoginToken.email == email, LoginToken.created_at >= hour_ago)) or 0
+    out: dict = {"ok": True}
+    if settings.mail_backend == "console":
+        out["delivery"] = "console"  # no mail service configured: say so instead of pretending a mail is on its way
     if recent < MAX_PER_EMAIL_PER_HOUR:
         token = secrets.token_urlsafe(32)
         session.add(LoginToken(token_hash=_hash(token), email=email, ip=ip,
@@ -124,12 +127,14 @@ def request_link(body: LinkRequest, request: Request, session: Session = Depends
         # The link always points at the configured public site, never at the Host header of this request (which
         # a caller controls). Only the console backend, which sends nothing, uses the local address.
         base = str(request.base_url) if settings.mail_backend == "console" else settings.site_url
-        _send_link(email, token, "nl" if body.lang == "nl" else "en", base)
+        link = _send_link(email, token, "nl" if body.lang == "nl" else "en", base)
+        if settings.mail_backend == "console" and settings.dev_login_links and ip in {"127.0.0.1", "::1"}:
+            out["dev_link"] = link
     # same answer either way, so the endpoint does not reveal who has an account or who is rate-limited
-    return {"ok": True}
+    return out
 
 
-def _send_link(email: str, token: str, lang: str, base: str) -> None:
+def _send_link(email: str, token: str, lang: str, base: str) -> str:
     link = f"{base.rstrip('/')}/auth/verify?token={quote(token)}"
     name = settings.site_name
     if lang == "nl":
@@ -143,6 +148,7 @@ def _send_link(email: str, token: str, lang: str, base: str) -> None:
     html = "<p>" + escape(text.split("\n\n")[0]) + f'</p><p><a href="{escape(link)}">{escape(link)}</a></p><p>' + \
         escape(text.split("\n\n")[2]) + "</p>"
     mailer.send(email, subject, text, html)
+    return link
 
 
 @router.get("/auth/verify", include_in_schema=False)

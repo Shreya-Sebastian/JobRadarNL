@@ -21,7 +21,7 @@ def client(fresh_db):
 
 
 def _login(client, email="Ada@Example.org"):
-    assert client.post("/api/auth/request", json={"email": email}, headers=H).json() == {"ok": True}
+    assert client.post("/api/auth/request", json={"email": email}, headers=H).json()["ok"] is True
     body = mailer.OUTBOX[-1].get_body(("plain",)).get_content()
     link = next(w for w in body.split() if "/auth/verify?token=" in w)
     token = parse_qs(urlparse(link).query)["token"][0]
@@ -110,3 +110,18 @@ def test_cleanup_removes_expired_state_and_inactive_accounts(client):
 def test_privacy_page_in_both_languages(client):
     assert "Your rights" in client.get("/privacy").text
     assert '<html lang="nl">' in client.get("/nl/privacy").text
+
+
+def test_console_backend_says_no_mail_was_sent_and_dev_links_need_opt_in(client, monkeypatch):
+    from radar.config import settings
+
+    r = client.post("/api/auth/request", json={"email": "dev@example.org"}, headers=H).json()
+    assert r == {"ok": True, "delivery": "console"}  # no link unless explicitly enabled
+    monkeypatch.setattr(settings, "dev_login_links", True)
+    monkeypatch.setattr(auth, "_ip_allowed", lambda ip: True)
+    # the test client is not a loopback address, so still no link
+    assert "dev_link" not in client.post("/api/auth/request", json={"email": "dev@example.org"}, headers=H).json()
+    monkeypatch.setattr(settings, "mail_backend", "smtp")
+    monkeypatch.setattr(mailer, "send", lambda *a, **k: None)
+    r = client.post("/api/auth/request", json={"email": "dev2@example.org"}, headers=H).json()
+    assert r == {"ok": True}  # a real mail backend never returns the link
