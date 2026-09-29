@@ -117,3 +117,24 @@ def test_nightly_rollup_keeps_daily_totals_and_drops_old_rows(fresh_db):
         assert s.query(DailyStat).filter_by(dim="country", key="NL").one().humans == 2
         at = analytics._all_time(s, [], datetime(2026, 9, 30))
         assert at["hits"] == 3 and at["humans"] == 2 and at["countries"] == 1
+
+
+def test_admin_can_exclude_their_own_browser(client):
+    me = {"user-agent": CHROME, "cf-connecting-ip": "203.0.113.9"}
+    auth = {"Authorization": "Bearer secret-token", **me}
+    client.get("/", headers=me)
+    analytics.flush()
+    client.get("/", headers=me)  # still in the buffer
+    assert client.post("/api/admin/analytics/exclude", headers=me).status_code == 401
+    r = client.post("/api/admin/analytics/exclude", headers=auth)
+    assert r.json() == {"excluded": True, "forgotten": 1} and "radar_noanalytics=1" in r.headers["set-cookie"]
+    client.get("/", headers=me)  # the cookie is now sent: not recorded
+    analytics.flush()
+    with session_scope() as s:
+        assert s.query(PageView).count() == 0
+    assert client.get("/api/admin/analytics", headers=auth).json()["this_browser_excluded"] is True
+    client.delete("/api/admin/analytics/exclude", headers=auth)
+    client.get("/", headers=me)
+    analytics.flush()
+    with session_scope() as s:
+        assert s.query(PageView).count() == 1

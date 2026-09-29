@@ -174,9 +174,33 @@ def _search_detail(query: str) -> str | None:
     return "&".join(parts)[:200] if parts else None
 
 
+IGNORE_COOKIE = "radar_noanalytics"  # set only in the admin's own browsers, from the analytics page
+
+
+def excluded(request) -> bool:
+    return request.cookies.get(IGNORE_COOKIE) == "1"
+
+
+def forget_today(session: Session, visitor: str) -> int:
+    """Remove today's rows of one visitor (the admin excluding their own browser), buffered ones included."""
+    from radar.models import PageView
+
+    now = datetime.utcnow()
+    with _buffer_lock:
+        _buffer[:] = [r for r in _buffer if r["visitor"] != visitor]
+    n = session.execute(delete(PageView).where(PageView.visitor == visitor,
+                                               PageView.ts >= datetime(now.year, now.month, now.day))).rowcount
+    session.commit()
+    return n or 0
+
+
+def request_visitor(request) -> str:
+    return visitor_id(client_ip(request), request.headers.get("user-agent", ""), datetime.utcnow().date().isoformat())
+
+
 def record(request, status: int, ms: float, size: int, event: str | None = None, detail: str | None = None,
            path: str | None = None) -> None:
-    if not settings.analytics_enabled:
+    if not settings.analytics_enabled or excluded(request):
         return
     path = path or request.url.path
     kind = "event" if event else classify(path)
@@ -199,7 +223,7 @@ def record(request, status: int, ms: float, size: int, event: str | None = None,
         "referrer": _referrer(request.headers.get("referer")) if kind == "page" else None,
         "utm_source": utm[:60] if utm else None, "country": (request.headers.get("cf-ipcountry") or "")[:2] or None,
         "browser": browser, "os": os_name, "device": device, "bot": bot,
-        "visitor": visitor_id(client_ip(request), ua, now.date().isoformat()),
+        "visitor": request_visitor(request),
         "event": event, "detail": detail[:200] if detail else None,
     }
     with _buffer_lock:

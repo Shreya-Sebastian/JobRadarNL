@@ -59,6 +59,7 @@
       <h1>Analytics</h1><span class="sub">{{SITE_NAME}}</span>
       <span class="sub"><span class="dot"></span><span id="stamp"></span> · auto-refreshes every 60 s</span>
       <div class="controls">
+        <button id="me" title="Sets a cookie in this browser only, so your own visits are not counted">Exclude this browser</button>
         <button id="bots">Include bots</button>
         <button id="refresh">Refresh</button>
         <button id="logout" class="link">Sign out</button>
@@ -111,7 +112,7 @@
   const country = (c) => { if (!c || c === "XX" || c === "T1") return c === "T1" ? "Tor" : "Unknown"; try { return region ? region.of(c) : c; } catch { return c; } };
   const ago = (iso) => { const s = Math.max(0, (Date.now() - new Date(iso)) / 1000); return s < 60 ? "just now" : s < 3600 ? `${Math.floor(s / 60)}m ago` : `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m ago`; };
   const TOKEN_KEY = "radar.analytics.token";
-  let token = null, bots = false, timer = null;
+  let token = null, bots = false, timer = null, excludedMe = false;
   const charts = {};
   try { token = sessionStorage.getItem(TOKEN_KEY); } catch { /* storage blocked */ }
 
@@ -143,6 +144,9 @@
 
   function render(d) {
     const k = d.kpi, a = d.all_time;
+    excludedMe = !!d.this_browser_excluded;
+    $("#me").textContent = excludedMe ? "Count this browser again" : "Exclude this browser";
+    $("#me").classList.toggle("on", excludedMe);
     $("#stamp").textContent = new Date(d.generated_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
     tiles("#tiles", [
       [fmt(k.views_today), "Page views today", `${fmt(k.uniques_today)} unique`],
@@ -219,6 +223,11 @@
     e.preventDefault(); token = $("#token").value.trim(); $("#token").value = "";
     try { sessionStorage.setItem(TOKEN_KEY, token); } catch { /* storage blocked */ }
     start();
+  });
+  $("#me").addEventListener("click", async () => {
+    const r = await fetch("/api/admin/analytics/exclude", { method: excludedMe ? "DELETE" : "POST", headers: { Authorization: `Bearer ${token}` } });
+    if (r.ok) { const j = await r.json(); if (j.excluded && j.forgotten) $("#stamp").textContent = `removed ${j.forgotten} of today's visits from this browser`; }
+    load().catch(() => {});
   });
   $("#bots").addEventListener("click", () => { bots = !bots; $("#bots").classList.toggle("on", bots); load().catch(() => {}); });
   $("#refresh").addEventListener("click", () => load().catch(() => {}));

@@ -320,7 +320,31 @@ def admin_analytics(request: Request, bots: bool = False, session: Session = Dep
     from radar import analytics
 
     _admin(request)
-    return analytics.dashboard(session, include_bots=bots)
+    return {**analytics.dashboard(session, include_bots=bots), "this_browser_excluded": analytics.excluded(request)}
+
+
+@app.post("/api/admin/analytics/exclude", include_in_schema=False)
+def admin_analytics_exclude(request: Request, session: Session = Depends(db)):
+    """Stop counting this browser (a cookie in the admin's own browser only) and forget its visits of today."""
+    from radar import analytics
+
+    _admin(request)
+    forgotten = analytics.forget_today(session, analytics.request_visitor(request))
+    resp = Response(content=f'{{"excluded": true, "forgotten": {forgotten}}}', media_type="application/json")
+    local = request.url.hostname in {"localhost", "127.0.0.1", "::1", "testserver"}
+    resp.set_cookie(analytics.IGNORE_COOKIE, "1", max_age=400 * 86400, httponly=True, samesite="lax",
+                    secure=not local, path="/")
+    return resp
+
+
+@app.delete("/api/admin/analytics/exclude", include_in_schema=False)
+def admin_analytics_include(request: Request):
+    from radar import analytics
+
+    _admin(request)
+    resp = Response(content='{"excluded": false}', media_type="application/json")
+    resp.delete_cookie(analytics.IGNORE_COOKIE, path="/")
+    return resp
 
 
 @app.get("/api/admin/status", include_in_schema=False)
