@@ -221,17 +221,43 @@ def test_specialist_tech_fields_are_kept():
 
 
 
-def test_engineering_titles_with_simulation_heavy_text_are_tech():
+def test_engineering_titles_with_simulation_heavy_text_are_tech_when_they_write_code():
     from radar.classify import is_tech
 
+    filler = " We offer a permanent contract, a pension scheme and 30 days of leave in a friendly team." * 4
     sim = ("You run FEA and CFD studies in Ansys and Abaqus, build multiphysics simulation models and validate "
-           "them against tests.")
+           "them against tests. You develop our in-house solver in C++ and automate studies in Python." + filler)
     assert is_tech("Mechanical Engineer", sim)
     assert is_tech("Structural Engineer", sim)
     assert is_tech("PhD Position on Impact Analysis of Composite Structures", sim)
     assert not is_tech("Sales Manager", sim)
     assert not is_tech("Senior Project Manager", sim)
     assert not is_tech("Mechanical Engineer", "You design brackets and supervise the workshop.")
+    # using FEM and CFD tools to analyse ship structures is mechanical engineering, not a tech job
+    applied = ("As a Starter Scientist CFD modeler you analyse maritime structures with high-fidelity numerical tools "
+               "(FEM and CFD), model blast waves and fluid-structure interaction, and publish your results. You have "
+               "a degree in Maritime or Mechanical Engineering and a specialisation in high-speed CFD." + filler)
+    assert not is_tech("Starter Scientist Military CFD", applied)
+    assert not is_tech("Structural Engineer", applied)
+
+
+def test_generic_titles_need_software_or_it_in_the_text():
+    from radar.classify import is_tech
+
+    filler = " We offer a permanent contract, a pension scheme and 30 days of leave in a friendly team." * 4
+    install = "You design electrical installations for utility buildings and supervise contractors on site." + filler
+    lab = "You run ICP-MS analyses on water and soil samples in our accredited laboratory." + filler
+    it = "You translate business needs into user stories and work with the developers in an agile team." + filler
+    assert not is_tech("Engineer Elektrotechniek", install)
+    assert not is_tech("Cost Engineer", install)
+    assert not is_tech("Senior Scientist", lab)
+    assert is_tech("Business Analyst", it)
+    assert is_tech("Senior Engineer", "You maintain our Linux servers and the Kubernetes platform." + filler)
+    # a specific tech title stands on its own, whatever the text says
+    assert is_tech("Data Scientist", lab)
+    assert is_tech("OnSite Support Engineer", install)
+    # a short or missing description is not evidence either way
+    assert is_tech("Research Scientist", "")
 
 
 

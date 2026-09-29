@@ -188,8 +188,58 @@ _COMMERCIAL_TITLE = re.compile(r"sales|account|business development|marketing|re
                                r"project manager|projectleider|director|\bhead of\b|\bpmo\b", re.I)
 
 
+# Title words that say "a professional" but not which field: "Scientist", "Engineer", "Researcher", "Analyst",
+# "PhD", plus simulation words (CFD, FEA), which describe the tooling of mechanical, civil and maritime engineers as
+# much as of software people. A title made only of these is tech only when the text shows software, IT or data work.
+_GENERIC_TITLE = re.compile(
+    r"\b(?:senior|junior|starter|medior|lead|principal|staff|chief|expert|young|graduate|trainee|"
+    r"research|scientists?|researchers?|onderzoek\w*|engineers?|engineering|ingenieurs?|\bphd\b|postdoc\w*|promov\w*|"
+    r"analysts?|analist(?:en)?|specialist|consultant|adviseur|advisor|"
+    r"simulat\w*|cfd|computational|numerical|model\w*|finite[- ]element|fea|fem|multiphysics)\b",
+    re.I,
+)
+_SOFTWARE_TEXT = re.compile(
+    r"\bpython\b|c\+\+|\bfortran\b|\bjulia\b|\bc#|\brust\b|\bjava\b|\bmatlab\b|\bprogramm(?:ing|er|eur|eren)\b|"
+    r"\bprogrammeer\w*|\bscripting\b|\bcoding\b|\bsoftware\b|softwareontwikkel\w*|"
+    r"(?:develop\w*|ontwikkel\w*|implement\w*|writ\w*|maintain\w*) (?:\w+ ){0,3}(?:code|solvers?|algorithms?)\b|"
+    r"\bhpc\b|high[- ]performance computing|parallel computing|\bgpu\b|\bcuda\b|\bmpi\b|machine learning|"
+    r"deep learning|\bai\b|artificial intelligence|data scien\w*|\bsql\b|\blinux\b|\bgit\b|\bcloud\b|"
+    r"(?:computer|it|ict|data|mobile|telecom|5g) ?networks?|network (?:engineer\w*|security|infrastructure|protocols?)|"
+    r"netwerk(?:beheer|infrastructuur|engineer)\w*|\bict\b|\bit[- ](?:systems?|infrastructure|security|omgeving)|"
+    r"cyber\w*|informati(?:on|e)(?:systemen| systems| security| technology|technologie)|"
+    r"\bhris\b|\berp\b|\bsap\b|\bcrm\b|power ?bi|tableau|dashboard\w*|database\w*|\bapi'?s?\b|"
+    r"applicati(?:on|e)(?:beheer| management| support| landscape)|"
+    r"\bplc\b|\bscada\b|automatiseringssystemen|\bsaas\b|\berp-|digitale? (?:transformatie|transformation)|"
+    r"\bpega\b|outsystems|mendix|\bapplicaties\b|user stor(?:y|ies)|\bbacklog\b|\bscrum\b|\bagile\b|"
+    r"business (?:and|en|&) it\b|\bdevelopers\b|\bontwikkelaars\b|information flows|informatiestromen",
+    re.I,
+)
+
+
 def tech_score(title: str, description: str = "") -> float:
     """Return a score in [0, 1]; >= 0.5 counts as tech."""
+    score = _title_score(title, description)
+    if score >= 0.5 and _generic_title(title) and len(description or "") >= 300 and \
+            not _SOFTWARE_TEXT.search(description or ""):
+        # "Starter Scientist Military CFD", "Cost Engineer", "Chemisch Analist": the title only says "professional"
+        # and the text never mentions software, code, data or IT, so this is another field's engineering or science
+        return 0.3
+    return score
+
+
+def _generic_title(title: str) -> bool:
+    t = title or ""
+    if not _GENERIC_TITLE.search(t):
+        return False
+    # a tech phrase that is more than generic words ("Support Engineer", "Data Scientist") makes the title specific
+    for rx in (_RESCUE_STRONG, _STRONG):
+        for m in rx.finditer(t):
+            if _GENERIC_TITLE.sub("", m.group(0)).strip(" -/"):
+                return False
+    return True
+
+
+def _title_score(title: str, description: str = "") -> float:
     t = title or ""
     if re.search(r"open (?:application|sollicitatie)|\[test\]|spontan\w* (?:application|sollicitatie)|"
                  r"talent ?pool|talent community|future opportunit\w*|general application|expression of interest|"
