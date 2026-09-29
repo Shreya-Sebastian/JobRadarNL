@@ -43,6 +43,26 @@ redis://{{ include "radar.fullname" . }}-redis:6379/0
       name: {{ .Values.admin.existingSecret | default (printf "%s-admin" (include "radar.fullname" .)) }}
       key: RADAR_ADMIN_TOKEN
       optional: true
+- name: RADAR_MAIL_BACKEND
+  value: {{ .Values.mail.backend | quote }}
+- name: RADAR_MAIL_FROM
+  value: {{ .Values.mail.from | quote }}
+- name: RADAR_SMTP_HOST
+  value: {{ .Values.mail.smtpHost | quote }}
+- name: RADAR_SMTP_PORT
+  value: {{ .Values.mail.smtpPort | quote }}
+{{- if .Values.mail.existingSecret }}
+- name: RADAR_SMTP_USER
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.mail.existingSecret }}
+      key: RADAR_SMTP_USER
+- name: RADAR_SMTP_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.mail.existingSecret }}
+      key: RADAR_SMTP_PASSWORD
+{{- end }}
 - name: RADAR_COUNTRIES
   value: {{ .Values.config.countries | quote }}
 - name: RADAR_EXTRACTOR

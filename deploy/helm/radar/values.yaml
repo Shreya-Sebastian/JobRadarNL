@@ -12,6 +12,14 @@ admin:
   existingSecret: ""          # Secret with key RADAR_ADMIN_TOKEN; if empty and `token` is set, the chart creates one
   token: ""                   # leave empty to disable the admin "crawl now" endpoints entirely
 
+# Login e-mails (radar/auth.py). With backend "console" links only appear in the API log.
+mail:
+  backend: console            # console | smtp
+  from: "Tech Jobs Radar <login@techjobsradar.nl>"
+  smtpHost: email-smtp.eu-west-1.amazonaws.com
+  smtpPort: 587
+  existingSecret: ""          # Secret with keys RADAR_SMTP_USER and RADAR_SMTP_PASSWORD
+
 redis:
   enabled: true               # in-cluster Redis for the queue, rate limits and response cache
   image: redis:7-alpine

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="{{HTML_LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy · {{SITE_NAME}}</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/static/style.css?v=10">
+<style>
+  html[lang="nl"] .en, html[lang="en"] .nl { display: none; }
+  main.privacy a { color: var(--accent); }
+  main.privacy { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  main.privacy h1 { font-size: 26px; margin: 0 0 4px; }
+  main.privacy h2 { font-size: 18px; margin: 28px 0 6px; }
+  main.privacy table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  main.privacy th, main.privacy td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<main class="privacy">
+<p class="small"><a href="/" class="en">← {{SITE_NAME}}</a><a href="/nl/" class="nl">← {{SITE_NAME}}</a> · <a href="/privacy">English</a> · <a href="/nl/privacy">Nederlands</a></p>
+
+<section class="en">
+  <h1>Privacy</h1>
+  <p class="muted">Last updated 29 September 2026</p>
+  <p>{{SITE_NAME}} works without an account. If you do not log in, your profile and saved jobs are kept only in your own browser (local storage) and nothing about you is stored on the server. CV text you paste to detect skills is processed once and not stored.</p>
+
+  <h2>If you create an account</h2>
+  <table>
+    <tr><th>What</th><th>Why</th><th>How long</th></tr>
+    <tr><td>Your e-mail address</td><td>To send you login links and to recognise your account</td><td>Until you delete the account, or two years after your last login</td></tr>
+    <tr><td>Your profile (roles, levels, cities, skills and similar preferences) and saved job IDs</td><td>To show the same profile on every device you log in on</td><td>Same as above</td></tr>
+    <tr><td>Login links and the IP address a link was requested from</td><td>To make links single-use and to stop abuse of the login form</td><td>Two days</td></tr>
+    <tr><td>A session cookie (<code>radar_session</code>)</td><td>To keep you logged in</td><td>30 days, or until you log out</td></tr>
+  </table>
+  <p>Only a one-way hash of each login link and session token is stored, never the token itself. There are no passwords. The legal basis is performance of the service you ask for (GDPR article 6(1)(b)). The session cookie is strictly necessary, so it needs no cookie consent. There are no analytics, advertising or tracking cookies.</p>
+
+  <h2>Your rights</h2>
+  <p>On the <a href="/#profile">My profile</a> tab you can download everything stored about you as a JSON file, and delete your account. Deleting removes your e-mail address, profile, saved jobs and sessions from the server straight away. You can also ask for correction or deletion, or object, through the contact below, and you can complain to the Dutch data protection authority (<a href="https://autoriteitpersoonsgegevens.nl" rel="noopener">Autoriteit Persoonsgegevens</a>).</p>
+
+  <h2>Who processes it</h2>
+  <p>{{SITE_NAME}} is run by Shreya Sebastian, Eindhoven, the Netherlands. The data is stored on servers in the European Union. Login e-mails are sent through an e-mail delivery service acting as processor. Data is not sold or shared with employers or recruiters.</p>
+
+  <h2>Contact</h2>
+  <p>Open an issue at <a href="https://github.com/Shreya-Sebastian/JobRadarNL/issues" rel="noopener">github.com/Shreya-Sebastian/JobRadarNL</a>. For a request about your own data, say that you want to be contacted privately and do not post your e-mail address in the issue.</p>
+</section>
+
+<section class="nl">
+  <h1>Privacy</h1>
+  <p class="muted">Laatst bijgewerkt 29 september 2026</p>
+  <p>{{SITE_NAME}} werkt zonder account. Als je niet inlogt, staan je profiel en bewaarde vacatures alleen in je eigen browser (local storage) en wordt er niets over jou op de server opgeslagen. Cv-tekst die je plakt om skills te herkennen wordt één keer verwerkt en niet bewaard.</p>
+
+  <h2>Als je een account aanmaakt</h2>
+  <table>
+    <tr><th>Wat</th><th>Waarom</th><th>Hoe lang</th></tr>
+    <tr><td>Je e-mailadres</td><td>Om je inloglinks te sturen en je account te herkennen</td><td>Tot je het account verwijdert, of twee jaar na je laatste login</td></tr>
+    <tr><td>Je profiel (functies, niveaus, steden, skills en vergelijkbare voorkeuren) en de ID's van bewaarde vacatures</td><td>Om hetzelfde profiel te tonen op elk apparaat waarop je inlogt</td><td>Zoals hierboven</td></tr>
+    <tr><td>Inloglinks en het IP-adres waarvandaan een link is aangevraagd</td><td>Om links eenmalig te maken en misbruik van het inlogformulier te voorkomen</td><td>Twee dagen</td></tr>
+    <tr><td>Een sessiecookie (<code>radar_session</code>)</td><td>Om je ingelogd te houden</td><td>30 dagen, of tot je uitlogt</td></tr>
+  </table>
+  <p>Van elke inloglink en sessie wordt alleen een eenrichtingshash opgeslagen, nooit de link zelf. Er zijn geen wachtwoorden. De grondslag is de uitvoering van de dienst die je vraagt (AVG artikel 6 lid 1 sub b). Het sessiecookie is strikt noodzakelijk en vraagt daarom geen cookietoestemming. Er zijn geen analytische, advertentie- of trackingcookies.</p>
+
+  <h2>Je rechten</h2>
+  <p>Op het tabblad <a href="/nl/#profile">Mijn profiel</a> kun je alles wat over jou is opgeslagen downloaden als JSON-bestand, en je account verwijderen. Verwijderen haalt je e-mailadres, profiel, bewaarde vacatures en sessies direct van de server. Je kunt ook via het contact hieronder om correctie of verwijdering vragen of bezwaar maken, en je kunt een klacht indienen bij de <a href="https://autoriteitpersoonsgegevens.nl" rel="noopener">Autoriteit Persoonsgegevens</a>.</p>
+
+  <h2>Wie het verwerkt</h2>
+  <p>{{SITE_NAME}} wordt beheerd door Shreya Sebastian, Eindhoven. De gegevens staan op servers in de Europese Unie. Inlogmails worden verstuurd via een e-maildienst die als verwerker optreedt. Gegevens worden niet verkocht of gedeeld met werkgevers of recruiters.</p>
+
+  <h2>Contact</h2>
+  <p>Open een issue op <a href="https://github.com/Shreya-Sebastian/JobRadarNL/issues" rel="noopener">github.com/Shreya-Sebastian/JobRadarNL</a>. Gaat het om je eigen gegevens, vraag dan om privé contact en zet je e-mailadres niet in het issue.</p>
+</section>
+</main>
+</body>
+</html>

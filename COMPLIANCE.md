@@ -42,12 +42,21 @@ an identified crawler (Rabobank, SAP) are left out rather than fetched under a d
 
 ## Privacy (GDPR / AVG)
 
-- Visitor profile, saved jobs and language choice live in `localStorage` in the visitor's browser. Nothing is sent
-  to the server except the filter values in query strings (roles, cities, skills), which are not personal data.
-- Pasted CV text is posted to `/api/gap`, used in memory to detect skills, and never written to disk or logs. The
-  footer says so. Accounts or stored CVs would need a privacy statement and a lawful basis; the project has neither.
-- Only functional storage is used, no analytics or third-party cookies, so no consent banner is required under
-  the Dutch Telecommunicatiewet's functional-cookie exemption. Adding analytics would change that.
+- Without an account, the visitor profile, saved jobs and language choice live in `localStorage` in the visitor's
+  browser. Nothing is sent to the server except the filter values in query strings (roles, cities, skills), which are
+  not personal data.
+- Accounts are optional (`radar/auth.py`, privacy statement at `/privacy` and `/nl/privacy`). An account stores the
+  e-mail address, the profile and the saved job IDs; lawful basis is performance of the requested service (art.
+  6(1)(b)). Login is a one-time e-mail link: no passwords, and only SHA-256 hashes of login and session tokens are
+  stored. The IP address a link was requested from is kept with the link for two days, for abuse limits. Users can
+  download their data (`/api/me/export`) and delete the account (`DELETE /api/me`) from the profile tab; accounts
+  without a login for two years are removed by the post-crawl cleanup. The login mail provider (e.g. Amazon SES in
+  eu-west-1) is a processor and needs a data processing agreement, which AWS includes in its service terms.
+- Pasted CV text is posted to `/api/gap`, used in memory to detect skills, and never written to disk or logs, also
+  for logged-in users.
+- Only functional storage is used: `localStorage` and, for logged-in users, one HttpOnly session cookie. No
+  analytics or third-party cookies, so no consent banner is required under the Dutch Telecommunicatiewet's
+  functional-cookie exemption. Adding analytics would change that.
 - No external fonts, scripts or CDNs: Chart.js and D3 are vendored, so visitor IP addresses are not shared with
   third parties.
 - Job descriptions sometimes contain a recruiter's name, email or phone number. E-mail addresses and phone

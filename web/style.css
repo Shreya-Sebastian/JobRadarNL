@@ -115,3 +115,9 @@ footer { padding: 24px 16px 40px; font-size: 12px; }
 .seo-links { padding: 8px 16px 0; line-height: 1.9; }
 .seo-links a { color: var(--muted); text-decoration: none; }
 .seo-links a:hover { color: var(--accent); }
+
+.acct-btn { margin-left: auto; margin-bottom: 6px; padding: 3px 10px; font-size: 13px; border-radius: 6px; }
+.acct-btn.in { background: var(--chip); color: var(--chip-ink); }
+.card.account #acct-email { min-width: 240px; flex: 1 1 240px; max-width: 360px; }
+.card.account form.row { flex-wrap: wrap; }
+button.link.danger { color: var(--bad); }

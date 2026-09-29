@@ -15,7 +15,7 @@
 <meta property="og:type" content="website">
 {{VERIFY}}
 <script type="application/ld+json">{{SITE_JSONLD}}</script>
-<link rel="stylesheet" href="/static/style.css?v=9">
+<link rel="stylesheet" href="/static/style.css?v=10">
 <script src="/static/vendor/chart.umd.min.js"></script>
 <script src="/static/vendor/d3.min.js"></script>
 </head>
@@ -35,6 +35,7 @@
     <a href="#profile" data-tab="profile" data-i18n="tab.profile">My profile</a>
     <a href="#coverage" data-tab="coverage" data-i18n="tab.coverage">Coverage</a>
     <label class="check personalised" data-i18n-title="personalised.title"><input type="checkbox" id="personalised"> <span data-i18n="personalised">Personalised</span></label>
+    <button class="acct-btn" id="acct-btn" data-i18n="acct.login">Log in</button>
     <div class="langswitch" id="langswitch"><button data-lang="nl">NL</button><button data-lang="en">EN</button></div>
   </nav>
 </header>
@@ -142,10 +143,31 @@
 
 <!-- ============ PROFILE ============ -->
 <section class="tab" data-tab="profile">
+  <div class="card account" id="acct-card">
+    <div id="acct-out">
+      <h2 data-i18n="acct.title">Keep your profile on every device</h2>
+      <p class="muted small" data-i18n-html="acct.hint">Log in with your e-mail address to keep your profile and saved jobs on your phone and laptop. No password: we send you a link that works once. Without an account everything stays in this browser. <a href="/privacy">Privacy</a></p>
+      <form class="row" id="acct-form">
+        <input type="email" id="acct-email" required autocomplete="email" data-i18n-placeholder="acct.email.ph" placeholder="you@example.com">
+        <button class="primary" type="submit" data-i18n="acct.send">Send login link</button>
+        <span class="muted" id="acct-status" role="status"></span>
+      </form>
+    </div>
+    <div id="acct-in" hidden>
+      <h2 data-i18n="acct.in.title">Your account</h2>
+      <p class="muted small"><span data-i18n="acct.in.as">Logged in as</span> <b id="acct-who"></b>. <span data-i18n="acct.in.sync">Your profile and saved jobs are kept in your account.</span> <span id="acct-sync" class="muted"></span></p>
+      <div class="row">
+        <button id="acct-logout" data-i18n="acct.logout">Log out</button>
+        <a class="btn" href="/api/me/export" data-i18n="acct.export">Download my data</a>
+        <button class="link danger" id="acct-delete" data-i18n="acct.delete">Delete my account</button>
+        <a class="muted small" href="/privacy">Privacy</a>
+      </div>
+    </div>
+  </div>
   <div class="grid two">
     <div class="card">
       <h2 data-i18n="p.looking">What I am looking for</h2>
-      <p class="muted small" data-i18n-html="p.looking.hint">Saved in your browser only. Switch on <b>Personalised</b> in the header to apply it everywhere.</p>
+      <p class="muted small" data-i18n-html="p.looking.hint">Saved in this browser, and in your account when you are logged in. Switch on <b>Personalised</b> in the header to apply it everywhere.</p>
       <div class="field"><label data-i18n="p.roles">Roles</label><div class="chips toggles" id="p-roles"></div></div>
       <div class="field"><label data-i18n="p.levels">Levels</label><div class="chips toggles" id="p-levels"></div></div>
       <div class="field"><label data-i18n="p.exp">Experience asked</label><div class="chips toggles" id="p-exp"></div></div>
@@ -191,7 +213,7 @@
 <!-- ============ COVERAGE ============ -->
 <section class="tab" data-tab="coverage">
   <div class="card">
-    <h2 data-i18n="cv.title">What this radar covers, honestly</h2>
+    <h2 data-i18n="cv.title">What this radar covers</h2>
     <p data-i18n="cv.p1">Postings are read from employers' own career sites (over a thousand of them publish structured job data) and from the public job boards of the platforms employers use, such as Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters and Homerun, plus AcademicTransfer for universities and Werken voor Nederland for the national government. Employers come from a list of the 540 largest Dutch employers, the IND register of recognised sponsors and the platforms' own directories. Only postings located in the Netherlands and classified as tech roles are counted. Every listing links to the employer's original page.</p>
     <p data-i18n-html="cv.p2"><b>Not here yet:</b> employers on career-site platforms without an adapter (SAP SuccessFactors is partly covered, Radancy, Phenom, iCIMS are not), most big-tech companies' own job APIs, and anything that only exists on LinkedIn. The table below is the list of large employers we track and where each one stands.</p>
     <div class="kpis" id="cv-kpis"></div>
@@ -254,8 +276,8 @@
 
 <nav class="wrap muted small seo-links">{{SEO_LINKS}}</nav>
 <footer class="wrap muted">
-  <p><b>{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs never leave your browser; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.</span></p>
+  <p><b>{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.</span> <a href="/privacy" data-i18n="privacy">Privacy</a></p>
 </footer>
-<script src="/static/app.js?v=28"></script>
+<script src="/static/app.js?v=29"></script>
 </body>
 </html>

@@ -42,7 +42,7 @@ engineering effort goes into finding and reading as many boards as possible, aut
   last visit, best matches), **Jobs** (multi-select filters, match score, save, "new" badges), **Market**
   (cities, seniority, roles, employers, salaries with sample sizes, language, remote policy, weekly trend),
   **My profile** (roles, levels, experience asked, cities, remote, posting language, visa, hidden employers, editable skill list with
-  CV extraction, gap analysis, saved jobs, export/import; stored in the browser only) and **Coverage**
+  CV extraction, gap analysis, saved jobs, export/import; stored in the browser, or in an optional passwordless account that keeps them on every device) and **Coverage**
   (the tracked-employer list and every source's health).
 - Ships an eval harness: a hand-reviewed golden set gates extraction changes in CI.
 
@@ -158,7 +158,7 @@ overall score drops below 0.70. Current result for `rules-v5` on 46 postings (ov
 | salary_min_eur | 0.98 |
 | skills F1 | 0.97 |
 
-Honest caveat: the golden set was built by reviewing rule outputs against the posting text and correcting
+Caveat: the golden set was built by reviewing rule outputs against the posting text and correcting
 them, so today it is a regression suite for the rules rather than an independent accuracy measurement. The
 scalar fields were checked posting by posting; skills were only checked for obvious false positives. The
 150-posting independently labelled set from the plan is still to do, and the LLM extractor comparison could
@@ -168,7 +168,7 @@ not run because the OpenAI account had no credit at the time.
 
 `data/top100.yaml` lists the employers the radar must have, and `radar top100` reports which are covered
 (live postings attributed to them), registered without postings, or missing, with the platform each one runs
-on. The honest headline claim of the site is derived from this report, not the other way round. Job boards
+on. The headline claim of the site is derived from this report, not the other way round. Job boards
 that host many employers' own postings (AcademicTransfer for universities and research institutes,
 werkenvoornederland for the national government) are `board` sources: their postings are attributed to the
 hiring organisation named in each posting.
@@ -221,7 +221,8 @@ COMPLIANCE.md reviews every external service the project touches. In short: the 
 exist for public job boards; the generic careers-page crawler honours robots.txt (Disallow and Crawl-delay) and
 identifies itself with a contact address; LinkedIn, Indeed and Glassdoor are never touched; posting text is
 stored for extraction but only facts, title, employer and the original link are shown; the profile and saved jobs
-live in the visitor's browser and pasted CV text is processed in memory and never stored; recruiters' e-mail addresses and
+live in the visitor's browser unless they log in (e-mail link, no password; data export and account deletion on the
+profile tab, privacy statement at `/privacy`), and pasted CV text is processed in memory and never stored; recruiters' e-mail addresses and
 phone numbers are removed from posting text before it is stored.
 
 ## How listings are kept real

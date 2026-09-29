@@ -466,6 +466,11 @@ def cmd_run_forever(args: argparse.Namespace) -> None:
     while True:
         run = crawl()
         CACHE.invalidate()
+        from radar import auth
+        from radar.db import session_scope
+
+        with session_scope() as s:
+            auth.cleanup(s)
         print(
             f"run {run.id}: ok={run.sources_ok} failed={run.sources_failed} new={run.postings_new} "
             f"closed={run.postings_closed}; sleeping {args.interval_minutes} min",

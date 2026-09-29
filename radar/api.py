@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from radar import stats
+from radar import auth, stats
 from radar.cache import cached
 from radar.config import settings
 from radar.db import get_engine, init_db, new_session
@@ -30,6 +30,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title=settings.site_name, version="0.2.0", lifespan=lifespan, description=settings.site_tagline)
+app.include_router(auth.router)
 _origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()] or ["*"]
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET", "POST"], allow_headers=["*"])
 
@@ -441,6 +442,14 @@ if WEB_DIR.exists():
     @app.get("/nl", include_in_schema=False)
     def index_nl(session: Session = Depends(db)):
         return Response(cached("page:index:nl", lambda: _render_index(session, "nl"), ttl=300), media_type="text/html")
+
+    @app.get("/privacy", include_in_schema=False)
+    @app.get("/nl/privacy", include_in_schema=False)
+    def privacy(request: Request):
+        lang = "nl" if request.url.path.startswith("/nl") else "en"
+        html = (WEB_DIR / "privacy.html").read_text(encoding="utf-8")
+        return Response(html.replace("{{HTML_LANG}}", lang).replace("{{SITE_NAME}}", settings.site_name),
+                        media_type="text/html")
 
     @app.get("/vacatures/{slug}", include_in_schema=False)
     @app.get("/jobs/{slug}", include_in_schema=False)

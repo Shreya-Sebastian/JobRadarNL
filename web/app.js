@@ -32,18 +32,18 @@
       "mk.trend": "New postings per week", "mk.trend.hint": "and the skills you follow", "mk.cities": "Cities", "mk.seniority": "Seniority",
       "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "only postings that print a number",
       "mk.lang": "Posting language", "mk.remote": "Remote policy",
-      "p.looking": "What I am looking for", "p.looking.hint": "Saved in your browser only. Switch on <b>Personalised</b> in the header to apply it everywhere.",
+      "p.looking": "What I am looking for", "p.looking.hint": "Saved in this browser, and in your account when you are logged in. Switch on <b>Personalised</b> in the header to apply it everywhere.",
       "p.roles": "Roles", "p.levels": "Levels", "p.enter": "type and press Enter", "p.exclude": "Employers to hide", "p.language": "Posting language",
       "p.visa": "Only jobs that mention visa sponsorship", "p.agencies": "Hide recruitment agencies", "p.save": "Save profile", "p.export": "Export",
       "p.import": "Import", "p.clear": "Clear", "p.skills": "My skills", "p.skills.hint": "Used for match scores and the gap analysis. Add skills by typing, or extract them from your CV text.",
       "p.extract": "Extract skills from CV text", "p.cv.ph": "Paste your CV here. It is only used to detect skills and is not stored.", "p.extract.btn": "Extract",
       "p.gap": "Gap analysis", "p.gap.hint": "against the jobs that fit your profile", "p.gap.btn": "Analyse", "p.saved": "Saved jobs",
-      "cv.title": "What this radar covers, honestly",
+      "cv.title": "What this radar covers",
       "cv.p1": "Postings are read from employers' own career sites (over a thousand of them publish structured job data) and from the public job boards of the platforms employers use, such as Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters and Homerun, plus AcademicTransfer for universities and Werken voor Nederland for the national government. Employers come from a list of the 540 largest Dutch employers, the IND register of recognised sponsors and the platforms' own directories. Only postings located in the Netherlands and classified as tech roles are counted. Every listing links to the employer's original page.",
       "cv.p2": "<b>Not here yet:</b> employers on career-site platforms without an adapter (SAP SuccessFactors is partly covered, Radancy, Phenom, iCIMS are not), most big-tech companies' own job APIs, and anything that only exists on LinkedIn. The table below is the list of large employers we track and where each one stands.",
       "cv.large": "Large employers", "cv.sources": "Sources", "cv.sources.hint": "every board, its status and yield on the last crawl",
       "cv.flag": "⚑ marks a board whose posting pages could not be reached on the last link check; its postings are kept but may be stale. \"partial\" means the board returned far fewer postings than before and nothing was closed.",
-      "footer": "lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs never leave your browser; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.",
+      "footer": "lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.",
       // dynamic strings
       "kpi.live": "live tech postings", "kpi.employers": "employers", "kpi.sources": "sources healthy", "kpi.new7": "new in 7 days", "kpi.newvisit": "new since your last visit", "kpi.crawl": "last crawl",
       "tagline": "{n} live tech jobs from {m} Dutch employers, read directly from their own career sites and refreshed every few hours.",
@@ -78,6 +78,17 @@
       "f.confirmed.title": "Keeps postings that the employer's own careers site still listed at a crawl in the last 7 days, or whose page was opened and checked in that time.",
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
       "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
+      "acct.login": "Log in", "acct.account": "Account", "acct.title": "Keep your profile on every device",
+      "acct.hint": 'Log in with your e-mail address to keep your profile and saved jobs on your phone and laptop. No password: we send you a link that works once. Without an account everything stays in this browser. <a href="/privacy">Privacy</a>',
+      "acct.email.ph": "you@example.com", "acct.send": "Send login link", "acct.sending": "Sending…",
+      "acct.sent": "Check your inbox: the link works once and for 15 minutes.", "acct.bad": "That does not look like an e-mail address.",
+      "acct.slow": "Too many requests. Try again in an hour.", "acct.fail": "Could not send the link. Try again later.",
+      "acct.expired": "That login link has expired or was already used. Request a new one.", "acct.welcome": "You are logged in.",
+      "acct.in.title": "Your account", "acct.in.as": "Logged in as", "acct.in.sync": "Your profile and saved jobs are kept in your account.",
+      "acct.synced": "Synced.", "acct.sync.fail": "Not synced; changes are kept in this browser.", "acct.logout": "Log out",
+      "acct.export": "Download my data", "acct.delete": "Delete my account",
+      "acct.delete.confirm": "Delete your account? Your e-mail address, profile and saved jobs are removed from the server. This browser keeps its own copy.",
+      "acct.deleted": "Your account is deleted.", "privacy": "Privacy",
       "fresh.text": "New listings are in.", "fresh.reload": "Refresh", "fresh.later": "Later",
       "adm.title": "Admin: refresh listings", "adm.token": "Admin token", "adm.company": "Employer (for a single-employer crawl)",
       "adm.force": "Ignore the 10-minute cool-down", "adm.due": "Crawl sources that are due", "adm.one": "Crawl this employer", "adm.all": "Crawl everything",
@@ -116,18 +127,18 @@
       "mk.trend": "Nieuwe vacatures per week", "mk.trend.hint": "en de skills die je volgt", "mk.cities": "Steden", "mk.seniority": "Niveau",
       "mk.roles": "Rolfamilie", "mk.hiring": "Wie neemt aan", "mk.salary": "Vermelde salarissen", "mk.salary.hint": "alleen vacatures die een bedrag noemen",
       "mk.lang": "Taal van de vacature", "mk.remote": "Thuiswerkbeleid",
-      "p.looking": "Wat ik zoek", "p.looking.hint": "Alleen in je browser opgeslagen. Zet <b>Persoonlijk</b> aan in de kop om het overal toe te passen.",
+      "p.looking": "Wat ik zoek", "p.looking.hint": "Opgeslagen in deze browser, en in je account als je bent ingelogd. Zet <b>Persoonlijk</b> aan in de kop om het overal toe te passen.",
       "p.roles": "Rollen", "p.levels": "Niveaus", "p.enter": "typ en druk op Enter", "p.exclude": "Werkgevers verbergen", "p.language": "Taal van de vacature",
       "p.visa": "Alleen vacatures die visumsponsoring noemen", "p.agencies": "Wervingsbureaus verbergen", "p.save": "Profiel opslaan", "p.export": "Exporteren",
       "p.import": "Importeren", "p.clear": "Wissen", "p.skills": "Mijn skills", "p.skills.hint": "Gebruikt voor matchscores en de gap-analyse. Typ skills in, of haal ze uit je cv-tekst.",
       "p.extract": "Skills uit cv-tekst halen", "p.cv.ph": "Plak hier je cv. Het wordt alleen gebruikt om skills te herkennen en niet opgeslagen.", "p.extract.btn": "Herkennen",
       "p.gap": "Gap-analyse", "p.gap.hint": "tegen de vacatures die bij je profiel passen", "p.gap.btn": "Analyseren", "p.saved": "Bewaarde vacatures",
-      "cv.title": "Wat deze radar dekt, eerlijk",
+      "cv.title": "Wat deze radar dekt",
       "cv.p1": "Vacatures worden gelezen van de eigen carrièresites van werkgevers (ruim duizend daarvan publiceren gestructureerde vacaturegegevens) en van de openbare vacatureborden van de platforms die werkgevers gebruiken, zoals Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters en Homerun, plus AcademicTransfer voor universiteiten en Werken voor Nederland voor de Rijksoverheid. Werkgevers komen uit een lijst van de 540 grootste Nederlandse werkgevers, het IND-register van erkende referenten en de overzichten van de platforms zelf. Alleen vacatures in Nederland die als techfunctie zijn geclassificeerd tellen mee. Elke vacature linkt naar de originele pagina van de werkgever.",
       "cv.p2": "<b>Nog niet aanwezig:</b> werkgevers op platforms zonder adapter (SAP SuccessFactors deels, Radancy, Phenom en iCIMS niet), de eigen vacature-API's van de meeste big-techbedrijven, en alles wat alleen op LinkedIn staat. De tabel hieronder toont de grote werkgevers die we volgen en hoe elk ervoor staat.",
       "cv.large": "Grote werkgevers", "cv.sources": "Bronnen", "cv.sources.hint": "elk vacaturebord, de status en opbrengst bij de laatste crawl",
       "cv.flag": "⚑ markeert een bord waarvan de vacaturepagina's bij de laatste linkcontrole onbereikbaar waren; de vacatures blijven staan maar kunnen verouderd zijn. \"partial\" betekent dat het bord veel minder vacatures teruggaf dan eerder en er niets is gesloten.",
-      "footer": "toont tech-, software-, data- en IT-vacatures in Nederland, rechtstreeks gelezen van de carrièresites van werkgevers en de openbare vacatureborden van de platforms die zij gebruiken, en elke paar uur ververst. Elke vacature linkt naar de originele pagina van de werkgever. Gemaakt door Shreya Sebastian. Je profiel en bewaarde vacatures verlaten je browser nooit; geplakte cv-tekst wordt één keer gebruikt om skills te herkennen en niet opgeslagen. Salariscijfers tonen steekproefgroottes met een reden.",
+      "footer": "toont tech-, software-, data- en IT-vacatures in Nederland, rechtstreeks gelezen van de carrièresites van werkgevers en de openbare vacatureborden van de platforms die zij gebruiken, en elke paar uur ververst. Elke vacature linkt naar de originele pagina van de werkgever. Gemaakt door Shreya Sebastian. Je profiel en bewaarde vacatures blijven in je browser, tenzij je inlogt; geplakte cv-tekst wordt één keer gebruikt om skills te herkennen en niet opgeslagen. Salariscijfers tonen steekproefgroottes met een reden.",
       "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.sources": "bronnen gezond", "kpi.new7": "nieuw in 7 dagen", "kpi.newvisit": "nieuw sinds je laatste bezoek", "kpi.crawl": "laatste crawl",
       "tagline": "{n} open techvacatures van {m} Nederlandse werkgevers, rechtstreeks van hun eigen carrièresites en elke paar uur ververst.",
       "title": "{n} ICT en tech vacatures in Nederland",
@@ -161,6 +172,17 @@
       "f.confirmed.title": "Houdt vacatures die de eigen carrièresite van de werkgever bij een crawl in de laatste 7 dagen nog toonde, of waarvan de pagina in die tijd is geopend en gecontroleerd.",
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
       "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
+      "acct.login": "Inloggen", "acct.account": "Account", "acct.title": "Je profiel op elk apparaat",
+      "acct.hint": 'Log in met je e-mailadres om je profiel en bewaarde vacatures op je telefoon en laptop te hebben. Geen wachtwoord: je krijgt een link die één keer werkt. Zonder account blijft alles in deze browser. <a href="/nl/privacy">Privacy</a>',
+      "acct.email.ph": "jij@voorbeeld.nl", "acct.send": "Stuur inloglink", "acct.sending": "Versturen…",
+      "acct.sent": "Kijk in je inbox: de link werkt één keer en 15 minuten lang.", "acct.bad": "Dat lijkt geen e-mailadres.",
+      "acct.slow": "Te veel verzoeken. Probeer het over een uur opnieuw.", "acct.fail": "De link kon niet worden verstuurd. Probeer het later opnieuw.",
+      "acct.expired": "Die inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.", "acct.welcome": "Je bent ingelogd.",
+      "acct.in.title": "Je account", "acct.in.as": "Ingelogd als", "acct.in.sync": "Je profiel en bewaarde vacatures staan in je account.",
+      "acct.synced": "Gesynchroniseerd.", "acct.sync.fail": "Niet gesynchroniseerd; wijzigingen blijven in deze browser.", "acct.logout": "Uitloggen",
+      "acct.export": "Download mijn gegevens", "acct.delete": "Verwijder mijn account",
+      "acct.delete.confirm": "Je account verwijderen? Je e-mailadres, profiel en bewaarde vacatures worden van de server verwijderd. Deze browser houdt zijn eigen kopie.",
+      "acct.deleted": "Je account is verwijderd.", "privacy": "Privacy",
       "fresh.text": "Er zijn nieuwe vacatures binnen.", "fresh.reload": "Vernieuwen", "fresh.later": "Later",
       "adm.title": "Beheer: vacatures verversen", "adm.token": "Beheertoken", "adm.company": "Werkgever (voor één werkgever)",
       "adm.force": "Wachttijd van 10 minuten negeren", "adm.due": "Bronnen verversen die aan de beurt zijn", "adm.one": "Deze werkgever verversen", "adm.all": "Alles verversen",
@@ -182,7 +204,44 @@
   };
   const store = {
     get(k, d) { try { const v = localStorage.getItem("radar." + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
-    set(k, v) { try { localStorage.setItem("radar." + k, JSON.stringify(v)); } catch { /* private mode */ } },
+    set(k, v) {
+      try { localStorage.setItem("radar." + k, JSON.stringify(v)); } catch { /* private mode */ }
+      if (k === "profile" || k === "saved") account.push();
+    },
+  };
+  // ---------- account (optional; see radar/auth.py) ----------
+  const account = {
+    me: null, timer: null,
+    async load() {
+      try { const r = await fetch("/api/me", { credentials: "same-origin" }); this.me = r.ok ? await r.json() : null; } catch { this.me = null; }
+      if (!this.me || !this.me.signed_in) { this.me = null; return; }
+      try {
+        const d = await (await fetch("/api/me/data", { credentials: "same-origin" })).json();
+        // saved jobs: the union of both sides; profile: the account's copy wins once it has one
+        const saved = [...new Set([...(d.saved || []), ...state.saved])];
+        state.saved.splice(0, state.saved.length, ...saved);
+        if (d.updated_at && d.profile && Object.keys(d.profile).length) state.profile = Object.assign(emptyProfile(), d.profile);
+        try { localStorage.setItem("radar.profile", JSON.stringify(state.profile)); localStorage.setItem("radar.saved", JSON.stringify(state.saved)); } catch { /* private mode */ }
+        this.push(0);
+      } catch { /* offline: keep the local copy */ }
+    },
+    push(delay = 800) {
+      if (!this.me) return;
+      clearTimeout(this.timer);
+      this.timer = setTimeout(async () => {
+        const el = document.getElementById("acct-sync");
+        try {
+          const r = await fetch("/api/me/data", { method: "PUT", credentials: "same-origin",
+            headers: { "Content-Type": "application/json", "X-Requested-With": "radar" },
+            body: JSON.stringify({ profile: state.profile, saved: state.saved }) });
+          if (el) el.textContent = r.ok ? t("acct.synced") : t("acct.sync.fail");
+        } catch { if (el) el.textContent = t("acct.sync.fail"); }
+      }, delay);
+    },
+    async post(path, method = "POST", body = null) {
+      return fetch(path, { method, credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "radar" }, body: body ? JSON.stringify(body) : null });
+    },
   };
   // stored choice first; then the page itself (/nl/ is served in Dutch); then the browser
   const pageLang = location.pathname.startsWith("/nl") ? "nl" : null;
@@ -691,6 +750,45 @@
     $("#p-saved").innerHTML = d.items.map((i) => `<li><button class="star on" data-id="${i.id}" title="${t("remove")}">★</button> <a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title)}</a> · ${esc(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.closed ? ` <span class="chip more">${t("closed")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${(i.skills || []).slice(0, 6).join(", ")}</div></li>`).join("");
   }
 
+  function renderAccount() {
+    const me = account.me;
+    const btn = $("#acct-btn");
+    btn.textContent = me ? t("acct.account") : t("acct.login");
+    btn.classList.toggle("in", !!me);
+    btn.title = me ? me.email : "";
+    $("#acct-out").hidden = !!me; $("#acct-in").hidden = !me;
+    if (me) $("#acct-who").textContent = me.email;
+  }
+  function bindAccount() {
+    $("#acct-btn").addEventListener("click", () => {
+      if (location.hash !== "#profile") location.hash = "#profile";
+      setTimeout(() => { const card = $("#acct-card"); card.scrollIntoView({ block: "start" }); if (!account.me) $("#acct-email").focus(); }, 50);
+    });
+    $("#acct-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const status = $("#acct-status"); status.textContent = t("acct.sending");
+      try {
+        const r = await account.post("/api/auth/request", "POST", { email: $("#acct-email").value.trim(), lang: LANG });
+        status.textContent = r.ok ? t("acct.sent") : r.status === 422 ? t("acct.bad") : r.status === 429 ? t("acct.slow") : t("acct.fail");
+      } catch { status.textContent = t("acct.fail"); }
+    });
+    $("#acct-logout").addEventListener("click", async () => {
+      await account.post("/api/auth/logout"); account.me = null; renderAccount();
+    });
+    $("#acct-delete").addEventListener("click", async () => {
+      if (!confirm(t("acct.delete.confirm"))) return;
+      const r = await account.post("/api/me", "DELETE");
+      if (r.ok) { account.me = null; renderAccount(); $("#acct-status").textContent = t("acct.deleted"); }
+    });
+    // back from the e-mailed link: /?login=ok#profile or /?login=expired#profile
+    const q = new URLSearchParams(location.search);
+    if (q.has("login")) {
+      const msg = q.get("login") === "ok" ? "acct.welcome" : "acct.expired";
+      history.replaceState(null, "", location.pathname + location.hash);
+      setTimeout(() => { const el = account.me ? $("#acct-sync") : $("#acct-status"); if (el) el.textContent = t(msg); }, 0);
+    }
+  }
+
   // ---------- COVERAGE ----------
   let coverageStatus = "missing";
   async function renderCoverage() {
@@ -784,9 +882,10 @@
   $("#personalised").addEventListener("change", (e) => { state.personalised = e.target.checked; store.set("personalised", state.personalised); jobFilters = null; loadHeader(); route(); });
   $("#langswitch").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b || b.dataset.lang === LANG) return;
-    LANG = b.dataset.lang; store.set("lang", LANG); applyI18n(); renderHeader(); jobsBuilt = false; profileBuilt = false; route();
+    LANG = b.dataset.lang; store.set("lang", LANG); applyI18n(); renderAccount(); renderHeader(); jobsBuilt = false; profileBuilt = false; route();
   });
   window.addEventListener("beforeunload", () => store.set("lastVisit", state.visitStart));
   applyI18n();
-  loadHeader().then(route).catch((e) => { $("#kpis").innerHTML = `<div class="kpi bad"><b>!</b><span>${esc(t("fail", { e: e.message }))}</span></div>`; });
+  bindAccount();
+  account.load().then(() => { renderAccount(); jobFilters = null; }).then(loadHeader).then(route).catch((e) => { $("#kpis").innerHTML = `<div class="kpi bad"><b>!</b><span>${esc(t("fail", { e: e.message }))}</span></div>`; });
 })();

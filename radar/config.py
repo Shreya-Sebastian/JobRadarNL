@@ -46,6 +46,15 @@ class Settings(BaseSettings):
     # Adzuna API (free at https://developer.adzuna.com) for the independent recall check, see radar/recall.py
     adzuna_app_id: str | None = None
     adzuna_app_key: str | None = None
+    # accounts (radar/auth.py): the login link is e-mailed. "console" logs it instead of sending (local use);
+    # "smtp" sends through RADAR_SMTP_HOST, e.g. Amazon SES's SMTP endpoint
+    mail_backend: str = "console"
+    mail_from: str = "Tech Jobs Radar <login@techjobsradar.nl>"
+    smtp_host: str = "localhost"
+    smtp_port: int = 587
+    smtp_user: str | None = None
+    smtp_password: str | None = None
+    session_days: int = 30
     extractor: str = "rules"  # "rules" or "llm"
     llm_model: str = "gpt-4o-mini"
     llm_max_postings_per_run: int = 200
