@@ -34,6 +34,7 @@ TIMETABLE = [
     Entry("finalize", every_minutes=30, offset_minutes=5),
     Entry("linkcheck", daily_at=(3, 15), timeout_seconds=3600),
     Entry("qualitycheck", daily_at=(3, 45)),
+    Entry("analytics_nightly", daily_at=(0, 10)),
 ]
 
 

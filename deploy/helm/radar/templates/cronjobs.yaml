@@ -1,6 +1,6 @@
 {{- if not .Values.worker.timetable }}
 {{- $root := . -}}
-{{- range $job := list (dict "name" "scheduler" "cmd" "schedule" "schedule" .Values.scheduler.schedule) (dict "name" "finalizer" "cmd" "finalize" "schedule" .Values.finalizer.schedule) (dict "name" "linkcheck" "cmd" "linkcheck" "schedule" .Values.linkcheck.schedule) (dict "name" "qualitycheck" "cmd" "check" "schedule" .Values.qualitycheck.schedule) }}
+{{- range $job := list (dict "name" "scheduler" "cmd" "schedule" "schedule" .Values.scheduler.schedule) (dict "name" "finalizer" "cmd" "finalize" "schedule" .Values.finalizer.schedule) (dict "name" "linkcheck" "cmd" "linkcheck" "schedule" .Values.linkcheck.schedule) (dict "name" "qualitycheck" "cmd" "check" "schedule" .Values.qualitycheck.schedule) (dict "name" "analytics" "cmd" "analytics-nightly" "schedule" .Values.analytics.schedule) }}
 ---
 apiVersion: batch/v1
 kind: CronJob

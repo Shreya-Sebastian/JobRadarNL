@@ -438,6 +438,13 @@ def cmd_eval(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
+def cmd_analytics_nightly(_: argparse.Namespace) -> None:
+    """Keep daily visit totals and drop old raw page views (Kubernetes CronJob)."""
+    from radar.tasks import analytics_nightly
+
+    print(analytics_nightly())
+
+
 def cmd_schedule(_: argparse.Namespace) -> None:
     """Enqueue every due source (Kubernetes CronJob)."""
     from radar.tasks import schedule
@@ -611,6 +618,7 @@ def main(argv: list[str] | None = None) -> None:
     p.set_defaults(fn=cmd_eval)
 
     sub.add_parser("schedule", help="enqueue due sources onto the Redis queue").set_defaults(fn=cmd_schedule)
+    sub.add_parser("analytics-nightly", help="roll up visit statistics").set_defaults(fn=cmd_analytics_nightly)
     sub.add_parser("finalize", help="dedup + gauges + cache version bump").set_defaults(fn=cmd_finalize)
     p = sub.add_parser("worker", help="run a queue worker")
     p.add_argument("--burst", action="store_true", help="exit when the queue is empty")

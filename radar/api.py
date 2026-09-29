@@ -27,6 +27,9 @@ WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 async def lifespan(_: FastAPI):
     init_db()
     yield
+    from radar import analytics
+
+    analytics.flush()  # page views still in the buffer at shutdown
 
 
 app = FastAPI(title=settings.site_name, version="0.2.0", lifespan=lifespan, description=settings.site_tagline)
@@ -42,6 +45,13 @@ async def _metrics_middleware(request: Request, call_next):
     path = request.url.path
     if path.startswith("/api/"):
         response.headers["X-Robots-Tag"] = "noindex"  # fetched to render pages, never a search result itself
+    try:
+        from radar import analytics
+
+        analytics.record(request, response.status_code, (time.perf_counter() - t0) * 1000,
+                         int(response.headers.get("content-length") or 0))
+    except Exception:  # statistics must never break a response
+        pass
     if path.startswith("/api/") or path in ("/", "/healthz", "/readyz"):
         # collapse dynamic segments so label cardinality stays small
         label = "/api/breakdown/*" if path.startswith("/api/breakdown/") else path
@@ -289,6 +299,30 @@ def admin_crawl(body: AdminCrawl, request: Request):
     return JSONResponse(payload, status_code=code)
 
 
+class Beacon(BaseModel):
+    e: str = Field(max_length=30)
+    d: str | None = Field(default=None, max_length=200)
+    p: str | None = Field(default=None, max_length=300)
+
+
+@app.post("/api/e", include_in_schema=False, status_code=204)
+def beacon(body: Beacon, request: Request):
+    """Events the server cannot see itself: tab switches inside the page, clicks through to a job, saves."""
+    from radar import analytics
+
+    if body.e in analytics.EVENTS:
+        analytics.record(request, 204, 0, 0, event=body.e, detail=body.d, path=(body.p or "/")[:300])
+    return Response(status_code=204)
+
+
+@app.get("/api/admin/analytics", include_in_schema=False)
+def admin_analytics(request: Request, bots: bool = False, session: Session = Depends(db)):
+    from radar import analytics
+
+    _admin(request)
+    return analytics.dashboard(session, include_bots=bots)
+
+
 @app.get("/api/admin/status", include_in_schema=False)
 def admin_status(request: Request):
     from radar import admin
@@ -329,7 +363,7 @@ def robots():
     # The dashboard builds its content from /api/, so search engines may fetch it to render the page; the API
     # responses themselves carry X-Robots-Tag: noindex. Accounts, login links and admin stay out.
     return Response("User-agent: *\nAllow: /\nDisallow: /api/admin/\nDisallow: /api/me\nDisallow: /api/auth/\n"
-                    f"Disallow: /auth/\nSitemap: {settings.site_url.rstrip('/')}/sitemap.xml\n",
+                    f"Disallow: /auth/\nDisallow: /admin/\nSitemap: {settings.site_url.rstrip('/')}/sitemap.xml\n",
                     media_type="text/plain")
 
 
@@ -461,6 +495,12 @@ if WEB_DIR.exists():
     @app.get("/nl", include_in_schema=False)
     def index_nl(session: Session = Depends(db)):
         return Response(cached("page:index:nl", lambda: _render_index(session, "nl"), ttl=300), media_type="text/html")
+
+    @app.get("/admin/analytics", include_in_schema=False)
+    def analytics_page():
+        return Response((WEB_DIR / "analytics.html").read_text(encoding="utf-8")
+                        .replace("{{SITE_NAME}}", settings.site_name), media_type="text/html",
+                        headers={"X-Robots-Tag": "noindex", "Cache-Control": "no-store"})
 
     @app.get("/privacy", include_in_schema=False)
     @app.get("/nl/privacy", include_in_schema=False)

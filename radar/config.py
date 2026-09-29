@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     only_netherlands: bool = True
     # run the periodic jobs (schedule, finalize, linkcheck, qualitycheck) from the queue worker instead of CronJobs
     worker_timetable: bool = False
+    # anonymous page-view statistics for /admin/analytics (radar/analytics.py)
+    analytics_enabled: bool = True
     # secret for the admin-only "crawl now" endpoints; unset = the endpoints do not exist
     admin_token: str | None = None
     # Adzuna API (free at https://developer.adzuna.com) for the independent recall check, see radar/recall.py

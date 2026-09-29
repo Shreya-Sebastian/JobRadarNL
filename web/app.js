@@ -213,6 +213,17 @@
       if (k === "profile" || k === "saved") account.push();
     },
   };
+  // anonymous usage events for the admin analytics page (radar/analytics.py): no cookie, no personal data
+  const beacon = (e, d) => {
+    try {
+      const body = new Blob([JSON.stringify({ e, d: d == null ? null : String(d), p: location.pathname + location.hash })], { type: "application/json" });
+      if (!(navigator.sendBeacon && navigator.sendBeacon("/api/e", body))) fetch("/api/e", { method: "POST", body, keepalive: true }).catch(() => {});
+    } catch { /* statistics are optional */ }
+  };
+  document.addEventListener("click", (ev) => {
+    const a = ev.target.closest && ev.target.closest("a[data-pid]");
+    if (a) beacon("job_click", a.dataset.pid);
+  }, true);
   // ---------- account (optional; see radar/auth.py) ----------
   const account = {
     me: null, timer: null,
@@ -511,7 +522,7 @@
     const m = i.match != null
       ? [t("li.match", { p: Math.round(i.match * 100) }), i.matched.length ? t("li.have", { s: esc(i.matched.join(", ")) }) : "", i.missing.length ? t("li.missing", { s: esc(i.missing.slice(0, 4).join(", ")) }) : ""].filter(Boolean).join(" · ")
       : (i.skills || []).slice(0, 5).join(", ");
-    return `<li><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title)}</a> · ${companyLink(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${m}</div></li>`;
+    return `<li><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a> · ${companyLink(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${m}</div></li>`;
   }
   function openJobsWithSkill(skill) { state.skill = skill; state.page = 1; location.hash = "#jobs"; }
   function companyLink(name) { return `<a class="co" href="#company=${encodeURIComponent(name)}">${esc(name)}</a>`; }
@@ -541,7 +552,7 @@
     document.title = `${document.title.split(":")[0]}: ${t("co.title", { c: name })}`;
     $("#co-jobs tbody").innerHTML = items.length ? items.map((i) => `<tr>
       <td class="muted" title="${esc(i.posted_at)}">${age(i)}</td>
-      <td><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title)}</a></td>
+      <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a></td>
       <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}</td>
       <td>${levelCell(i)}</td>
       <td><div class="chips">${i.skills.slice(0, 6).map((sk) => `<span class="chip${have.has(sk) ? " have" : ""}">${esc(sk)}</span>`).join("")}</div></td>
@@ -639,7 +650,7 @@
     $("#postings tbody").innerHTML = d.items.map((i) => `<tr>
       <td><button class="star${state.saved.includes(i.id) ? " on" : ""}" data-id="${i.id}" title="${t("save")}">${state.saved.includes(i.id) ? "★" : "☆"}</button></td>
       <td class="muted" title="${esc(i.posted_at)}">${age(i)}${since && i.first_seen > since.replace("Z", "") ? `<span class="badge">${t("new")}</span>` : ""}${i.age_days > 90 ? `<span class="badge stale" title="${t("trust.old.title")}">${t("old")}</span>` : ""}</td>
-      <td><a href="${esc(i.url)}" target="_blank" rel="noopener" title="${esc(trustText(i))}">${esc(i.title)}</a>${trustBadge(i)}</td>
+      <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener" title="${esc(trustText(i))}">${esc(i.title)}</a>${trustBadge(i)}</td>
       <td>${companyLink(i.company)}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}</td>
       <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}</td>
       <td>${levelCell(i)}</td>
@@ -651,7 +662,7 @@
   }
   function toggleSaved(id, btn) {
     const i = state.saved.indexOf(id);
-    if (i >= 0) state.saved.splice(i, 1); else state.saved.push(id);
+    if (i >= 0) state.saved.splice(i, 1); else { state.saved.push(id); beacon("star"); }
     store.set("saved", state.saved);
     if (btn) { btn.classList.toggle("on"); btn.textContent = state.saved.includes(id) ? "★" : "☆"; }
   }
@@ -706,7 +717,7 @@
     $("#p-save").addEventListener("click", () => {
       p.language = $("#p-language").value; p.visa = $("#p-visa").checked; p.agencies = $("#p-agencies").checked; p.noenrol = $("#p-noenrol").checked;
       delete p.english;
-      store.set("profile", p); jobFilters = null;
+      store.set("profile", p); jobFilters = null; beacon("profile_save");
       if (!state.personalised) { state.personalised = true; store.set("personalised", true); $("#personalised").checked = true; }
       $("#p-status").textContent = t("p.saved.status"); setTimeout(() => $("#p-status").textContent = "", 3000);
       loadHeader();
@@ -751,7 +762,7 @@
     $("#p-saved-count").textContent = `${state.saved.length}`;
     if (!state.saved.length) { $("#p-saved").innerHTML = `<li class="muted">${t("p.saved.empty")}</li>`; return; }
     const d = await api("/api/postings", new URLSearchParams({ ids: state.saved.join(","), size: 200, include_closed: "true", skills_have: state.profile.skills.join(",") }));
-    $("#p-saved").innerHTML = d.items.map((i) => `<li><button class="star on" data-id="${i.id}" title="${t("remove")}">★</button> <a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title)}</a> · ${esc(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.closed ? ` <span class="chip more">${t("closed")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${(i.skills || []).slice(0, 6).join(", ")}</div></li>`).join("");
+    $("#p-saved").innerHTML = d.items.map((i) => `<li><button class="star on" data-id="${i.id}" title="${t("remove")}">★</button> <a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a> · ${esc(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.closed ? ` <span class="chip more">${t("closed")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${(i.skills || []).slice(0, 6).join(", ")}</div></li>`).join("");
   }
 
   function renderAccount() {
@@ -874,7 +885,10 @@
 
   // ---------- routing ----------
   const renderers = { overview: renderOverview, jobs: () => { buildJobsFilters(); return refreshJobs(); }, market: renderMarket, profile: renderProfile, coverage: renderCoverage, company: renderCompany, admin: renderAdmin };
+  let firstRoute = true;
   async function route() {
+    if (!firstRoute) beacon("nav");
+    firstRoute = false;
     const raw = (location.hash || "#overview").slice(1);
     const eq = raw.indexOf("=");
     const tab = eq >= 0 ? raw.slice(0, eq) : raw;

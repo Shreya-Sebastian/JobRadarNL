@@ -170,3 +170,14 @@ def qualitycheck() -> dict:
     for v in bad:
         log.error("quality violation: %s", v)
     return {"violations": bad}
+
+
+def analytics_nightly() -> dict:
+    """Nightly: keep daily visit totals, drop raw page views past their retention."""
+    from radar import analytics
+
+    init_db()
+    with session_scope() as s:
+        out = analytics.nightly(s)
+    log.info("analytics: %s", out)
+    return out

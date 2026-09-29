@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, Boolean, Date, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -145,3 +145,44 @@ class UserData(Base):
     profile: Mapped[dict] = mapped_column(JSON, default=dict)
     saved: Mapped[list] = mapped_column(JSON, default=list)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class PageView(Base):
+    """One request or page event, for the admin analytics page. Anonymous by design: no IP address, no cookie.
+    `visitor` is a hash of IP and browser with a salt that changes every day, so a visitor can be counted once per
+    day but not followed across days or identified. Kept 90 days, then only the daily totals remain."""
+
+    __tablename__ = "page_views"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    ts: Mapped[datetime] = mapped_column(DateTime, index=True)
+    kind: Mapped[str] = mapped_column(String(10))  # page | api | feed | event
+    path: Mapped[str] = mapped_column(String(300))
+    status: Mapped[int] = mapped_column(Integer, default=200)
+    ms: Mapped[int] = mapped_column(Integer, default=0)
+    bytes: Mapped[int] = mapped_column(Integer, default=0)
+    referrer: Mapped[str | None] = mapped_column(String(120), nullable=True)  # domain only
+    utm_source: Mapped[str | None] = mapped_column(String(60), nullable=True)
+    country: Mapped[str | None] = mapped_column(String(2), nullable=True)
+    browser: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    os: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    device: Mapped[str | None] = mapped_column(String(10), nullable=True)  # desktop | mobile | tablet | bot
+    bot: Mapped[bool] = mapped_column(Boolean, default=False)
+    visitor: Mapped[str | None] = mapped_column(String(16), nullable=True, index=True)
+    event: Mapped[str | None] = mapped_column(String(30), nullable=True)  # job_click, search, profile_save, ...
+    detail: Mapped[str | None] = mapped_column(String(200), nullable=True)
+
+
+class DailyStat(Base):
+    """Daily totals per dimension (total, country, referrer, page), kept after the raw page views expire."""
+
+    __tablename__ = "daily_stats"
+    __table_args__ = (UniqueConstraint("day", "dim", "key"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    day: Mapped[date] = mapped_column(Date, index=True)
+    dim: Mapped[str] = mapped_column(String(20))
+    key: Mapped[str] = mapped_column(String(200))
+    hits: Mapped[int] = mapped_column(Integer, default=0)
+    humans: Mapped[int] = mapped_column(Integer, default=0)
+    uniques: Mapped[int] = mapped_column(Integer, default=0)

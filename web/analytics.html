@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Analytics · {{SITE_NAME}}</title>
+<link rel="stylesheet" href="/static/style.css?v=10">
+<script src="/static/vendor/chart.umd.min.js"></script>
+<style>
+  body { background: var(--bg); }
+  .an { max-width: 1320px; margin: 0 auto; padding: 18px 16px 48px; }
+  .an header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; margin-bottom: 14px; }
+  .an h1 { font-size: 22px; margin: 0; color: var(--accent); }
+  .an .sub { color: var(--muted); font-size: 13px; }
+  .an .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .an .controls button { padding: 4px 10px; border-radius: 6px; font-size: 12px; }
+  .an .controls button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .an .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; margin-right: 4px; }
+  .an .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 46%), 1fr)); gap: 10px; margin-bottom: 14px; }
+  .an .tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+  .an .tile b { display: block; font-size: 26px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .an .tile span { display: block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .an .tile small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .an .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 14px; margin-bottom: 14px; }
+  .an .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+  .an .card h2 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  .an .chart { position: relative; height: 180px; }
+  .an table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .an th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; padding: 4px 6px; }
+  .an td { padding: 5px 6px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+  .an td.n { text-align: right; font-variant-numeric: tabular-nums; color: var(--accent-2); font-weight: 600; white-space: nowrap; }
+  .an .bars .row { display: grid; grid-template-columns: minmax(80px, 34%) 1fr 56px; gap: 8px; align-items: center; font-size: 13px; padding: 3px 0; }
+  .an .bars .row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
+  .an .bars .track { height: 8px; background: var(--chip); border-radius: 4px; overflow: hidden; }
+  .an .bars .fill { height: 100%; background: var(--accent); border-radius: 4px; }
+  .an .bars .row b { text-align: right; font-variant-numeric: tabular-nums; }
+  .an .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
+  .an .wide { overflow-x: auto; }
+  .an .section { font-size: 15px; margin: 26px 0 10px; }
+  .an .gate { max-width: 420px; margin: 12vh auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; }
+  .an .gate input { width: 100%; margin: 10px 0; }
+  .an .bot { color: var(--muted); }
+  .an .err { color: var(--bad); font-size: 13px; }
+</style>
+</head>
+<body>
+<main class="an">
+  <form class="gate" id="gate" hidden>
+    <h1>Analytics</h1>
+    <p class="sub">Enter the admin token. It is kept in this browser tab only.</p>
+    <input type="password" id="token" autocomplete="current-password" placeholder="admin token" required>
+    <button class="primary" type="submit">Open</button>
+    <p class="err" id="gate-err"></p>
+  </form>
+
+  <div id="app" hidden>
+    <header>
+      <h1>Analytics</h1><span class="sub">{{SITE_NAME}}</span>
+      <span class="sub"><span class="dot"></span><span id="stamp"></span> · auto-refreshes every 60 s</span>
+      <div class="controls">
+        <button id="bots">Include bots</button>
+        <button id="refresh">Refresh</button>
+        <button id="logout" class="link">Sign out</button>
+      </div>
+    </header>
+
+    <div class="tiles" id="tiles"></div>
+
+    <div class="card" style="margin-bottom:14px"><h2>Traffic timeline (24 h)</h2><div class="chart"><canvas id="timeline"></canvas></div></div>
+
+    <div class="grid">
+      <div class="card"><h2>Top pages (24 h)</h2><div id="top_pages"></div></div>
+      <div class="card"><h2>Top referrers</h2><div id="referrers"></div></div>
+      <div class="card"><h2>Clicks through to employers</h2><div id="job_clicks_by_employer"></div></div>
+      <div class="card"><h2>Most clicked jobs</h2><div id="job_clicks_by_job"></div></div>
+      <div class="card"><h2>Searches and filters</h2><div id="searches"></div></div>
+      <div class="card"><h2>Actions</h2><div id="events"></div></div>
+      <div class="card"><h2>Countries</h2><div id="countries" class="bars"></div></div>
+      <div class="card"><h2>UTM sources</h2><div id="utm"></div></div>
+      <div class="card"><h2>Operating systems</h2><div id="os" class="bars"></div></div>
+      <div class="card"><h2>Browsers</h2><div id="browsers" class="bars"></div></div>
+      <div class="card"><h2>Devices</h2><div id="devices" class="bars"></div></div>
+      <div class="card"><h2>Crawlers and bots</h2><div id="bots_list" class="bars"></div></div>
+      <div class="card"><h2>HTTP status codes</h2><div id="statuses" class="bars"></div></div>
+      <div class="card"><h2>Busiest API endpoints</h2><div id="top_api"></div></div>
+      <div class="card"><h2>Top bandwidth (24 h)</h2><div id="consumers"></div></div>
+    </div>
+
+    <h2 class="section">All time</h2>
+    <div class="tiles" id="alltime"></div>
+    <div class="card" style="margin-bottom:14px"><h2>Daily traffic (14 days)</h2><div class="chart"><canvas id="daily"></canvas></div></div>
+    <div class="grid">
+      <div class="card"><h2>Top countries</h2><div id="at_countries" class="bars"></div></div>
+      <div class="card"><h2>Top referrers</h2><div id="at_referrers"></div></div>
+      <div class="card"><h2>Top pages</h2><div id="at_pages"></div></div>
+    </div>
+
+    <div class="card wide"><h2>Recent visits (20)</h2><div id="recent"></div></div>
+    <p class="sub" style="margin-top:14px">Anonymous by design: no IP addresses and no cookies. A visitor is a daily-changing hash, so people are counted once per day but cannot be followed across days.</p>
+  </div>
+</main>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmt = (n) => (n ?? 0).toLocaleString("en-GB");
+  const mb = (b) => b >= 1e9 ? (b / 1e9).toFixed(2) + " GB" : b >= 1e6 ? (b / 1e6).toFixed(1) + " MB" : (b / 1e3).toFixed(0) + " KB";
+  let region;
+  try { region = new Intl.DisplayNames(["en"], { type: "region" }); } catch { region = null; }
+  const country = (c) => { if (!c || c === "XX" || c === "T1") return c === "T1" ? "Tor" : "Unknown"; try { return region ? region.of(c) : c; } catch { return c; } };
+  const ago = (iso) => { const s = Math.max(0, (Date.now() - new Date(iso)) / 1000); return s < 60 ? "just now" : s < 3600 ? `${Math.floor(s / 60)}m ago` : `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}m ago`; };
+  const TOKEN_KEY = "radar.analytics.token";
+  let token = null, bots = false, timer = null;
+  const charts = {};
+  try { token = sessionStorage.getItem(TOKEN_KEY); } catch { /* storage blocked */ }
+
+  function table(el, items, head, label = (k) => k) {
+    $(el).innerHTML = items.length
+      ? `<table><tr><th>${head}</th><th style="text-align:right">Hits</th></tr>${items.map((i) => `<tr><td>${esc(label(i.key))}</td><td class="n">${fmt(i.hits)}</td></tr>`).join("")}</table>`
+      : `<div class="empty">No data yet</div>`;
+  }
+  function bars(el, items, label = (k) => k) {
+    const max = Math.max(1, ...items.map((i) => i.hits));
+    $(el).innerHTML = items.length
+      ? items.map((i) => `<div class="row"><span title="${esc(label(i.key))}">${esc(label(i.key))}</span><div class="track"><div class="fill" style="width:${(i.hits / max) * 100}%"></div></div><b>${fmt(i.hits)}</b></div>`).join("")
+      : `<div class="empty">No data yet</div>`;
+  }
+  function tiles(el, list) {
+    $(el).innerHTML = list.map(([v, l, s]) => `<div class="tile"><b>${v}</b><span>${esc(l)}</span>${s ? `<small>${esc(s)}</small>` : ""}</div>`).join("");
+  }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function barChart(id, labels, sets) {
+    if (charts[id]) charts[id].destroy();
+    charts[id] = new Chart(document.getElementById(id), {
+      type: "bar", data: { labels, datasets: sets },
+      options: { responsive: true, maintainAspectRatio: false, animation: false,
+        plugins: { legend: { labels: { color: css("--muted"), boxWidth: 10 } } },
+        scales: { x: { stacked: true, ticks: { color: css("--muted"), maxRotation: 0, autoSkip: true, maxTicksLimit: 12 }, grid: { display: false } },
+                  y: { stacked: true, beginAtZero: true, ticks: { color: css("--muted"), precision: 0 }, grid: { color: css("--line") } } } },
+    });
+  }
+
+  function render(d) {
+    const k = d.kpi, a = d.all_time;
+    $("#stamp").textContent = new Date(d.generated_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" });
+    tiles("#tiles", [
+      [fmt(k.views_today), "Page views today", `${fmt(k.uniques_today)} unique`],
+      [fmt(k.views_24h), "Views (24 h)", `${fmt(k.uniques_24h)} unique`],
+      [fmt(k.human_views_24h), "Human visits", `${fmt(k.bot_hits_24h)} bot hits`],
+      [k.bounce_rate == null ? "–" : Math.round(k.bounce_rate * 100) + "%", "Bounce rate", `${k.pages_per_session} pages/session`],
+      [k.avg_ms + " ms", "Avg response", `p95: ${k.p95_ms} ms`],
+      [mb(k.bytes_today), "Bandwidth today", `${mb(k.bytes_24h)} (24 h)`],
+      [mb(k.bytes_per_visitor), "Avg / visitor", "per unique visitor (24 h)"],
+      [fmt(k.job_clicks), "Job click-throughs", "to employer pages (24 h)"],
+      [fmt(k.searches), "Searches", "new searches (24 h)"],
+      [fmt(k.spa_navigations), "Tab switches", `${fmt(k.interactions)} interactions`],
+      [fmt(k.crawler_fetches), "Sitemap & robots", "fetches (24 h)"],
+      [fmt(k.buffered), "Buffer", "events not yet saved"],
+    ]);
+    barChart("timeline", d.timeline.map((t) => t.hour), [
+      { label: "Humans", data: d.timeline.map((t) => t.humans), backgroundColor: css("--accent") },
+      ...(d.include_bots ? [{ label: "Bots", data: d.timeline.map((t) => t.bots), backgroundColor: css("--accent-2") }] : []),
+    ]);
+    table("#top_pages", d.top_pages, "Page");
+    table("#referrers", d.referrers, "Source");
+    table("#job_clicks_by_employer", d.job_clicks_by_employer, "Employer");
+    table("#job_clicks_by_job", d.job_clicks_by_job, "Job");
+    table("#searches", d.searches, "Filters", (s) => s.replace(/&/g, " · ").replace(/=/g, ": "));
+    table("#events", d.events, "Action", (e) => ({ profile_save: "Profile saved", login_request: "Login link requested", gap: "Gap analysis", star: "Job starred", export: "Profile exported", import: "Profile imported", job_click: "Job click" }[e] || e));
+    bars("#countries", d.countries, country);
+    table("#utm", d.utm, "Source");
+    bars("#os", d.os);
+    bars("#browsers", d.browsers);
+    bars("#devices", d.devices, (x) => x[0].toUpperCase() + x.slice(1));
+    bars("#bots_list", d.bots);
+    bars("#statuses", d.statuses, (s) => ({ 200: "200 OK", 204: "204 No content", 301: "301 Moved", 303: "303 Redirect", 304: "304 Not modified", 401: "401 Unauthorised", 404: "404 Not found", 405: "405 Method", 422: "422 Invalid", 429: "429 Too many", 500: "500 Error", 502: "502 Bad gateway" }[s] || s));
+    table("#top_api", d.top_api, "Endpoint");
+    $("#consumers").innerHTML = d.consumers.length
+      ? `<table><tr><th>Who</th><th>Country</th><th style="text-align:right">Requests</th><th style="text-align:right">Data</th></tr>${d.consumers.map((c) => `<tr><td class="${c.bot ? "bot" : ""}">${esc(c.who)}</td><td>${esc(country(c.country))}</td><td class="n">${fmt(c.requests)}</td><td class="n">${mb(c.bytes)}</td></tr>`).join("")}</table>`
+      : `<div class="empty">No data yet</div>`;
+
+    tiles("#alltime", [
+      [fmt(a.hits), "Total hits", `${fmt(a.humans)} human · ${fmt(a.bots)} bot`],
+      [fmt(a.uniques), "Unique visitors", `daily uniques summed, since ${a.since}`],
+      [fmt(a.countries), "Countries", `${a.days} days tracked`],
+      [fmt(a.avg_daily_humans), "Avg daily (human)", `${a.days} day average`],
+    ]);
+    barChart("daily", a.daily.map((x) => x.day.slice(5)), [
+      { label: "Humans", data: a.daily.map((x) => x.humans), backgroundColor: css("--accent") },
+      { label: "Bots", data: a.daily.map((x) => x.bots), backgroundColor: css("--accent-2") },
+    ]);
+    bars("#at_countries", a.top_countries, country);
+    table("#at_referrers", a.top_referrers, "Source");
+    table("#at_pages", a.top_pages, "Page");
+
+    $("#recent").innerHTML = d.recent.length
+      ? `<table><tr><th>Time</th><th>Visitor</th><th>Page</th><th>Status</th><th>Speed</th><th>Size</th><th>Referrer</th><th>UTM</th><th>Country</th><th>Browser</th><th>Device</th></tr>${d.recent.map((r) => `<tr><td>${ago(r.ts)}</td><td>${esc(r.visitor)}</td><td>${esc(r.event && r.event !== "nav" ? r.event + " " : "")}${esc(r.path)}</td><td>${r.status}</td><td>${r.ms} ms</td><td>${r.bytes ? mb(r.bytes) : "–"}</td><td>${esc(r.referrer || "–")}</td><td>${esc(r.utm || "–")}</td><td>${esc(country(r.country))}</td><td>${esc(r.browser)}</td><td>${esc(r.device)}</td></tr>`).join("")}</table>`
+      : `<div class="empty">No visits yet</div>`;
+  }
+
+  async function load() {
+    const r = await fetch(`/api/admin/analytics${bots ? "?bots=true" : ""}`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" });
+    if (r.status === 401 || r.status === 404) { signOut(r.status === 404 ? "The admin token is not configured on this server." : "That token was not accepted."); return; }
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    render(await r.json());
+  }
+  function start() {
+    $("#gate").hidden = true; $("#app").hidden = false;
+    load().catch((e) => { $("#stamp").textContent = "could not load: " + e.message; });
+    clearInterval(timer); timer = setInterval(() => load().catch(() => {}), 60000);
+  }
+  function signOut(msg) {
+    token = null; clearInterval(timer);
+    try { sessionStorage.removeItem(TOKEN_KEY); } catch { /* storage blocked */ }
+    $("#app").hidden = true; $("#gate").hidden = false; $("#gate-err").textContent = msg || "";
+  }
+  $("#gate").addEventListener("submit", (e) => {
+    e.preventDefault(); token = $("#token").value.trim(); $("#token").value = "";
+    try { sessionStorage.setItem(TOKEN_KEY, token); } catch { /* storage blocked */ }
+    start();
+  });
+  $("#bots").addEventListener("click", () => { bots = !bots; $("#bots").classList.toggle("on", bots); load().catch(() => {}); });
+  $("#refresh").addEventListener("click", () => load().catch(() => {}));
+  $("#logout").addEventListener("click", () => signOut());
+  if (token) start(); else signOut();
+})();
+</script>
+</body>
+</html>

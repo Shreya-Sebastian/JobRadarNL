@@ -17,3 +17,16 @@ def fresh_db(tmp_path):
     yield url
     radar_db._engine = None
     radar_db._SessionLocal = None
+
+
+@pytest.fixture(autouse=True)
+def _no_analytics(monkeypatch):
+    """Page-view recording is off in tests unless a test turns it on (tests/test_analytics.py)."""
+    from radar import analytics
+    from radar.config import settings
+
+    monkeypatch.setattr(settings, "analytics_enabled", False)
+    analytics._buffer.clear()
+    analytics._salt = None
+    yield
+    analytics._buffer.clear()
