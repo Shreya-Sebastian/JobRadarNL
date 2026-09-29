@@ -1,0 +1,83 @@
+# Hand-maintained sources that enumeration cannot find. `radar seed --yaml data/sources.yaml`
+# kind: board = one site hosting many employers' own postings; postings are attributed to the hiring organisation.
+- company: AcademicTransfer
+  ats: jsonld
+  slug: https://www.academictransfer.com/sitemap-vacancies.xml
+  url: https://www.academictransfer.com/en/jobs/
+  kind: board
+- company: Werken voor Nederland
+  ats: jsonld
+  slug: https://www.werkenvoornederland.nl/sitemap-vacatures.xml
+  url: https://www.werkenvoornederland.nl/vacatures
+  kind: board
+- company: ASML (old site, inactive: jobs moved to Workday asml.wd3/ASMLEXT1)
+  ats: jsonld
+  slug: https://www.asml.com/en/job_posting-sitemap.xml
+  url: https://www.asml.com/en/careers
+  # no JobPosting structured data on ASML pages yet: registered so the tracker shows it as attempted
+- company: Amazon
+  ats: amazon
+  slug: NLD
+  url: https://www.amazon.jobs/en/search?country%5B%5D=NLD
+  kind: employer
+- company: ING
+  ats: jsonld
+  slug: "https://careers.ing.com/sitemap.xml"
+  url: https://careers.ing.com
+  kind: employer
+# Rabobank (rabobank.jobs) returns 403 to a crawler that identifies itself; not circumvented. Registered inactive.
+- company: Unilever
+  ats: jsonld
+  slug: "https://careers.unilever.com/sitemap.xml"
+  url: https://careers.unilever.com
+  kind: employer
+- company: Just Eat Takeaway
+  ats: jsonld
+  slug: "https://careers.justeattakeaway.com/global/en/sitemap.xml"
+  url: https://careers.justeattakeaway.com
+  kind: employer
+- company: Netflix
+  ats: jsonld
+  slug: "https://explore.jobs.netflix.net/careers/sitemap.xml?domain=netflix.com&microsite=netflix.com"
+  url: https://explore.jobs.netflix.net/careers
+  kind: employer
+- company: Politie
+  ats: jsonld
+  slug: "https://kombijde.politie.nl/sitemap.xml"
+  url: https://kombijde.politie.nl
+  kind: employer
+- company: Odido
+  ats: jsonld
+  slug: "https://werkenbij.odido.nl/sitemap.xml"
+  url: https://werkenbij.odido.nl
+  kind: employer
+- company: Lely
+  ats: jsonld
+  slug: "https://www.lely.com/sitemap/nl-NL.xml"
+  url: https://www.lely.com/nl/vacatures/
+  kind: employer
+- company: ProRail
+  ats: jsonld
+  slug: "https://www.werkenbijprorail.nl/sitemap.xml"
+  url: https://www.werkenbijprorail.nl
+  kind: employer
+- company: PVH
+  ats: jsonld
+  slug: "https://careers.pvh.com/us/en/sitemap_index.xml"  # the nl/nl locale lists no jobs; us/en lists all 1,600 worldwide
+  url: https://careers.pvh.com/us/en
+  kind: employer
+- company: TNO
+  ats: jsonld
+  slug: "https://www.tno.nl/en/sitemap.xml"  # English vacancy pages; the nl sitemap lists the same jobs in Dutch
+  url: https://www.tno.nl/en/careers/vacancies/
+  kind: employer
+- company: ABN AMRO
+  ats: jsonld
+  slug: "https://www.werkenbijabnamro.nl/sitemap.vacancy.xml"
+  url: https://www.werkenbijabnamro.nl/vacatures
+  kind: employer
+- company: ASML
+  ats: workday
+  slug: asml.wd3/ASMLEXT1
+  url: https://asml.wd3.myworkdayjobs.com/ASMLEXT1
+  kind: employer

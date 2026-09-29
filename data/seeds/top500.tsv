@@ -1,0 +1,542 @@
+# name	match	domain	careers_domain	sector	kind
+ABN AMRO	abn amro,abnamro	abnamro.nl	werkenbijabnamro.nl	finance	employer
+ING	=ing,ing bank,ing nederland,ing groep	ing.nl	careers.ing.com	finance	employer
+Rabobank	rabobank	rabobank.nl	rabobank.jobs	finance	employer
+ASN Bank (de Volksbank)	asn bank,volksbank,sns bank,regiobank	asnbank.nl	werkenbij.asnbank.nl	finance	employer
+Triodos Bank	triodos	triodos.nl		finance	employer
+bunq	=bunq	bunq.com		finance	employer
+Adyen	adyen	adyen.com		finance	employer
+Mollie	=mollie	mollie.com		finance	employer
+De Nederlandsche Bank	de nederlandsche bank,=dnb	dnb.nl	werkenbijdnb.nl	finance	employer
+AFM	=afm,autoriteit financiële markten,autoriteit financiele markten	afm.nl	werkenbijdeafm.nl	finance	employer
+Achmea	achmea,centraal beheer,interpolis,zilveren kruis,=fbto	achmea.nl	werkenbijachmea.nl	finance	employer
+a.s.r.	a.s.r.,asr nederland,asr verzekeringen,=asr,aegon nederland	asr.nl	werkenbijasr.nl	finance	employer
+Nationale-Nederlanden (NN Group)	nationale-nederlanden,nationale nederlanden,nn group	nn.nl	nn-careers.com	finance	employer
+Athora Netherlands	athora,zwitserleven,reaal	athora.nl		finance	employer
+VGZ	=vgz,coöperatie vgz,cooperatie vgz	vgz.nl	werkenbijvgz.nl	finance	employer
+CZ	=cz,cz groep,cz zorgverzekeringen	cz.nl	werkenbij.cz.nl	finance	employer
+Menzis	menzis	menzis.nl		finance	employer
+DSW Zorgverzekeraar	=dsw,dsw zorgverzekeraar	dsw.nl		finance	employer
+APG	=apg,apg groep	apg.nl	werkenbij.apg.nl	finance	employer
+PGGM	=pggm	pggm.nl	werkenbijpggm.nl	finance	employer
+MN	=mn,mn services	mn.nl		finance	employer
+Van Lanschot Kempen	van lanschot,=kempen	vanlanschotkempen.com		finance	employer
+NIBC Bank	=nibc	nibc.nl		finance	employer
+Euronext	euronext	euronext.com		finance	employer
+Flow Traders	flow traders	flowtraders.com		finance	employer
+Optiver	optiver	optiver.com		finance	employer
+IMC Trading	=imc,imc trading	imc.com		finance	employer
+Da Vinci Trading	da vinci trading,da vinci derivatives	davincitrading.com		finance	employer
+Bitvavo	bitvavo	bitvavo.com		finance	employer
+Robeco	robeco	robeco.com		finance	employer
+Univé	=univé,=unive,univé verzekeringen	unive.nl		finance	employer
+Worldline	worldline,equensworldline	worldline.com		finance	employer
+Ayvens (LeasePlan)	ayvens,leaseplan	ayvens.com		finance	employer
+Albert Heijn	albert heijn,=ah	ah.nl	werk.ah.nl	retail	employer
+Ahold Delhaize	ahold delhaize,=ahold	aholddelhaize.com		retail	employer
+Jumbo	jumbo,jumbo supermarkten	jumbo.com		retail	employer
+Lidl Nederland	=lidl	lidl.nl	werkenbijlidl.nl	retail	employer
+Aldi Nederland	=aldi	aldi.nl		retail	employer
+PLUS Retail	=plus,plus retail,plus supermarkt	plus.nl	werkenbijplus.nl	retail	employer
+Dirk van den Broek (Detailresult)	=dirk,dirk van den broek,detailresult	dirk.nl	werkenbijdirk.nl	retail	employer
+Hoogvliet	=hoogvliet,hoogvliet supermarkten	hoogvliet.com	werkenbij.hoogvliet.com	retail	employer
+Vomar	vomar	vomar.nl	werkenbijvomar.nl	retail	employer
+Action	=action,action nederland	action.com	nl.action.jobs	retail	employer
+HEMA	=hema	hema.nl	jobs.hema.com	retail	employer
+Kruidvat (A.S. Watson)	kruidvat,a.s. watson,as watson,trekpleister	kruidvat.nl	werkenbijkruidvat.nl	retail	employer
+Etos	=etos	etos.nl	werk.etos.nl	retail	employer
+Blokker	blokker	blokker.nl	werkenbijblokker.nl	retail	employer
+Intergamma (GAMMA, KARWEI)	intergamma,=gamma,karwei	intergamma.nl	werkenbij.intergamma.nl	retail	employer
+Praxis (Maxeda)	=praxis,maxeda	praxis.nl	werkenbijpraxis.nl	retail	employer
+IKEA Nederland	=ikea	ikea.com		retail	employer
+MediaMarkt Nederland	mediamarkt,media markt	mediamarkt.nl	careers.mediamarktsaturn.com	retail	employer
+Coolblue	coolblue	coolblue.nl		retail	employer
+bol	bol.com,=bol	bol.com	careers.bol.com	retail	employer
+Wehkamp	wehkamp	wehkamp.nl		retail	employer
+Zeeman	=zeeman,zeeman textielsupers	zeeman.com		retail	employer
+de Bijenkorf	de bijenkorf,bijenkorf	debijenkorf.nl	werkenbijdebijenkorf.nl	retail	employer
+Rituals Cosmetics	rituals	rituals.com		retail	employer
+Sligro Food Group	sligro	sligro.nl	jobs.sligrofoodgroup.com	retail	employer
+Bidfood	bidfood	bidfood.nl	werkenbijbidfood.nl	retail	employer
+G-Star RAW	g-star	g-star.com		retail	employer
+PVH Europe (Tommy Hilfiger, Calvin Klein)	=pvh,tommy hilfiger,calvin klein	pvh.com		retail	employer
+Nike EMEA	=nike	nike.com		retail	employer
+Picnic	=picnic,picnic technologies	picnic.app	jobs.picnic.app	retail	employer
+Basic-Fit	basic-fit,basic fit	basic-fit.com		retail	employer
+McDonald's Nederland	mcdonald's,mcdonalds	mcdonalds.nl	werkenbijmcdonalds.nl	retail	employer
+Shell	=shell,shell nederland	shell.com		energy	employer
+Eneco	eneco	eneco.nl	werkenbijeneco.nl	energy	employer
+Vattenfall	vattenfall	vattenfall.nl		energy	employer
+Essent	=essent,=e.on	essent.nl	werkenbijessent.nl	energy	employer
+Greenchoice	greenchoice	greenchoice.nl		energy	employer
+TenneT	tennet	tennet.eu	werkenbijtennet.nl	energy	employer
+Alliander (Liander)	alliander,liander,qirion	alliander.com	werkenbij.alliander.com	energy	employer
+Stedin	stedin	stedin.net	werkenbijstedin.net	energy	employer
+Enexis	enexis	enexis.nl	werkenbij.enexis.nl	energy	employer
+Gasunie	gasunie	gasunie.nl	werkenbijgasunie.nl	energy	employer
+NAM	=nam,nederlandse aardolie maatschappij	nam.nl		energy	employer
+RWE Nederland	=rwe	rwe.com		energy	employer
+Engie Nederland	engie	engie.nl		energy	employer
+BP Nederland	=bp,bp raffinaderij	bp.com		energy	employer
+ExxonMobil Nederland	exxonmobil,=esso	exxonmobil.com		energy	employer
+Vandebron	vandebron	vandebron.nl		energy	employer
+Urenco	urenco	urenco.com		energy	employer
+Alfen	alfen	alfen.com		energy	employer
+Vitens	vitens	vitens.nl	werkenbijvitens.nl	energy	employer
+Evides Waterbedrijf	evides	evides.nl	werkenbijevides.nl	energy	employer
+Waternet	waternet	waternet.nl		energy	employer
+Brabant Water	brabant water	brabantwater.nl	werkenbijbrabantwater.nl	energy	employer
+PWN	=pwn	pwn.nl		energy	employer
+Dunea	dunea	dunea.nl	werkbijdunea.nl	energy	employer
+KPN	=kpn,koninklijke kpn	kpn.com	jobs.kpn.com	telecom	employer
+VodafoneZiggo	vodafoneziggo,=vodafone,ziggo	vodafoneziggo.nl	careers.vodafoneziggo.com	telecom	employer
+Odido	odido,t-mobile	odido.nl	werkenbij.odido.nl	telecom	employer
+Eurofiber	eurofiber	eurofiber.com		telecom	employer
+Delta Fiber	delta fiber,deltafiber	deltafiber.nl		telecom	employer
+NS	=ns,nederlandse spoorwegen	ns.nl	werkenbijns.nl	transport	employer
+ProRail	prorail	prorail.nl	werkenbijprorail.nl	transport	employer
+KLM	=klm,klm royal dutch airlines,koninklijke luchtvaart maatschappij	klm.com	werkenbijklm.com	transport	employer
+Transavia	transavia	transavia.com	werkenbijtransavia.nl	transport	employer
+Royal Schiphol Group	schiphol	schiphol.nl	schipholcareers.nl	transport	employer
+TUI Nederland	=tui,tui nederland	tui.nl		transport	employer
+Arriva Nederland	arriva	arriva.nl	werkenbij.arriva.nl	transport	employer
+Transdev (Connexxion)	transdev,connexxion	transdev.nl	werkenbijtransdev.nl	transport	employer
+Keolis Nederland	keolis	keolis.nl	werkenbijkeolis.nl	transport	employer
+Qbuzz	qbuzz	qbuzz.nl	werkenbijqbuzz.nl	transport	employer
+GVB	=gvb	gvb.nl	werkenbijgvb.nl	transport	employer
+RET	=ret	ret.nl	werkenbijderet.nl	transport	employer
+HTM	=htm,htm personenvervoer	htm.nl	werkenbijhtm.nl	transport	employer
+LVNL	=lvnl,luchtverkeersleiding nederland	lvnl.nl	werkenbijlvnl.nl	transport	employer
+Port of Rotterdam	port of rotterdam,havenbedrijf rotterdam	portofrotterdam.com		transport	employer
+Port of Amsterdam	port of amsterdam,havenbedrijf amsterdam	portofamsterdam.com		transport	employer
+ANWB	=anwb	anwb.nl	werkenbijanwb.nl	transport	employer
+Pon Holdings	=pon,pon holdings,pon automotive	pon.com		transport	employer
+Louwman Group	louwman	louwmangroup.nl		transport	employer
+Tesla	=tesla	tesla.com		transport	employer
+DAF Trucks	=daf,daf trucks	daf.com		transport	employer
+Scania Production Zwolle	scania	scania.com		transport	employer
+VDL Nedcar	nedcar,vdl nedcar	vdlnedcar.nl		transport	employer
+Alstom Nederland	alstom	alstom.com		transport	employer
+PostNL	postnl	postnl.nl		logistics	employer
+DHL	=dhl,dhl parcel,dhl supply chain,dhl express	dhl.com	careers.dhl.com	logistics	employer
+DPD Nederland	=dpd	dpd.com	werkenbijdpd.nl	logistics	employer
+GLS Netherlands	=gls,gls netherlands	gls-info.nl		logistics	employer
+UPS Nederland	=ups	ups.com		logistics	employer
+FedEx (TNT)	fedex,tnt express	fedex.com		logistics	employer
+Kuehne+Nagel	kuehne+nagel,kuehne nagel,kühne+nagel	kuehne-nagel.com		logistics	employer
+DSV	=dsv	dsv.com		logistics	employer
+CEVA Logistics	ceva logistics,=ceva	cevalogistics.com		logistics	employer
+Vopak	vopak	vopak.com		logistics	employer
+Hutchison Ports ECT Rotterdam	=ect,hutchison ports ect,europe container terminals	ect.nl		logistics	employer
+APM Terminals	apm terminals	apmterminals.com		logistics	employer
+Samskip	samskip	samskip.com		logistics	employer
+Mammoet	mammoet	mammoet.com		logistics	employer
+Sendcloud	sendcloud	sendcloud.com		logistics	employer
+Royal BAM Group	=bam,koninklijke bam,bam bouw,bam infra	bam.com	bamcareers.com	construction	employer
+VolkerWessels	volkerwessels	volkerwessels.com	werkenbijvolkerwessels.nl	construction	employer
+Heijmans	heijmans	heijmans.nl	werkenbijheijmans.nl	construction	employer
+Dura Vermeer	dura vermeer	duravermeer.nl		construction	employer
+Ballast Nedam	ballast nedam	ballast-nedam.nl		construction	employer
+Strukton	strukton	strukton.com		construction	employer
+TBI	=tbi,tbi holdings	tbi.nl		construction	employer
+Van Wijnen	van wijnen	vanwijnen.nl		construction	employer
+Boskalis	boskalis	boskalis.com		construction	employer
+Van Oord	van oord	vanoord.com		construction	employer
+Spie Nederland	=spie,spie nederland	spie-nl.com	werkenbijspie.nl	construction	employer
+Equans Nederland	=equans	equans.nl		construction	employer
+Croonwolter&dros	croonwolter&dros,croonwolter,croon wolter	croonwolterendros.nl		construction	employer
+Unica	=unica,unica installatietechniek	unica.nl		construction	employer
+Kuijpers	kuijpers	kuijpers.nl		construction	employer
+Arcadis	arcadis	arcadis.com		engineering	employer
+Haskoning (Royal HaskoningDHV)	haskoning,royal haskoningdhv,haskoningdhv	haskoning.com		engineering	employer
+Witteveen+Bos	witteveen+bos,witteveen bos,witteveen en bos	witteveenbos.com		engineering	employer
+Sweco Nederland	sweco	sweco.nl		engineering	employer
+Antea Group	antea,antea group	anteagroup.nl		engineering	employer
+Tauw	=tauw,tauw group,tauw nederland	tauw.nl	werkenbijtauw.nl	engineering	employer
+Movares	movares	movares.com		engineering	employer
+Fugro	fugro	fugro.com		engineering	employer
+Iv	iv-groep,iv-infra,iv-consult,iv-bouw,iv-industrie	iv.nl		engineering	employer
+Goudappel	goudappel	goudappel.nl		engineering	employer
+Bilfinger Tebodin	tebodin,bilfinger	bilfinger.com		engineering	employer
+DNV	=dnv,dnv gl	dnv.com		engineering	employer
+Kiwa	=kiwa	kiwa.com		engineering	employer
+Stork	=stork	stork.com		engineering	employer
+Fluor	=fluor	fluor.com		engineering	employer
+Worley Nederland	worley	worley.com		engineering	employer
+Allseas	allseas	allseas.com		engineering	employer
+Heerema Marine Contractors	heerema	heerema.com	careers.heerema.com	engineering	employer
+Huisman Equipment	=huisman,huisman equipment	huismanequipment.com		engineering	employer
+SBM Offshore	sbm offshore	sbmoffshore.com		engineering	employer
+Damen Shipyards	=damen,damen shipyards,damen naval	damen.com		engineering	employer
+Royal IHC	royal ihc,=ihc	royalihc.com		engineering	employer
+Feadship	feadship,royal van lent,de vries scheepsbouw	feadship.nl		engineering	employer
+ASML	=asml	asml.com		semicon	employer
+NXP Semiconductors	=nxp,nxp semiconductors	nxp.com		semicon	employer
+Nexperia	nexperia	nexperia.com		semicon	employer
+ASM International	=asm,asm international	asm.com		semicon	employer
+Besi	=besi,be semiconductor	besi.com		semicon	employer
+Ampleon	ampleon	ampleon.com		semicon	employer
+Smart Photonics	smart photonics	smartphotonics.nl		semicon	employer
+Philips	philips,royal philips	philips.com	careers.philips.com	hightech	employer
+Signify	signify	signify.com		hightech	employer
+VDL Groep	=vdl,vdl groep,vdl etg	vdlgroep.com		hightech	employer
+Sioux Technologies	sioux,sioux technologies	sioux.eu		hightech	employer
+Demcon	demcon	demcon.com		hightech	employer
+Prodrive Technologies	prodrive,prodrive technologies	prodrive-technologies.com		hightech	employer
+NTS Group	=nts,nts group	nts-group.com		hightech	employer
+KMWE	=kmwe	kmwe.com		hightech	employer
+Frencken Group	frencken	frenckengroup.com		hightech	employer
+Neways Electronics	neways	newayselectronics.com		hightech	employer
+Canon Production Printing (Océ)	canon production printing,=canon,=océ,oce technologies	cpp.canon		hightech	employer
+Vanderlande	vanderlande	vanderlande.com		hightech	employer
+Lely	=lely,lely industries	lely.com		hightech	employer
+JBT Marel	marel,jbt marel	jbtmarel.com		hightech	employer
+Thermo Fisher Scientific	thermo fisher,thermofisher	thermofisher.com		hightech	employer
+Malvern Panalytical	malvern panalytical,panalytical	malvernpanalytical.com		hightech	employer
+Siemens Nederland	siemens,siemens nederland,siemens mobility	siemens.com		hightech	employer
+Siemens Healthineers	siemens healthineers	siemens-healthineers.com		hightech	employer
+Siemens Energy	siemens energy	siemens-energy.com		hightech	employer
+Thales Nederland	thales	thalesgroup.com		hightech	employer
+Airbus Netherlands	airbus,airbus defence and space	airbus.com		hightech	employer
+GKN Fokker	gkn fokker,gkn aerospace,fokker	gknaerospace.com		hightech	employer
+Nedap	nedap	nedap.com		hightech	employer
+TKH Group	=tkh,tkh group	tkhgroup.com		hightech	employer
+Aalberts	aalberts	aalberts.com		industry	employer
+Priva	=priva	priva.com		hightech	employer
+Technolution	technolution	technolution.com		hightech	employer
+ABB Nederland	=abb	abb.com		hightech	employer
+BDR Thermea (Remeha)	bdr thermea,remeha	bdrthermeagroup.com		industry	employer
+imec Netherlands (Holst Centre)	=imec,holst centre	imec-int.com		research	employer
+Bronkhorst High-Tech	bronkhorst	bronkhorst.com		hightech	employer
+TomTom	tomtom	tomtom.com		software	employer
+Tata Steel Nederland	tata steel	tatasteelnederland.com	tatasteeljobs.nl	industry	employer
+DSM-Firmenich	dsm-firmenich,=dsm,firmenich	dsm-firmenich.com		chemicals	employer
+AkzoNobel	akzonobel,akzo nobel	akzonobel.com		chemicals	employer
+Nouryon	nouryon	nouryon.com		chemicals	employer
+Dow Benelux	=dow,dow benelux,dow chemical	dow.com		chemicals	employer
+SABIC	sabic	sabic.com		chemicals	employer
+LyondellBasell	lyondellbasell	lyondellbasell.com		chemicals	employer
+Chemours Dordrecht	chemours	chemours.com		chemicals	employer
+Covestro	covestro	covestro.com		chemicals	employer
+OCI	=oci,oci nitrogen	oci-global.com		chemicals	employer
+Yara Sluiskil	=yara	yara.com		chemicals	employer
+Teijin Aramid	teijin aramid,teijin	teijinaramid.com		chemicals	employer
+Nobian	nobian	nobian.com		chemicals	employer
+Corbion	corbion	corbion.com		chemicals	employer
+BASF Nederland	=basf	basf.com		chemicals	employer
+Eurofins Nederland	eurofins	eurofins.com		chemicals	employer
+SHV Holdings	=shv,shv holdings	shv.nl		industry	employer
+Hunter Douglas	hunter douglas	hunterdouglas.com		industry	employer
+Unilever	unilever	unilever.com		food	employer
+Heineken	heineken	theheinekencompany.com		food	employer
+FrieslandCampina	frieslandcampina,friesland campina	frieslandcampina.com		food	employer
+Vion Food Group	=vion,vion food	vionfoodgroup.com		food	employer
+Royal Cosun (Suiker Unie, Aviko)	cosun,royal cosun,suiker unie,aviko	cosun.nl		food	employer
+Agrifirm	agrifirm	agrifirm.com		food	employer
+ForFarmers	forfarmers	forfarmersgroup.eu		food	employer
+Nutreco (Trouw Nutrition)	nutreco,trouw nutrition	nutreco.com		food	employer
+Cargill Nederland	cargill	cargill.com		food	employer
+Flora Food Group (Upfield)	flora food group,upfield	florafoodgroup.com		food	employer
+JDE Peet's	jde peet's,jde peets,jacobs douwe egberts,=jde	jdepeets.com		food	employer
+Royal Swinkels Family Brewers (Bavaria)	=swinkels,royal swinkels,swinkels family brewers,=bavaria	royalswinkels.com		food	employer
+Mars Nederland	=mars,mars nederland	mars.com		food	employer
+Coca-Cola Europacific Partners	coca-cola,coca cola	cocacolaep.com		food	employer
+Danone Nutricia	nutricia,danone	danone.com		food	employer
+Refresco	refresco	refresco.com		food	employer
+Rijk Zwaan	rijk zwaan	rijkzwaan.com		food	employer
+Enza Zaden	enza zaden,=enza	enzazaden.com		food	employer
+Koppert	koppert	koppert.com		food	employer
+Royal FloraHolland	floraholland,royal floraholland	royalfloraholland.com		food	employer
+Organon	organon	organon.com		health	employer
+MSD Nederland	=msd,merck sharp & dohme	msd.nl		health	employer
+Janssen (Johnson & Johnson)	=janssen,janssen-cilag,janssen pharmaceutica,johnson & johnson,=j&j	jnj.com		health	employer
+Sanquin	sanquin	sanquin.nl		health	employer
+ChipSoft	chipsoft	chipsoft.com		software	employer
+Buurtzorg Nederland	buurtzorg	buurtzorg.com	werkenbijbuurtzorg.nl	health	employer
+Amsterdam UMC	amsterdam umc,=amc,=vumc	amsterdamumc.org	werkenbij.amsterdamumc.org	health	employer
+Erasmus MC	erasmus mc,erasmusmc,erasmus medisch centrum	erasmusmc.nl	werkenbijerasmusmc.nl	health	employer
+UMC Utrecht	umc utrecht,universitair medisch centrum utrecht	umcutrecht.nl	werkenbijumcutrecht.nl	health	employer
+LUMC	=lumc,leids universitair medisch centrum	lumc.nl		health	employer
+Radboudumc	radboudumc,radboud umc	radboudumc.nl	werkenbijradboudumc.nl	health	employer
+UMCG	=umcg,universitair medisch centrum groningen	umcg.nl	werkenbijumcg.nl	health	employer
+Maastricht UMC+	maastricht umc,=mumc	mumc.nl	werkenbijmumc.nl	health	employer
+Antoni van Leeuwenhoek (NKI)	antoni van leeuwenhoek,=nki,nederlands kanker instituut	avl.nl		health	employer
+Prinses Máxima Centrum	prinses máxima centrum,prinses maxima centrum	prinsesmaximacentrum.nl		health	employer
+Isala	isala	isala.nl		health	employer
+Rijnstate	rijnstate	rijnstate.nl	werkenbijrijnstate.nl	health	employer
+Catharina Ziekenhuis	catharina ziekenhuis	catharinaziekenhuis.nl	werkenbij.catharinaziekenhuis.nl	health	employer
+Máxima MC	máxima mc,maxima mc,maxima medisch centrum	mmc.nl	werkenbijmmc.nl	health	employer
+Jeroen Bosch Ziekenhuis	jeroen bosch ziekenhuis	jeroenboschziekenhuis.nl		health	employer
+ETZ (Elisabeth-TweeSteden Ziekenhuis)	=etz,elisabeth-tweesteden	etz.nl		health	employer
+Amphia	amphia	amphia.nl	werkenbijamphia.nl	health	employer
+Albert Schweitzer ziekenhuis	albert schweitzer ziekenhuis	asz.nl		health	employer
+Maasstad Ziekenhuis	maasstad	maasstadziekenhuis.nl	werkenbijmaasstad.nl	health	employer
+Franciscus Gasthuis & Vlietland	franciscus gasthuis,franciscus vlietland	franciscus.nl	werkenbij.franciscus.nl	health	employer
+Haaglanden Medisch Centrum	haaglanden medisch centrum,=hmc	haaglandenmc.nl		health	employer
+HagaZiekenhuis	hagaziekenhuis,haga ziekenhuis	hagaziekenhuis.nl	werkenbijhaga.nl	health	employer
+Reinier de Graaf	reinier de graaf	reinierdegraaf.nl		health	employer
+Meander Medisch Centrum	meander medisch centrum,meander mc	meandermc.nl		health	employer
+St. Antonius Ziekenhuis	st. antonius ziekenhuis,antonius ziekenhuis	antoniusziekenhuis.nl	werkenbijantonius.nl	health	employer
+OLVG	=olvg	olvg.nl	werkenbijolvg.nl	health	employer
+Spaarne Gasthuis	spaarne gasthuis	spaarnegasthuis.nl		health	employer
+Noordwest Ziekenhuisgroep	noordwest ziekenhuisgroep	nwz.nl		health	employer
+Martini Ziekenhuis	martini ziekenhuis	martiniziekenhuis.nl		health	employer
+Frisius MC (MCL)	frisius mc,frisius,medisch centrum leeuwarden,=mcl	frisiusmc.nl		health	employer
+Gelre ziekenhuizen	gelre ziekenhuizen,=gelre	gelreziekenhuizen.nl	werkenbijgelre.nl	health	employer
+Medisch Spectrum Twente	medisch spectrum twente,=mst	mst.nl	werkenbijmst.nl	health	employer
+ZGT (Ziekenhuisgroep Twente)	=zgt,ziekenhuisgroep twente	zgt.nl		health	employer
+Zuyderland	zuyderland	zuyderland.nl	werkenbijzuyderland.nl	health	employer
+Canisius Wilhelmina Ziekenhuis	canisius wilhelmina,=cwz	cwz.nl		health	employer
+Parnassia Groep	parnassia	parnassiagroep.nl	werkenbijparnassiagroep.nl	health	employer
+Arkin	arkin	arkin.nl	werkenbijarkin.nl	health	employer
+GGZ inGeest	ggz ingeest	ggzingeest.nl		health	employer
+GGZ Oost Brabant	ggz oost brabant	ggzoostbrabant.nl		health	employer
+Pro Persona	pro persona	propersona.nl		health	employer
+GGz Centraal	ggz centraal	ggzcentraal.nl		health	employer
+Lentis	lentis	lentis.nl		health	employer
+Altrecht	altrecht	altrecht.nl		health	employer
+'s Heeren Loo	's heeren loo,s heeren loo	sheerenloo.nl	werkenbij.sheerenloo.nl	health	employer
+Philadelphia Zorg	=philadelphia,philadelphia zorg	philadelphia.nl		health	employer
+Cordaan	cordaan	cordaan.nl	werkenbijcordaan.nl	health	employer
+Laurens	=laurens,stichting laurens	laurens.nl	werkenbij.laurens.nl	health	employer
+Belastingdienst	belastingdienst,douane,dienst toeslagen	belastingdienst.nl	werken.belastingdienst.nl	government	employer
+UWV	=uwv	uwv.nl		government	employer
+SVB	=svb,sociale verzekeringsbank	svb.nl	werkenbijdesvb.nl	government	employer
+DUO	=duo,dienst uitvoering onderwijs	duo.nl		government	employer
+RDW	=rdw	rdw.nl	werkenbijderdw.nl	government	employer
+Rijkswaterstaat	rijkswaterstaat	rijkswaterstaat.nl	werkenbij.rijkswaterstaat.nl	government	employer
+CBS	=cbs,centraal bureau voor de statistiek	cbs.nl	werkenbijhetcbs.nl	government	employer
+Kadaster	kadaster	kadaster.nl	werkenbijhetkadaster.nl	government	employer
+Politie	politie,nationale politie	politie.nl	kombijde.politie.nl	government	employer
+Ministerie van Defensie	defensie,ministerie van defensie,koninklijke marechaussee	defensie.nl	werkenbijdefensie.nl	government	employer
+IND	=ind,immigratie- en naturalisatiedienst	ind.nl	werkenbijdeind.nl	government	employer
+DJI	=dji,dienst justitiële inrichtingen,dienst justitiele inrichtingen	dji.nl	werkenbijdji.nl	government	employer
+CJIB	=cjib,centraal justitieel incassobureau	cjib.nl	werkenbijhetcjib.nl	government	employer
+Logius	logius	logius.nl		government	employer
+ICTU	=ictu	ictu.nl		government	employer
+KNMI	=knmi	knmi.nl		government	employer
+RIVM	=rivm	rivm.nl		government	employer
+RVO	=rvo,rijksdienst voor ondernemend nederland	rvo.nl		government	employer
+NVWA	=nvwa,nederlandse voedsel- en warenautoriteit	nvwa.nl		government	employer
+ILT	=ilt,inspectie leefomgeving en transport	ilent.nl		government	employer
+DICTU	dictu	dictu.nl		government	employer
+CAK	=cak	hetcak.nl	werkenbijhetcak.nl	government	employer
+AIVD	=aivd	aivd.nl		government	employer
+Nederlands Forensisch Instituut	nederlands forensisch instituut,=nfi	forensischinstituut.nl		government	employer
+Openbaar Ministerie	openbaar ministerie	om.nl	werkenbijhetom.nl	government	employer
+De Rechtspraak	rechtspraak	rechtspraak.nl	werkenbijderechtspraak.nl	government	employer
+COA	=coa,centraal orgaan opvang asielzoekers	coa.nl	werkenbijcoa.nl	government	employer
+Staatsbosbeheer	staatsbosbeheer	staatsbosbeheer.nl	werkenbijstaatsbosbeheer.nl	government	employer
+KVK	=kvk,kamer van koophandel	kvk.nl		government	employer
+CBR	=cbr	cbr.nl	werkenbijcbr.nl	government	employer
+Ministerie van Binnenlandse Zaken en Koninkrijksrelaties	ministerie van binnenlandse zaken,ministerie van bzk	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Buitenlandse Zaken	ministerie van buitenlandse zaken	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Economische Zaken	ministerie van economische zaken	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Financiën	ministerie van financiën,ministerie van financien	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Infrastructuur en Waterstaat	ministerie van infrastructuur en waterstaat,ministerie van ienw	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Justitie en Veiligheid	ministerie van justitie en veiligheid,ministerie van jenv	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Onderwijs, Cultuur en Wetenschap	ministerie van onderwijs,ministerie van ocw	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Sociale Zaken en Werkgelegenheid	ministerie van sociale zaken,ministerie van szw	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Volksgezondheid, Welzijn en Sport	ministerie van volksgezondheid,ministerie van vws	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Ministerie van Landbouw, Visserij, Voedselzekerheid en Natuur	ministerie van landbouw,ministerie van lvvn	rijksoverheid.nl	werkenvoornederland.nl	government	employer
+Gemeente Amsterdam	gemeente amsterdam	amsterdam.nl	werkenbij.amsterdam.nl	government	employer
+Gemeente Rotterdam	gemeente rotterdam	rotterdam.nl	werkenvoorrotterdam.nl	government	employer
+Gemeente Den Haag	gemeente den haag	denhaag.nl	werkenvoor.denhaag.nl	government	employer
+Gemeente Utrecht	gemeente utrecht	utrecht.nl	werkenbijutrecht.nl	government	employer
+Gemeente Eindhoven	gemeente eindhoven	eindhoven.nl	werkenvooreindhoven.nl	government	employer
+Gemeente Groningen	gemeente groningen	gemeente.groningen.nl		government	employer
+Gemeente Tilburg	gemeente tilburg	tilburg.nl	werkenvoortilburg.nl	government	employer
+Gemeente Almere	gemeente almere	almere.nl	werkenbijalmere.nl	government	employer
+Gemeente Breda	gemeente breda	breda.nl	werkenbijbreda.nl	government	employer
+Gemeente Nijmegen	gemeente nijmegen	nijmegen.nl		government	employer
+Provincie Noord-Holland	provincie noord-holland	noord-holland.nl		government	employer
+Provincie Zuid-Holland	provincie zuid-holland	zuid-holland.nl		government	employer
+Provincie Utrecht	provincie utrecht	provincie-utrecht.nl		government	employer
+Provincie Noord-Brabant	provincie noord-brabant	brabant.nl		government	employer
+Provincie Gelderland	provincie gelderland	gelderland.nl		government	employer
+Provincie Overijssel	provincie overijssel	overijssel.nl	werkenbijoverijssel.nl	government	employer
+Provincie Limburg	provincie limburg	limburg.nl		government	employer
+Provincie Groningen	provincie groningen	provinciegroningen.nl		government	employer
+Provincie Fryslân	provincie fryslân,provincie friesland,provinsje fryslân	fryslan.frl		government	employer
+Provincie Drenthe	provincie drenthe	provincie.drenthe.nl		government	employer
+Provincie Flevoland	provincie flevoland	flevoland.nl		government	employer
+Provincie Zeeland	provincie zeeland	zeeland.nl		government	employer
+Hoogheemraadschap Hollands Noorderkwartier	hollands noorderkwartier,=hhnk	hhnk.nl	hetkanbijhhnk.nl	government	employer
+Hoogheemraadschap van Rijnland	hoogheemraadschap van rijnland,=rijnland	rijnland.nl		government	employer
+Hoogheemraadschap van Delfland	=delfland,hoogheemraadschap van delfland	hhdelfland.nl		government	employer
+Hoogheemraadschap van Schieland en de Krimpenerwaard	=schieland,hoogheemraadschap van schieland	schielandendekrimpenerwaard.nl		government	employer
+Hoogheemraadschap De Stichtse Rijnlanden	stichtse rijnlanden,=hdsr	hdsr.nl		government	employer
+Waterschap Hollandse Delta	waterschap hollandse delta	wshd.nl		government	employer
+Waterschap Aa en Maas	aa en maas	aaenmaas.nl		government	employer
+Waterschap De Dommel	waterschap de dommel	dommel.nl		government	employer
+Waterschap Brabantse Delta	brabantse delta	brabantsedelta.nl		government	employer
+Waterschap Rivierenland	waterschap rivierenland	waterschaprivierenland.nl		government	employer
+Waterschap Vallei en Veluwe	vallei en veluwe	vallei-veluwe.nl		government	employer
+Waterschap Rijn en IJssel	rijn en ijssel	wrij.nl		government	employer
+Waterschap Vechtstromen	vechtstromen	vechtstromen.nl		government	employer
+Waterschap Drents Overijsselse Delta	drents overijsselse delta	wdodelta.nl		government	employer
+Waterschap Hunze en Aa's	hunze en aa's	hunzeenaas.nl		government	employer
+Waterschap Noorderzijlvest	noorderzijlvest	noorderzijlvest.nl		government	employer
+Waterschap Zuiderzeeland	zuiderzeeland	zuiderzeeland.nl		government	employer
+Waterschap Limburg	waterschap limburg	waterschaplimburg.nl		government	employer
+Waterschap Scheldestromen	scheldestromen	scheldestromen.nl		government	employer
+Wetterskip Fryslân	wetterskip fryslân,wetterskip fryslan	wetterskip.frl		government	employer
+European Patent Office	european patent office,=epo	epo.org		government	employer
+Europol	europol	europol.europa.eu		government	employer
+European Medicines Agency	european medicines agency,=ema	ema.europa.eu		government	employer
+NATO Communications and Information Agency	=ncia,nato communications and information agency	ncia.nato.int		government	employer
+Universiteit van Amsterdam	universiteit van amsterdam,university of amsterdam,=uva	uva.nl	werkenbij.uva.nl	education	employer
+Vrije Universiteit Amsterdam	vrije universiteit,vu amsterdam	vu.nl	workingat.vu.nl	education	employer
+Universiteit Leiden	universiteit leiden,leiden university	universiteitleiden.nl		education	employer
+Universiteit Utrecht	universiteit utrecht,utrecht university	uu.nl		education	employer
+Erasmus Universiteit Rotterdam	erasmus universiteit,erasmus university rotterdam	eur.nl		education	employer
+TU Delft	tu delft,delft university of technology	tudelft.nl	careers.tudelft.nl	education	employer
+TU Eindhoven	tu eindhoven,eindhoven university of technology,=tu/e	tue.nl		education	employer
+Universiteit Twente	universiteit twente,university of twente	utwente.nl		education	employer
+Rijksuniversiteit Groningen	rijksuniversiteit groningen,university of groningen	rug.nl		education	employer
+Radboud Universiteit	radboud universiteit,radboud university	ru.nl		education	employer
+Maastricht University	maastricht university,universiteit maastricht	maastrichtuniversity.nl		education	employer
+Tilburg University	tilburg university	tilburguniversity.edu		education	employer
+Wageningen University & Research	wageningen university,wageningen university & research,=wur	wur.nl		education	employer
+Hogeschool van Amsterdam	hogeschool van amsterdam,=hva	hva.nl		education	employer
+Hogeschool Rotterdam	hogeschool rotterdam	hogeschoolrotterdam.nl		education	employer
+Fontys Hogescholen	fontys	fontys.nl	werkenbijfontys.nl	education	employer
+Hanzehogeschool Groningen	hanzehogeschool,hanze	hanze.nl	werkenbijhanze.nl	education	employer
+Hogeschool van Arnhem en Nijmegen	hogeschool van arnhem en nijmegen,han university	han.nl		education	employer
+Avans Hogeschool	avans	avans.nl		education	employer
+Hogeschool Utrecht	hogeschool utrecht	hu.nl		education	employer
+Saxion	saxion	saxion.nl		education	employer
+De Haagse Hogeschool	haagse hogeschool,the hague university	dehaagsehogeschool.nl		education	employer
+Hogeschool Inholland	inholland	inholland.nl		education	employer
+Hogeschool Windesheim	windesheim	windesheim.nl	werkenbijwindesheim.nl	education	employer
+ROC van Amsterdam - Flevoland	roc van amsterdam,roc van flevoland,roc van amsterdam-flevoland	rocva.nl	werkenbijrocvaf.nl	education	employer
+Albeda	albeda	albeda.nl	werkenbijalbeda.nl	education	employer
+Zadkine	zadkine	zadkine.nl	werkenbij.zadkine.nl	education	employer
+ROC Midden Nederland	roc midden nederland	rocmn.nl		education	employer
+Summa College	summa college	summa-onderwijs.nl		education	employer
+SURF	=surf	surf.nl		education	employer
+Cito	=cito	cito.nl		education	employer
+TNO	=tno	tno.nl		research	employer
+NLR (Royal Netherlands Aerospace Centre)	=nlr,royal netherlands aerospace,koninklijk nederlands lucht- en ruimtevaartcentrum	nlr.org		research	employer
+Deltares	deltares	deltares.nl		research	employer
+MARIN	=marin,maritime research institute netherlands	marin.nl		research	employer
+ESA ESTEC	=esa,estec,european space agency	esa.int		research	employer
+SRON	=sron	sron.nl		research	employer
+Nikhef	nikhef	nikhef.nl		research	employer
+NWO	=nwo,nederlandse organisatie voor wetenschappelijk onderzoek	nwo.nl		research	employer
+KNAW	=knaw	knaw.nl		research	employer
+CWI	=cwi,centrum wiskunde & informatica	cwi.nl		research	employer
+ASTRON	=astron	astron.nl		research	employer
+NIOZ	=nioz	nioz.nl		research	employer
+NRG PALLAS	=nrg,nrg pallas,nrg-pallas,nuclear research and consultancy group	nrgpallas.com		research	employer
+DIFFER	=differ,dutch institute for fundamental energy research	differ.nl		research	employer
+NPO	=npo,nederlandse publieke omroep	npo.nl		media	employer
+NOS	=nos	nos.nl	werkenbijdenos.nl	media	employer
+DPG Media (incl. RTL Nederland)	dpg media,rtl nederland,=rtl	dpgmedia.nl		media	employer
+Mediahuis	mediahuis	mediahuis.com	werkenbijmediahuis.nl	media	employer
+Talpa Network	talpa	talpa.com		media	employer
+Wolters Kluwer	wolters kluwer	wolterskluwer.com		media	employer
+Elsevier (RELX)	elsevier,=relx	elsevier.com		media	employer
+Springer Nature	springer nature	springernature.com		media	employer
+Netflix	netflix	netflix.com		media	employer
+Guerrilla Games	guerrilla games	guerrilla-games.com		media	employer
+Nixxes Software	nixxes	nixxes.com		media	employer
+Accenture	accenture	accenture.com		consulting	employer
+Capgemini	capgemini,capgemini engineering	capgemini.com		consulting	employer
+Sogeti	sogeti	sogeti.nl		consulting	employer
+IBM	=ibm	ibm.com		consulting	employer
+Kyndryl	kyndryl	kyndryl.com		consulting	employer
+CGI Nederland	=cgi	cgi.com		consulting	employer
+Tata Consultancy Services	tata consultancy services,=tcs	tcs.com		consulting	employer
+Cognizant	cognizant	cognizant.com		consulting	employer
+Infosys	infosys	infosys.com		consulting	employer
+Wipro	wipro	wipro.com		consulting	employer
+HCLTech	hcltech,hcl technologies	hcltech.com		consulting	employer
+Avanade	avanade	avanade.com		consulting	employer
+Eviden / Atos	eviden,=atos	eviden.com		consulting	employer
+Sopra Steria (Ordina)	ordina,sopra steria	soprasteria.nl		consulting	employer
+Centric	=centric,centric it solutions	centric.eu	centric.recruitee.com	consulting	employer
+Conclusion	conclusion	conclusion.com		consulting	employer
+Cegeka	cegeka	cegeka.com		consulting	employer
+Alten Nederland	=alten,alten nederland	alten.nl		consulting	employer
+Xebia	xebia	xebia.com		consulting	employer
+Info Support	info support	infosupport.com		consulting	employer
+Ilionx	ilionx	ilionx.com		consulting	employer
+Axians	axians	axians.nl		consulting	employer
+Simac	simac	simac.com		consulting	employer
+Schuberg Philis	schuberg philis	schubergphilis.com		consulting	employer
+NTT DATA	ntt data	nttdata.com		consulting	employer
+Deloitte	deloitte	deloitte.nl	werkenbijdeloitte.nl	consulting	employer
+PwC	=pwc,pricewaterhousecoopers	pwc.nl		consulting	employer
+EY	=ey,ernst & young	ey.com	komwerkenbijey.nl	consulting	employer
+KPMG	=kpmg	kpmg.nl	werkenbijkpmg.nl	consulting	employer
+BDO	=bdo,bdo accountants	bdo.nl	werkenbijbdo.nl	consulting	employer
+Grant Thornton	grant thornton	grantthornton.nl		consulting	employer
+Forvis Mazars	mazars,forvis mazars	forvismazars.com	careers-nl.forvismazars.com	consulting	employer
+Baker Tilly	baker tilly	bakertilly.nl	werkenbijbakertilly.nl	consulting	employer
+McKinsey & Company	mckinsey	mckinsey.com		consulting	employer
+Boston Consulting Group	boston consulting group,=bcg	bcg.com		consulting	employer
+Exact	=exact,exact software,exact group	exact.com		software	employer
+AFAS Software	=afas	afas.nl	werkenbijafas.nl	software	employer
+Visma	visma,visma raet,visma nmbrs	visma.com		software	employer
+Unit4	unit4	unit4.com		software	employer
+Mendix	mendix	mendix.com		software	employer
+TOPdesk	topdesk	topdesk.com		software	employer
+Backbase	backbase	backbase.com		software	employer
+Elastic	=elastic,elastic nv	elastic.co		software	employer
+Miro	=miro	miro.com		software	employer
+Framer	=framer	framer.com		software	employer
+MessageBird / Bird	=bird,messagebird	bird.com		software	employer
+Topicus	topicus	topicus.nl		software	employer
+ORTEC	=ortec	ortec.com		software	employer
+Planon	planon	planonsoftware.com		software	employer
+CM.com	cm.com	cm.com		software	employer
+Bynder	bynder	bynder.com		software	employer
+Channable	channable	channable.com		software	employer
+SAP Nederland	=sap	sap.com		software	employer
+Oracle Nederland	=oracle	oracle.com		software	employer
+Microsoft Nederland	microsoft	microsoft.com		software	employer
+Booking.com	booking.com,=booking,booking holdings	booking.com		internet	employer
+Just Eat Takeaway.com	just eat takeaway,takeaway.com,thuisbezorgd	justeattakeaway.com		internet	employer
+Uber	=uber	uber.com		internet	employer
+Google Nederland	=google	google.com		internet	employer
+Amazon (incl. AWS)	=amazon,amazon web services,=aws	amazon.com		internet	employer
+WeTransfer	wetransfer	wetransfer.com		internet	employer
+Catawiki	catawiki	catawiki.com		internet	employer
+Vinted Netherlands	vinted	vinted.com		internet	employer
+Prosus	prosus	prosus.com		internet	employer
+Marktplaats (Adevinta)	marktplaats,adevinta	marktplaats.nl		internet	employer
+Funda	=funda	funda.nl		internet	employer
+Leaseweb	leaseweb	leaseweb.com		internet	employer
+Azerion	azerion	azerion.com		internet	employer
+Tiqets	tiqets	tiqets.com		internet	employer
+Fastned	fastned	fastnedcharging.com		energy	employer
+Randstad	randstad,randstad groep nederland	randstad.nl	werkenbijrandstad.nl	staffing	agency
+Tempo-Team	tempo-team,tempo team	tempo-team.nl	werkenbijtempo-team.nl	staffing	agency
+Adecco	adecco	adecco.nl		staffing	agency
+ManpowerGroup	manpower,manpowergroup,experis	manpower.nl		staffing	agency
+Start People	start people	startpeople.nl		staffing	agency
+Olympia	=olympia,olympia uitzendbureau	olympia.nl		staffing	agency
+Unique	=unique,unique uitzendbureau	unique.nl		staffing	agency
+Brunel	=brunel,brunel nederland	brunel.net		staffing	agency
+Randstad Professional (Yacht)	randstad professional,=yacht	randstadprofessional.nl		staffing	agency
+Hays	=hays	hays.nl		staffing	agency
+Michael Page	michael page,page personnel	michaelpage.nl		staffing	agency
+Robert Half	robert half	roberthalf.com		staffing	agency
+YoungCapital	youngcapital	youngcapital.nl		staffing	agency
+Timing	timing uitzendbureau,=timing	timing.nl		staffing	agency
+Luba	=luba,luba uitzendbureau	luba.nl		staffing	agency
+Maandag	=maandag	maandag.com		staffing	agency
+Undutchables	undutchables	undutchables.nl		staffing	agency
+Computer Futures (SThree)	computer futures,sthree	computerfutures.com		staffing	agency
+Vertage (Headfirst Group)	vertage,headfirst	vertage.com		staffing	agency
+ISS Facility Services	=iss,iss facility services	nl.issworld.com		other	employer
+Sodexo Nederland	sodexo	sodexo.nl		other	employer
+Vebego	vebego,=hago	vebego.com		other	employer
+Facilicom Group (Trigion)	facilicom,trigion	facilicom.nl		other	employer
+Securitas Nederland	securitas	securitas.nl		other	employer
+Nederlandse Loterij	nederlandse loterij	nederlandseloterij.nl		other	employer
+Nationale Postcode Loterij	postcode loterij,nationale postcode loterij	postcodeloterij.nl		other	employer
+Holland Casino	holland casino	hollandcasino.nl	werkenbij.hollandcasino.nl	other	employer
+Efteling	efteling	efteling.com		other	employer
+WSP Nederland	=wsp,wsp nederland,lievense	wsp.com		engineering	employer

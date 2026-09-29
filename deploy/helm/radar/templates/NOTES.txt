@@ -1,0 +1,16 @@
+NL Tech Job Radar is deploying.
+
+  API:       kubectl -n {{ .Release.Namespace }} get deploy {{ include "radar.fullname" . }}-api
+  Workers:   kubectl -n {{ .Release.Namespace }} get deploy {{ include "radar.fullname" . }}-worker
+  CronJobs:  kubectl -n {{ .Release.Namespace }} get cronjob
+  Queue:     kubectl -n {{ .Release.Namespace }} exec sts/{{ include "radar.fullname" . }}-redis -- redis-cli llen rq:queue:crawl
+
+First run on an empty database:
+  kubectl -n {{ .Release.Namespace }} create job --from=cronjob/{{ include "radar.fullname" . }}-scheduler seed-1
+{{- if .Values.ingress.enabled }}
+
+Site: https://{{ .Values.ingress.host }}
+{{- else }}
+
+Port-forward: kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "radar.fullname" . }}-api 8000:80
+{{- end }}

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{SITE_NAME}}: tech jobs in the Netherlands, read from employers' own career sites</title>
+<meta name="description" content="{{SITE_TAGLINE}} Also known as {{SITE_ALIASES}}. Tech vacatures in Nederland, rechtstreeks van de werkgevers.">
+<meta name="keywords" content="{{SITE_ALIASES}}, tech vacatures, IT vacatures Nederland, software engineer jobs Netherlands, data science jobs Netherlands, developer vacatures">
+<link rel="canonical" href="{{SITE_URL}}/">
+<meta property="og:title" content="{{SITE_NAME}}">
+<meta property="og:description" content="{{SITE_TAGLINE}}">
+<meta property="og:url" content="{{SITE_URL}}/">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{{SITE_JSONLD}}</script>
+<link rel="stylesheet" href="/static/style.css?v=9">
+<script src="/static/vendor/chart.umd.min.js"></script>
+<script src="/static/vendor/d3.min.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>{{SITE_NAME}}</h1>
+      <p class="tag" id="tagline">{{SITE_TAGLINE}}</p>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </div>
+  <nav class="wrap tabs" id="tabs">
+    <a href="#overview" data-tab="overview" data-i18n="tab.overview">Overview</a>
+    <a href="#jobs" data-tab="jobs" data-i18n="tab.jobs">Jobs</a>
+    <a href="#market" data-tab="market" data-i18n="tab.market">Market</a>
+    <a href="#profile" data-tab="profile" data-i18n="tab.profile">My profile</a>
+    <a href="#coverage" data-tab="coverage" data-i18n="tab.coverage">Coverage</a>
+    <label class="check personalised" data-i18n-title="personalised.title"><input type="checkbox" id="personalised"> <span data-i18n="personalised">Personalised</span></label>
+    <div class="langswitch" id="langswitch"><button data-lang="nl">NL</button><button data-lang="en">EN</button></div>
+  </nav>
+</header>
+
+<div class="banner" id="fresh-banner" hidden><span data-i18n="fresh.text">New listings are in.</span> <button class="primary" id="fresh-reload" data-i18n="fresh.reload">Refresh</button> <button class="link" id="fresh-dismiss" data-i18n="fresh.later">Later</button></div>
+<main class="wrap">
+
+<!-- ============ OVERVIEW ============ -->
+<section class="tab" data-tab="overview">
+  <div class="grid two">
+    <div class="card">
+      <h2><span data-i18n="ov.skills">Most requested skills</span> <span class="hint" id="ov-scope"></span></h2>
+      <div class="chart tall"><canvas id="ov-skills"></canvas></div>
+      <p class="muted small" data-i18n="ov.skills.hint">Click a bar to open those jobs.</p>
+    </div>
+    <div class="card">
+      <h2><span data-i18n="ov.graph">Skills asked for together</span> <span class="hint" data-i18n="ov.graph.hint">edge = postings mentioning both</span></h2>
+      <div class="chart tall" id="ov-graph"></div>
+    </div>
+  </div>
+  <div class="grid two">
+    <div class="card">
+      <h2><span data-i18n="ov.new">New since your last visit</span> <span class="hint" id="ov-since"></span></h2>
+      <ol class="matches" id="ov-new"></ol>
+      <p><a href="#jobs" class="btn" id="ov-new-all" data-i18n="ov.new.all">See all new jobs</a></p>
+    </div>
+    <div class="card">
+      <h2><span data-i18n="ov.matches">Best matches for you</span> <span class="hint" id="ov-match-hint"></span></h2>
+      <ol class="matches" id="ov-matches"></ol>
+      <p class="muted small" id="ov-match-empty" hidden data-i18n-html="ov.matches.empty">Add your skills under <a href="#profile">My profile</a> to see matches.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ JOBS ============ -->
+<section class="tab" data-tab="jobs">
+  <div class="card filters">
+    <div class="filter-row">
+      <div class="field grow"><label data-i18n="f.search">Search</label><input type="search" id="f-q" data-i18n-placeholder="f.search.ph" placeholder="title or company"></div>
+      <div class="field"><label data-i18n="f.window">Window</label><select id="f-days"><option value="" data-i18n="f.window.all">All live</option><option value="1" data-i18n="f.window.1">Last 24 h</option><option value="7" data-i18n="f.window.7">Last 7 days</option><option value="30" data-i18n="f.window.30">Last 30 days</option><option value="90" data-i18n="f.window.90">Last 90 days</option></select></div>
+      <div class="field"><label data-i18n="f.language">Language</label><select id="f-language"><option value="nl" data-i18n="f.language.nl">Dutch only (no English needed)</option><option value="en" data-i18n="f.language.en">English (no Dutch required)</option><option value="" data-i18n="f.language.any" selected>Dutch and/or English</option></select></div>
+      <div class="field"><label data-i18n="f.sort">Sort</label><select id="f-sort"><option value="newest" data-i18n="f.sort.newest">Newest</option><option value="match" data-i18n="f.sort.match">Best match</option><option value="size_small" data-i18n="f.sort.small">Smaller organisations first</option><option value="size_large" data-i18n="f.sort.large">Larger organisations first</option></select></div>
+    </div>
+    <div class="filter-row">
+      <div class="field"><label data-i18n="f.role">Role</label><div class="chips toggles" id="f-roles"></div></div>
+    </div>
+    <div class="filter-row">
+      <div class="field"><label data-i18n="f.level">Level</label><div class="chips toggles" id="f-levels"></div></div>
+      <div class="field"><label data-i18n="f.exp">Experience asked</label><div class="chips toggles" id="f-exp"></div></div>
+      <div class="field" data-i18n-title="f.size.title"><label data-i18n="f.size">Organisation size</label><div class="chips toggles" id="f-size"></div></div>
+      <div class="field"><label data-i18n="f.remote">Remote</label><div class="chips toggles" id="f-remote"></div></div>
+    </div>
+    <div class="filter-row">
+      <div class="field grow"><label data-i18n="f.cities">Cities</label><div class="chipinput" id="f-cities"></div></div>
+      <label class="check"><input type="checkbox" id="f-visa"> <span data-i18n="f.visa">Visa sponsorship mentioned</span></label>
+      <label class="check"><input type="checkbox" id="f-agencies"> <span data-i18n="f.agencies">Hide agencies</span></label>
+      <label class="check" data-i18n-title="f.confirmed.title"><input type="checkbox" id="f-confirmed"> <span data-i18n="f.confirmed">Only confirmed on the employer's site in the last 7 days</span></label>
+      <label class="check" data-i18n-title="f.noenrol.title"><input type="checkbox" id="f-noenrol"> <span data-i18n="f.noenrol">Exclude internships that require enrolment</span></label>
+      <label class="check"><input type="checkbox" id="f-new"> <span data-i18n="f.new">Only new since last visit</span></label>
+      <label class="check"><input type="checkbox" id="f-saved"> <span data-i18n="f.saved">Saved only</span></label>
+    </div>
+    <div class="filter-row">
+      <div class="active-skill" id="active-skill" hidden><span data-i18n="f.skill">Skill</span>: <b id="active-skill-name"></b> <button id="clear-skill" title="clear">×</button></div>
+      <span class="count" id="count"></span>
+      <button class="link" id="f-reset" data-i18n="f.reset">Reset filters</button>
+    </div>
+  </div>
+  <div class="card">
+    <table class="table postings" id="postings">
+      <thead><tr><th></th><th data-i18n="th.age">Age</th><th data-i18n="th.title">Title</th><th data-i18n="th.company">Company</th><th data-i18n="th.city">City</th><th data-i18n="th.level">Level</th><th data-i18n="th.skills">Skills</th><th data-i18n="th.match">Match</th><th data-i18n="th.lang">Language</th><th data-i18n="th.visa">Visa</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="pager"><button id="prev" data-i18n="pager.prev">‹ Prev</button><span id="page-info"></span><button id="next" data-i18n="pager.next">Next ›</button></div>
+  </div>
+</section>
+
+<!-- ============ MARKET ============ -->
+<section class="tab" data-tab="market">
+  <p class="muted" id="mk-scope"></p>
+  <div class="card">
+    <h2><span data-i18n="mk.trend">New postings per week</span> <span class="hint" data-i18n="mk.trend.hint">and the skills you follow</span></h2>
+    <div class="chart"><canvas id="mk-trend"></canvas></div>
+  </div>
+  <div class="grid three">
+    <div class="card"><h2 data-i18n="mk.cities">Cities</h2><div class="chart"><canvas id="mk-city"></canvas></div></div>
+    <div class="card"><h2 data-i18n="mk.seniority">Seniority</h2><div class="chart"><canvas id="mk-seniority"></canvas></div></div>
+    <div class="card"><h2 data-i18n="mk.exp">Experience asked</h2><div class="chart"><canvas id="mk-exp"></canvas></div></div>
+    <div class="card"><h2 data-i18n="mk.roles">Role family</h2><div class="chart"><canvas id="mk-role"></canvas></div></div>
+  </div>
+  <div class="grid two">
+    <div class="card">
+      <h2 data-i18n="mk.hiring">Who is hiring</h2>
+      <table class="table" id="mk-companies"><thead><tr><th data-i18n="th.employer">Employer</th><th data-i18n="th.open">Open tech roles</th><th data-i18n="th.share">Share</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card">
+      <h2><span data-i18n="mk.salary">Stated salaries</span> <span class="hint" data-i18n="mk.salary.hint">only postings that print a number</span></h2>
+      <div id="mk-salary" class="salary"></div>
+      <h2 class="mt" data-i18n="mk.lang">Posting language</h2>
+      <div class="chart short"><canvas id="mk-lang"></canvas></div>
+      <h2 class="mt" data-i18n="mk.remote">Remote policy</h2>
+      <div class="chart short"><canvas id="mk-remote"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROFILE ============ -->
+<section class="tab" data-tab="profile">
+  <div class="grid two">
+    <div class="card">
+      <h2 data-i18n="p.looking">What I am looking for</h2>
+      <p class="muted small" data-i18n-html="p.looking.hint">Saved in your browser only. Switch on <b>Personalised</b> in the header to apply it everywhere.</p>
+      <div class="field"><label data-i18n="p.roles">Roles</label><div class="chips toggles" id="p-roles"></div></div>
+      <div class="field"><label data-i18n="p.levels">Levels</label><div class="chips toggles" id="p-levels"></div></div>
+      <div class="field"><label data-i18n="p.exp">Experience asked</label><div class="chips toggles" id="p-exp"></div></div>
+      <div class="field" data-i18n-title="f.size.title"><label data-i18n="f.size">Organisation size</label><div class="chips toggles" id="p-size"></div></div>
+      <div class="field"><label data-i18n="f.remote">Remote</label><div class="chips toggles" id="p-remote"></div></div>
+      <div class="field"><label><span data-i18n="f.cities">Cities</span> <span class="hint" data-i18n="p.enter">type and press Enter</span></label><div class="chipinput" id="p-cities"></div></div>
+      <div class="field"><label><span data-i18n="p.exclude">Employers to hide</span> <span class="hint" data-i18n="p.enter">type and press Enter</span></label><div class="chipinput" id="p-exclude"></div></div>
+      <div class="field"><label data-i18n="p.language">Posting language</label><select id="p-language"><option value="nl" data-i18n="f.language.nl">Dutch only (no English needed)</option><option value="en" data-i18n="f.language.en">English (no Dutch required)</option><option value="" data-i18n="f.language.any" selected>Dutch and/or English</option></select></div>
+      <label class="check"><input type="checkbox" id="p-visa"> <span data-i18n="p.visa">Only jobs that mention visa sponsorship</span></label>
+      <label class="check"><input type="checkbox" id="p-agencies"> <span data-i18n="p.agencies">Hide recruitment agencies</span></label>
+      <label class="check" data-i18n-title="f.noenrol.title"><input type="checkbox" id="p-noenrol"> <span data-i18n="f.noenrol">Exclude internships that require enrolment</span></label>
+      <div class="row mt">
+        <button class="primary" id="p-save" data-i18n="p.save">Save profile</button>
+        <button id="p-export" data-i18n="p.export">Export</button>
+        <label class="btn" for="p-import"><span data-i18n="p.import">Import</span><input type="file" id="p-import" accept="application/json" hidden></label>
+        <button class="link" id="p-reset" data-i18n="p.clear">Clear</button>
+        <span class="muted" id="p-status"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2 data-i18n="p.skills">My skills</h2>
+      <p class="muted small" data-i18n="p.skills.hint">Used for match scores and the gap analysis. Add skills by typing, or extract them from your CV text.</p>
+      <div class="chipinput" id="p-skills"></div>
+      <details class="mt">
+        <summary data-i18n="p.extract">Extract skills from CV text</summary>
+        <textarea id="p-cv" rows="6" data-i18n-placeholder="p.cv.ph" placeholder="Paste your CV here. It is only used to detect skills and is not stored."></textarea>
+        <div class="row"><button id="p-extract" data-i18n="p.extract.btn">Extract</button><span class="muted" id="p-extract-status"></span></div>
+      </details>
+      <h3 class="mt"><span data-i18n="p.gap">Gap analysis</span> <span class="hint" data-i18n="p.gap.hint">against the jobs that fit your profile</span></h3>
+      <div class="row"><button class="primary" id="p-gap" data-i18n="p.gap.btn">Analyse</button><span class="muted" id="p-gap-status"></span></div>
+      <div id="p-gap-result" hidden>
+        <p class="muted" id="p-gap-coverage"></p>
+        <div class="chart"><canvas id="p-gap-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span data-i18n="p.saved">Saved jobs</span> <span class="hint" id="p-saved-count"></span></h2>
+    <ol class="matches" id="p-saved"></ol>
+  </div>
+</section>
+
+<!-- ============ COVERAGE ============ -->
+<section class="tab" data-tab="coverage">
+  <div class="card">
+    <h2 data-i18n="cv.title">What this radar covers, honestly</h2>
+    <p data-i18n="cv.p1">Postings are read from employers' own career sites and from the public boards of nine applicant-tracking platforms, plus AcademicTransfer for universities and Werken voor Nederland for the national government. Only postings located in the Netherlands and classified as tech roles are counted. Every listing links to the employer's original page.</p>
+    <p data-i18n-html="cv.p2"><b>Not here yet:</b> employers on career-site platforms without an adapter (SAP SuccessFactors is partly covered, Radancy, Phenom, iCIMS are not), most big-tech companies' own job APIs, and anything that only exists on LinkedIn. The table below is the list of large employers we track and where each one stands.</p>
+    <div class="kpis" id="cv-kpis"></div>
+    <div id="cv-recall" hidden class="mt">
+      <h3 data-i18n="cv.recall">Independent recall check</h3>
+      <div class="kpis" id="cv-recall-kpis"></div>
+      <p class="muted small" id="cv-recall-note"></p>
+    </div>
+  </div>
+  <div class="card">
+    <h2><span data-i18n="cv.large">Large employers</span> <span class="hint" id="cv-summary"></span></h2>
+    <div class="row"><div class="chips toggles" id="cv-status"></div></div>
+    <table class="table" id="cv-tracker"><thead><tr><th data-i18n="th.employer">Employer</th><th data-i18n="th.sector">Sector</th><th data-i18n="th.status">Status</th><th data-i18n="th.livetech">Live tech postings</th><th data-i18n="th.platform">Platform</th></tr></thead><tbody></tbody></table>
+  </div>
+  <div class="card">
+    <h2><span data-i18n="cv.sources">Sources</span> <span class="hint" data-i18n="cv.sources.hint">every board, its status and yield on the last crawl</span></h2>
+    <p class="muted small" data-i18n="cv.flag">⚑ marks a board whose posting pages could not be reached on the last link check; its postings are kept but may be stale. "partial" means the board returned far fewer postings than before and nothing was closed.</p>
+    <table class="table" id="sources"><thead><tr><th data-i18n="th.company">Company</th><th data-i18n="th.platform">Platform</th><th data-i18n="th.kind">Kind</th><th data-i18n="th.status">Status</th><th data-i18n="th.postings">Postings</th><th>NL</th></tr></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<!-- ============ COMPANY (reached from employer links, not in the tab bar) ============ -->
+<section class="tab" data-tab="company">
+  <p><a href="#market" class="btn" data-i18n="co.back">← Market</a> <a href="/companies" class="btn" data-i18n="co.all">All employers</a> <a id="co-permalink" href="/companies" class="btn" data-i18n="co.permalink">Permanent page</a></p>
+  <div class="card">
+    <h2 id="co-name"></h2>
+    <div class="kpis" id="co-kpis"></div>
+  </div>
+  <div class="grid three">
+    <div class="card"><h2 data-i18n="co.skills">Skills asked for</h2><div class="chart"><canvas id="co-skills"></canvas></div></div>
+    <div class="card"><h2 data-i18n="co.level">Seniority</h2><div class="chart"><canvas id="co-seniority"></canvas></div></div>
+    <div class="card"><h2 data-i18n="co.lang">Posting language</h2><div class="chart"><canvas id="co-lang"></canvas></div></div>
+  </div>
+  <div class="card">
+    <h2><span data-i18n="co.roles">Open tech roles</span> <span class="hint" id="co-count"></span></h2>
+    <table class="table" id="co-jobs"><thead><tr><th data-i18n="th.age">Age</th><th data-i18n="th.title">Title</th><th data-i18n="th.city">City</th><th data-i18n="th.level">Level</th><th data-i18n="th.skills">Skills</th><th data-i18n="th.lang">Language</th><th data-i18n="th.visa">Visa</th></tr></thead><tbody></tbody></table>
+  </div>
+</section>
+
+<!-- ============ ADMIN (hidden: reached only via #admin; every action needs the admin token) ============ -->
+<section class="tab" data-tab="admin">
+  <div class="card">
+    <h2 data-i18n="adm.title">Admin: refresh listings</h2>
+    <p class="muted small" data-i18n="adm.hint">Only for the site owner. Needs the token set in RADAR_ADMIN_TOKEN; it is kept for this browser tab only. Crawls respect every employer's rate limit and robots.txt.</p>
+    <div class="filter-row">
+      <div class="field grow"><label data-i18n="adm.token">Admin token</label><input type="password" id="adm-token" autocomplete="off"></div>
+      <div class="field grow"><label data-i18n="adm.company">Employer (for a single-employer crawl)</label><input type="text" id="adm-company"></div>
+      <label class="check"><input type="checkbox" id="adm-force"> <span data-i18n="adm.force">Ignore the 10-minute cool-down</span></label>
+    </div>
+    <div class="row">
+      <button class="primary" data-scope="due" data-i18n="adm.due">Crawl sources that are due</button>
+      <button data-scope="company" data-i18n="adm.one">Crawl this employer</button>
+      <button data-scope="all" data-i18n="adm.all">Crawl everything</button>
+    </div>
+    <pre class="small" id="adm-status"></pre>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap muted">
+  <p><b>{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs never leave your browser; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.</span></p>
+</footer>
+<script src="/static/app.js?v=25"></script>
+</body>
+</html>

@@ -1,0 +1,1602 @@
+# Coverage tracker: the employers the radar must have. `radar top100` reports covered / registered / missing.
+# match: lower-case fragments matched against source company, source slug and live posting company names.
+# platform: what their careers site runs on, when known (guides which adapter unlocks them).
+- {name: ASML, match: [asml], platform: custom, group: semicon}
+- {name: ASM International, match: [asm international, asminternational], platform: unknown, group: semicon}
+- {name: NXP, match: [nxp], platform: workday, group: semicon}
+- {name: Nexperia, match: [nexperia], platform: unknown, group: semicon}
+- {name: Besi, match: [besi], platform: smartrecruiters, group: semicon}
+- {name: Ampleon, match: [ampleon], platform: ashby, group: semicon}
+- {name: Philips, match: [philips], platform: workday, group: hardware}
+- {name: Signify, match: [signify, lighting.wd3], platform: workday, group: hardware}
+- {name: Prodrive Technologies, match: [prodrive], platform: unknown, group: hardware}
+- {name: VDL, match: [vdl], platform: unknown, group: hardware}
+- {name: Vanderlande, match: [vanderlande], platform: workday, group: hardware}
+- {name: Thermo Fisher, match: [thermofisher, thermo fisher], platform: workday, group: hardware}
+- {name: Canon Production Printing, match: [canon], platform: unknown, group: hardware}
+- {name: Lely, match: [lely], platform: jsonld, group: hardware}
+- {name: Nedap, match: [nedap], platform: unknown, group: hardware}
+- {name: Sioux Technologies, match: [sioux], platform: recruitee, group: hardware}
+- {name: Demcon, match: [demcon], platform: unknown, group: hardware}
+- {name: Thales Nederland, match: [thales], platform: unknown, group: hardware}
+- {name: Damen, match: [damen], platform: recruitee, group: hardware}
+- {name: Fugro, match: [fugro], platform: unknown, group: hardware}
+- {name: ING, match: [ing hubs, ingnl, ing bank, ing.com, "ing "], platform: jsonld, group: finance}
+- {name: Rabobank, match: [rabobank], platform: jsonld, group: finance}
+- {name: ABN AMRO, match: [abn amro, abnamro], platform: unknown, group: finance}
+- {name: bunq, match: [bunq], platform: recruitee, group: finance}
+- {name: Adyen, match: [adyen], platform: greenhouse, group: finance}
+- {name: Mollie, match: [mollie], platform: ashby, group: finance}
+- {name: Bitvavo, match: [bitvavo], platform: ashby, group: finance}
+- {name: Optiver, match: [optiver], platform: custom, group: finance}
+- {name: IMC Trading, match: [imc trading, imc.com, "imc"], platform: greenhouse, group: finance}
+- {name: Flow Traders, match: [flow traders, flowtraders], platform: greenhouse, group: finance}
+- {name: Da Vinci, match: [davinci, da vinci], platform: unknown, group: finance}
+- {name: Achmea, match: [achmea], platform: recruitee, group: finance}
+- {name: NN Group, match: [nn group, nngroup, nationale-nederlanden], platform: unknown, group: finance}
+- {name: ASR, match: [a.s.r, asr nederland], platform: unknown, group: finance}
+- {name: Aegon, match: [aegon], platform: unknown, group: finance}
+- {name: APG, match: [apg], platform: unknown, group: finance}
+- {name: PGGM, match: [pggm], platform: unknown, group: finance}
+- {name: De Nederlandsche Bank, match: [nederlandsche bank, dnb.nl], platform: unknown, group: finance}
+- {name: Booking.com, match: [booking.com, bookingcom], platform: custom, group: internet}
+- {name: Coolblue, match: [coolblue], platform: custom, group: internet}
+- {name: bol.com, match: [bol.com, bolcom], platform: greenhouse, group: internet}
+- {name: Ahold Delhaize, match: [ahold, albert heijn, albertheijn], platform: unknown, group: internet}
+- {name: Jumbo, match: [jumbo], platform: unknown, group: internet}
+- {name: Picnic, match: [picnic], platform: custom, group: internet}
+- {name: Just Eat Takeaway, match: [takeaway, just eat], platform: jsonld, group: internet}
+- {name: Wehkamp, match: [wehkamp], platform: smartrecruiters, group: internet}
+- {name: Catawiki, match: [catawiki], platform: greenhouse, group: internet}
+- {name: Marktplaats, match: [marktplaats, adevinta], platform: unknown, group: internet}
+- {name: Uber, match: [uber], platform: greenhouse, group: internet}
+- {name: KPN, match: [kpn], platform: smartrecruiters, group: telecom}
+- {name: Odido, match: [odido], platform: jsonld, group: telecom}
+- {name: VodafoneZiggo, match: [vodafoneziggo, vodafone ziggo], platform: unknown, group: telecom}
+- {name: TomTom, match: [tomtom], platform: unknown, group: software}
+- {name: Leaseweb, match: [leaseweb], platform: teamtailor, group: software}
+- {name: TransIP, match: [transip, team.blue], platform: teamtailor, group: software}
+- {name: Bynder, match: [bynder], platform: ashby, group: software}
+- {name: Channable, match: [channable], platform: recruitee, group: software}
+- {name: Sendcloud, match: [sendcloud], platform: teamtailor, group: software}
+- {name: Trengo, match: [trengo], platform: unknown, group: software}
+- {name: Framer, match: [framer], platform: personio, group: software}
+- {name: Miro, match: [miro], platform: ashby, group: software}
+- {name: WeTransfer, match: [wetransfer], platform: unknown, group: software}
+- {name: Elastic, match: [elastic], platform: greenhouse, group: software}
+- {name: GitLab, match: [gitlab], platform: greenhouse, group: software}
+- {name: Databricks, match: [databricks], platform: greenhouse, group: software}
+- {name: Mendix, match: [mendix], platform: lever, group: software}
+- {name: Backbase, match: [backbase], platform: greenhouse, group: software}
+- {name: Exact, match: [exact software, exactsoftware, "exact "], platform: unknown, group: software}
+- {name: AFAS, match: [afas], platform: custom, group: software}
+- {name: Topicus, match: [topicus], platform: unknown, group: software}
+- {name: Unit4, match: [unit4], platform: smartrecruiters, group: software}
+- {name: Nedap, match: [nedap], platform: unknown, group: software}
+- {name: Dept, match: [dept], platform: greenhouse, group: consulting}
+- {name: Xebia, match: [xebia], platform: recruitee, group: consulting}
+- {name: Schuberg Philis, match: [schuberg], platform: greenhouse, group: consulting}
+- {name: Info Support, match: [info support, infosupport], platform: unknown, group: consulting}
+- {name: Centric, match: [centric], platform: recruitee, group: consulting}
+- {name: Conclusion, match: [conclusion], platform: recruitee, group: consulting}
+- {name: Sopra Steria, match: [sopra steria, soprasteria, ordina], platform: smartrecruiters, group: consulting}
+- {name: Capgemini, match: [capgemini], platform: unknown, group: consulting}
+- {name: Accenture, match: [accenture], platform: workday, group: consulting}
+- {name: Deloitte, match: [deloitte], platform: smartrecruiters, group: consulting}
+- {name: KPMG, match: [kpmg], platform: smartrecruiters, group: consulting}
+- {name: PwC, match: [pwc, pricewaterhouse], platform: workday, group: consulting}
+- {name: EY, match: [ey nederland, eynederland, ernst & young], platform: recruitee, group: consulting}
+- {name: CGI, match: [cgi], platform: unknown, group: consulting}
+- {name: Eviden, match: [eviden, atos], platform: unknown, group: consulting}
+- {name: IBM, match: [ibm], platform: custom, group: consulting}
+- {name: NS, match: [nederlandse spoorwegen, "=ns", werkenbijns], platform: jsonld, group: infra}
+- {name: KLM, match: [klm], platform: unknown, group: infra}
+- {name: Schiphol, match: [schiphol], platform: unknown, group: infra}
+- {name: ProRail, match: [prorail], platform: jsonld, group: infra}
+- {name: Alliander, match: [alliander], platform: unknown, group: energy}
+- {name: Stedin, match: [stedin], platform: unknown, group: energy}
+- {name: TenneT, match: [tennet], platform: unknown, group: energy}
+- {name: Eneco, match: [eneco], platform: unknown, group: energy}
+- {name: Vattenfall, match: [vattenfall], platform: smartrecruiters, group: energy}
+- {name: Essent, match: [essent], platform: unknown, group: energy}
+- {name: Shell, match: [shell], platform: unknown, group: energy}
+- {name: Unilever, match: [unilever], platform: jsonld, group: fmcg}
+- {name: Heineken, match: [heineken], platform: unknown, group: fmcg}
+- {name: DSM-Firmenich, match: [dsm], platform: unknown, group: fmcg}
+- {name: Belastingdienst, match: [belastingdienst], platform: werkenvoornederland, group: government}
+- {name: DUO, match: [dienst uitvoering onderwijs, duo], platform: werkenvoornederland, group: government}
+- {name: Rijkswaterstaat, match: [rijkswaterstaat], platform: werkenvoornederland, group: government}
+- {name: UWV, match: [uwv], platform: custom, group: government}
+- {name: Politie, match: [politie], platform: jsonld, group: government}
+- {name: CBS, match: [centraal bureau voor de statistiek, cbs, centraalbureauvoordestatistiek, centraal bureau voor de statistiek], platform: werkenvoornederland, group: government}
+- {name: TNO, match: [tno], platform: ashby, group: research}
+- {name: CWI, match: [cwi, centrum wiskunde], platform: academictransfer, group: research}
+- {name: ASTRON, match: [astron], platform: academictransfer, group: research}
+- {name: SURF, match: [surf], platform: recruitee, group: research}
+- {name: TU Delft, match: [tu delft, delft university, tudelft], platform: academictransfer, group: university}
+- {name: TU Eindhoven, match: [eindhoven university, tu/e, tue.nl, tu eindhoven], platform: academictransfer, group: university}
+- {name: University of Amsterdam, match: [university of amsterdam, universiteit van amsterdam, uva], platform: academictransfer, group: university}
+- {name: Vrije Universiteit, match: [vrije universiteit, vu amsterdam], platform: academictransfer, group: university}
+- {name: Utrecht University, match: [utrecht university, universiteit utrecht], platform: academictransfer, group: university}
+- {name: University of Groningen, match: [groningen], platform: academictransfer, group: university}
+- {name: Leiden University, match: [leiden university, universiteit leiden], platform: academictransfer, group: university}
+- {name: Radboud University, match: [radboud], platform: academictransfer, group: university}
+- {name: Wageningen University, match: [wageningen], platform: academictransfer, group: university}
+- {name: University of Twente, match: [twente], platform: academictransfer, group: university}
+- {name: Google, match: [google], platform: custom, group: bigtech}
+- {name: Amazon, match: [amazon, aws], platform: amazon, group: bigtech}
+- {name: Microsoft, match: [microsoft], platform: custom, group: bigtech}
+- {name: Oracle, match: [oracle], platform: custom, group: bigtech}
+- {name: SAP, match: [sap se, sap nederland], platform: custom, group: bigtech}
+- {name: Cisco, match: [cisco], platform: custom, group: bigtech}
+- {name: Atlassian, match: [atlassian], platform: unknown, group: bigtech}
+- {name: Datadog, match: [datadog], platform: greenhouse, group: bigtech}
+- {name: Snowflake, match: [snowflake], platform: ashby, group: bigtech}
+- {name: Nike, match: [nike], platform: custom, group: other}
+- {name: Tesla, match: [tesla], platform: custom, group: other}
+- {name: Netflix, match: [netflix], platform: jsonld, group: other}
+- {name: Rituals, match: [rituals], platform: smartrecruiters, group: other}
+- {name: PVH, match: [pvh, tommy hilfiger], platform: jsonld, group: other}
+
+# added 28 Sept 2026 from data/seeds/big_employers.tsv (research, public sector, finance, high-tech, media)
+- {name: 'NLR (Royal Netherlands Aerospace Centre)', match: ['nlr', 'royal netherlands aerospace'], platform: js-rendered, group: research}
+- {name: 'Deltares', match: ['deltares'], platform: js-rendered, group: research}
+- {name: 'MARIN', match: ['marin'], platform: unknown, group: research}
+- {name: 'ESA ESTEC', match: ['esa', 'estec', 'european space agency'], platform: unknown, group: research}
+- {name: 'SRON', match: ['sron'], platform: unknown, group: research}
+- {name: 'Nikhef', match: ['nikhef'], platform: unknown, group: research}
+- {name: 'KNMI', match: ['knmi'], platform: unknown, group: government}
+- {name: 'RIVM', match: ['rivm'], platform: unknown, group: government}
+- {name: 'SVB', match: ['sociale verzekeringsbank', 'svb'], platform: unknown, group: government}
+- {name: 'RDW', match: ['rdw'], platform: jsonld, group: government}
+- {name: 'Kadaster', match: ['kadaster'], platform: unknown, group: government}
+- {name: 'Logius', match: ['logius'], platform: unknown, group: government}
+- {name: 'ICTU', match: ['ictu'], platform: unknown, group: government}
+- {name: 'CJIB', match: ['cjib', 'centraal justitieel incassobureau'], platform: unknown, group: government}
+- {name: 'Ministerie van Defensie', match: ['defensie'], platform: unknown, group: government}
+- {name: 'Gemeente Amsterdam', match: ['gemeente amsterdam'], platform: unknown, group: government}
+- {name: 'Gemeente Rotterdam', match: ['gemeente rotterdam'], platform: unknown, group: government}
+- {name: 'Gemeente Den Haag', match: ['gemeente den haag'], platform: jsonld, group: government}
+- {name: 'Gemeente Utrecht', match: ['gemeente utrecht'], platform: jsonld, group: government}
+- {name: 'Erasmus MC', match: ['erasmus mc'], platform: unknown, group: health}
+- {name: 'UMC Utrecht', match: ['umc utrecht'], platform: unknown, group: health}
+- {name: 'Amsterdam UMC', match: ['amsterdam umc'], platform: unknown, group: health}
+- {name: 'LUMC', match: ['lumc', 'leids universitair'], platform: unknown, group: health}
+- {name: 'Maastricht UMC+', match: ['maastricht umc', 'mumc'], platform: recruitee, group: health}
+- {name: 'UMCG', match: ['umcg'], platform: unknown, group: health}
+- {name: 'Volksbank', match: ['volksbank'], platform: jsonld, group: finance}
+- {name: 'Triodos', match: ['triodos'], platform: unknown, group: finance}
+- {name: 'AFM', match: ['autoriteit financiële markten', 'afm'], platform: unknown, group: finance}
+- {name: 'Knab', match: ['knab'], platform: unknown, group: finance}
+- {name: 'Euronext', match: ['euronext'], platform: workday, group: finance}
+- {name: 'Zalando', match: ['zalando'], platform: unknown, group: internet}
+- {name: 'TOPdesk', match: ['topdesk'], platform: unknown, group: software}
+- {name: 'Visma', match: ['visma'], platform: unknown, group: software}
+- {name: 'MessageBird / Bird', match: ['messagebird', 'bird'], platform: unknown, group: software}
+- {name: 'Guerrilla Games', match: ['guerrilla'], platform: unknown, group: gaming}
+- {name: 'Nixxes', match: ['nixxes'], platform: unknown, group: gaming}
+- {name: 'DAF Trucks', match: ['daf'], platform: jsonld, group: hardware}
+- {name: 'Airbus Netherlands', match: ['airbus'], platform: unknown, group: hardware}
+- {name: 'GKN Fokker', match: ['fokker', 'gkn'], platform: jsonld, group: hardware}
+- {name: 'Heerema', match: ['heerema'], platform: jsonld, group: hardware}
+- {name: 'Boskalis', match: ['boskalis'], platform: unknown, group: hardware}
+- {name: 'Van Oord', match: ['van oord'], platform: jsonld, group: hardware}
+- {name: 'Siemens Healthineers', match: ['siemens healthineers'], platform: unknown, group: hardware}
+- {name: 'Enexis', match: ['enexis'], platform: jsonld, group: energy}
+- {name: 'Port of Rotterdam', match: ['port of rotterdam', 'havenbedrijf'], platform: jsonld, group: infra}
+- {name: 'PostNL', match: ['postnl'], platform: unknown, group: infra}
+- {name: 'DHL', match: ['dhl'], platform: jsonld, group: infra}
+- {name: 'RTL Nederland', match: ['rtl'], platform: unknown, group: media}
+- {name: 'NPO', match: ['npo', 'nederlandse publieke omroep'], platform: unknown, group: media}
+- {name: 'DPG Media', match: ['dpg media'], platform: recruitee, group: media}
+- {name: 'Mediahuis', match: ['mediahuis'], platform: jsonld, group: media}
+- {name: 'Cegeka', match: ['cegeka'], platform: jsonld, group: consulting}
+- {name: 'Tata Consultancy Services', match: ['tata consultancy', 'tcs'], platform: unknown, group: consulting}
+- {name: 'Cognizant', match: ['cognizant'], platform: unknown, group: consulting}
+- {name: 'Infosys', match: ['infosys'], platform: unknown, group: consulting}
+
+# added 28 Sept 2026 from data/seeds/top500.tsv (541 largest Dutch employers; agencies left out)
+- group: finance
+  match: [athora, zwitserleven, reaal]
+  name: Athora Netherlands
+  platform: unknown
+- group: finance
+  match: [=vgz, coöperatie vgz, cooperatie vgz]
+  name: VGZ
+  platform: unknown
+- group: finance
+  match: [=cz, cz groep, cz zorgverzekeringen]
+  name: CZ
+  platform: unknown
+- group: finance
+  match: [menzis]
+  name: Menzis
+  platform: unknown
+- group: finance
+  match: [=dsw, dsw zorgverzekeraar]
+  name: DSW Zorgverzekeraar
+  platform: unknown
+- group: finance
+  match: [=mn, mn services]
+  name: MN
+  platform: unknown
+- group: finance
+  match: [van lanschot, =kempen]
+  name: Van Lanschot Kempen
+  platform: unknown
+- group: finance
+  match: [=nibc]
+  name: NIBC Bank
+  platform: unknown
+- group: finance
+  match: [da vinci trading, da vinci derivatives]
+  name: Da Vinci Trading
+  platform: unknown
+- group: finance
+  match: [robeco]
+  name: Robeco
+  platform: unknown
+- group: finance
+  match: [=univé, =unive, univé verzekeringen]
+  name: Univé
+  platform: unknown
+- group: finance
+  match: [worldline, equensworldline]
+  name: Worldline
+  platform: unknown
+- group: finance
+  match: [ayvens, leaseplan]
+  name: Ayvens (LeasePlan)
+  platform: unknown
+- group: retail
+  match: [=lidl]
+  name: Lidl Nederland
+  platform: unknown
+- group: retail
+  match: [=aldi]
+  name: Aldi Nederland
+  platform: unknown
+- group: retail
+  match: [=plus, plus retail, plus supermarkt]
+  name: PLUS Retail
+  platform: unknown
+- group: retail
+  match: [=dirk, dirk van den broek, detailresult]
+  name: Dirk van den Broek (Detailresult)
+  platform: unknown
+- group: retail
+  match: [=hoogvliet, hoogvliet supermarkten]
+  name: Hoogvliet
+  platform: unknown
+- group: retail
+  match: [vomar]
+  name: Vomar
+  platform: unknown
+- group: retail
+  match: [=action, action nederland]
+  name: Action
+  platform: unknown
+- group: retail
+  match: [=hema]
+  name: HEMA
+  platform: unknown
+- group: retail
+  match: [kruidvat, a.s. watson, as watson, trekpleister]
+  name: Kruidvat (A.S. Watson)
+  platform: unknown
+- group: retail
+  match: [=etos]
+  name: Etos
+  platform: unknown
+- group: retail
+  match: [blokker]
+  name: Blokker
+  platform: unknown
+- group: retail
+  match: [intergamma, =gamma, karwei]
+  name: Intergamma (GAMMA, KARWEI)
+  platform: unknown
+- group: retail
+  match: [=praxis, maxeda]
+  name: Praxis (Maxeda)
+  platform: unknown
+- group: retail
+  match: [=ikea]
+  name: IKEA Nederland
+  platform: unknown
+- group: retail
+  match: [mediamarkt, media markt]
+  name: MediaMarkt Nederland
+  platform: unknown
+- group: retail
+  match: [=zeeman, zeeman textielsupers]
+  name: Zeeman
+  platform: unknown
+- group: retail
+  match: [de bijenkorf, bijenkorf]
+  name: de Bijenkorf
+  platform: unknown
+- group: retail
+  match: [sligro]
+  name: Sligro Food Group
+  platform: unknown
+- group: retail
+  match: [bidfood]
+  name: Bidfood
+  platform: unknown
+- group: retail
+  match: [g-star]
+  name: G-Star RAW
+  platform: unknown
+- group: retail
+  match: [basic-fit, basic fit]
+  name: Basic-Fit
+  platform: unknown
+- group: retail
+  match: [mcdonald's, mcdonalds]
+  name: McDonald's Nederland
+  platform: unknown
+- group: energy
+  match: [greenchoice]
+  name: Greenchoice
+  platform: unknown
+- group: energy
+  match: [gasunie]
+  name: Gasunie
+  platform: unknown
+- group: energy
+  match: [=nam, nederlandse aardolie maatschappij]
+  name: NAM
+  platform: unknown
+- group: energy
+  match: [=rwe]
+  name: RWE Nederland
+  platform: unknown
+- group: energy
+  match: [engie]
+  name: Engie Nederland
+  platform: unknown
+- group: energy
+  match: [=bp, bp raffinaderij]
+  name: BP Nederland
+  platform: unknown
+- group: energy
+  match: [exxonmobil, =esso]
+  name: ExxonMobil Nederland
+  platform: unknown
+- group: energy
+  match: [vandebron]
+  name: Vandebron
+  platform: unknown
+- group: energy
+  match: [urenco]
+  name: Urenco
+  platform: unknown
+- group: energy
+  match: [alfen]
+  name: Alfen
+  platform: unknown
+- group: energy
+  match: [vitens]
+  name: Vitens
+  platform: unknown
+- group: energy
+  match: [evides]
+  name: Evides Waterbedrijf
+  platform: unknown
+- group: energy
+  match: [waternet]
+  name: Waternet
+  platform: unknown
+- group: energy
+  match: [brabant water]
+  name: Brabant Water
+  platform: unknown
+- group: energy
+  match: [=pwn]
+  name: PWN
+  platform: unknown
+- group: energy
+  match: [dunea]
+  name: Dunea
+  platform: unknown
+- group: telecom
+  match: [eurofiber]
+  name: Eurofiber
+  platform: unknown
+- group: telecom
+  match: [delta fiber, deltafiber]
+  name: Delta Fiber
+  platform: unknown
+- group: transport
+  match: [transavia]
+  name: Transavia
+  platform: unknown
+- group: transport
+  match: [=tui, tui nederland]
+  name: TUI Nederland
+  platform: unknown
+- group: transport
+  match: [arriva]
+  name: Arriva Nederland
+  platform: unknown
+- group: transport
+  match: [transdev, connexxion]
+  name: Transdev (Connexxion)
+  platform: unknown
+- group: transport
+  match: [keolis]
+  name: Keolis Nederland
+  platform: unknown
+- group: transport
+  match: [qbuzz]
+  name: Qbuzz
+  platform: unknown
+- group: transport
+  match: [=gvb]
+  name: GVB
+  platform: unknown
+- group: transport
+  match: [=ret]
+  name: RET
+  platform: unknown
+- group: transport
+  match: [=htm, htm personenvervoer]
+  name: HTM
+  platform: unknown
+- group: transport
+  match: [=lvnl, luchtverkeersleiding nederland]
+  name: LVNL
+  platform: unknown
+- group: transport
+  match: [port of amsterdam, havenbedrijf amsterdam]
+  name: Port of Amsterdam
+  platform: unknown
+- group: transport
+  match: [=anwb]
+  name: ANWB
+  platform: unknown
+- group: transport
+  match: [=pon, pon holdings, pon automotive]
+  name: Pon Holdings
+  platform: unknown
+- group: transport
+  match: [louwman]
+  name: Louwman Group
+  platform: unknown
+- group: transport
+  match: [scania]
+  name: Scania Production Zwolle
+  platform: unknown
+- group: transport
+  match: [nedcar, vdl nedcar]
+  name: VDL Nedcar
+  platform: unknown
+- group: transport
+  match: [alstom]
+  name: Alstom Nederland
+  platform: unknown
+- group: logistics
+  match: [=dpd]
+  name: DPD Nederland
+  platform: unknown
+- group: logistics
+  match: [=gls, gls netherlands]
+  name: GLS Netherlands
+  platform: unknown
+- group: logistics
+  match: [=ups]
+  name: UPS Nederland
+  platform: unknown
+- group: logistics
+  match: [fedex, tnt express]
+  name: FedEx (TNT)
+  platform: unknown
+- group: logistics
+  match: [kuehne+nagel, kuehne nagel, kühne+nagel]
+  name: Kuehne+Nagel
+  platform: unknown
+- group: logistics
+  match: [=dsv]
+  name: DSV
+  platform: unknown
+- group: logistics
+  match: [ceva logistics, =ceva]
+  name: CEVA Logistics
+  platform: unknown
+- group: logistics
+  match: [vopak]
+  name: Vopak
+  platform: unknown
+- group: logistics
+  match: [=ect, hutchison ports ect, europe container terminals]
+  name: Hutchison Ports ECT Rotterdam
+  platform: unknown
+- group: logistics
+  match: [apm terminals]
+  name: APM Terminals
+  platform: unknown
+- group: logistics
+  match: [samskip]
+  name: Samskip
+  platform: unknown
+- group: logistics
+  match: [mammoet]
+  name: Mammoet
+  platform: unknown
+- group: construction
+  match: [=bam, koninklijke bam, bam bouw, bam infra]
+  name: Royal BAM Group
+  platform: unknown
+- group: construction
+  match: [volkerwessels]
+  name: VolkerWessels
+  platform: unknown
+- group: construction
+  match: [heijmans]
+  name: Heijmans
+  platform: unknown
+- group: construction
+  match: [dura vermeer]
+  name: Dura Vermeer
+  platform: unknown
+- group: construction
+  match: [ballast nedam]
+  name: Ballast Nedam
+  platform: unknown
+- group: construction
+  match: [strukton]
+  name: Strukton
+  platform: unknown
+- group: construction
+  match: [=tbi, tbi holdings]
+  name: TBI
+  platform: unknown
+- group: construction
+  match: [van wijnen]
+  name: Van Wijnen
+  platform: unknown
+- group: construction
+  match: [=spie, spie nederland]
+  name: Spie Nederland
+  platform: unknown
+- group: construction
+  match: [=equans]
+  name: Equans Nederland
+  platform: unknown
+- group: construction
+  match: [croonwolter&dros, croonwolter, croon wolter]
+  name: Croonwolter&dros
+  platform: unknown
+- group: construction
+  match: [=unica, unica installatietechniek]
+  name: Unica
+  platform: unknown
+- group: construction
+  match: [kuijpers]
+  name: Kuijpers
+  platform: unknown
+- group: engineering
+  match: [arcadis]
+  name: Arcadis
+  platform: unknown
+- group: engineering
+  match: [haskoning, royal haskoningdhv, haskoningdhv]
+  name: Haskoning (Royal HaskoningDHV)
+  platform: unknown
+- group: engineering
+  match: [witteveen+bos, witteveen bos, witteveen en bos]
+  name: Witteveen+Bos
+  platform: unknown
+- group: engineering
+  match: [sweco]
+  name: Sweco Nederland
+  platform: unknown
+- group: engineering
+  match: [antea, antea group]
+  name: Antea Group
+  platform: unknown
+- group: engineering
+  match: [=tauw, tauw group, tauw nederland]
+  name: Tauw
+  platform: unknown
+- group: engineering
+  match: [movares]
+  name: Movares
+  platform: unknown
+- group: engineering
+  match: [iv-groep, iv-infra, iv-consult, iv-bouw, iv-industrie]
+  name: Iv
+  platform: unknown
+- group: engineering
+  match: [goudappel]
+  name: Goudappel
+  platform: unknown
+- group: engineering
+  match: [tebodin, bilfinger]
+  name: Bilfinger Tebodin
+  platform: unknown
+- group: engineering
+  match: [=dnv, dnv gl]
+  name: DNV
+  platform: unknown
+- group: engineering
+  match: [=kiwa]
+  name: Kiwa
+  platform: unknown
+- group: engineering
+  match: [=stork]
+  name: Stork
+  platform: unknown
+- group: engineering
+  match: [=fluor]
+  name: Fluor
+  platform: unknown
+- group: engineering
+  match: [worley]
+  name: Worley Nederland
+  platform: unknown
+- group: engineering
+  match: [allseas]
+  name: Allseas
+  platform: unknown
+- group: engineering
+  match: [=huisman, huisman equipment]
+  name: Huisman Equipment
+  platform: unknown
+- group: engineering
+  match: [sbm offshore]
+  name: SBM Offshore
+  platform: unknown
+- group: engineering
+  match: [royal ihc, =ihc]
+  name: Royal IHC
+  platform: unknown
+- group: engineering
+  match: [feadship, royal van lent, de vries scheepsbouw]
+  name: Feadship
+  platform: unknown
+- group: semicon
+  match: [smart photonics]
+  name: Smart Photonics
+  platform: unknown
+- group: hightech
+  match: [=nts, nts group]
+  name: NTS Group
+  platform: unknown
+- group: hightech
+  match: [=kmwe]
+  name: KMWE
+  platform: unknown
+- group: hightech
+  match: [frencken]
+  name: Frencken Group
+  platform: unknown
+- group: hightech
+  match: [neways]
+  name: Neways Electronics
+  platform: unknown
+- group: hightech
+  match: [marel, jbt marel]
+  name: JBT Marel
+  platform: unknown
+- group: hightech
+  match: [malvern panalytical, panalytical]
+  name: Malvern Panalytical
+  platform: unknown
+- group: hightech
+  match: [siemens, siemens nederland, siemens mobility]
+  name: Siemens Nederland
+  platform: unknown
+- group: hightech
+  match: [siemens energy]
+  name: Siemens Energy
+  platform: unknown
+- group: hightech
+  match: [=tkh, tkh group]
+  name: TKH Group
+  platform: unknown
+- group: industry
+  match: [aalberts]
+  name: Aalberts
+  platform: unknown
+- group: hightech
+  match: [=priva]
+  name: Priva
+  platform: unknown
+- group: hightech
+  match: [technolution]
+  name: Technolution
+  platform: unknown
+- group: hightech
+  match: [=abb]
+  name: ABB Nederland
+  platform: unknown
+- group: industry
+  match: [bdr thermea, remeha]
+  name: BDR Thermea (Remeha)
+  platform: unknown
+- group: research
+  match: [=imec, holst centre]
+  name: imec Netherlands (Holst Centre)
+  platform: unknown
+- group: hightech
+  match: [bronkhorst]
+  name: Bronkhorst High-Tech
+  platform: unknown
+- group: industry
+  match: [tata steel]
+  name: Tata Steel Nederland
+  platform: unknown
+- group: chemicals
+  match: [akzonobel, akzo nobel]
+  name: AkzoNobel
+  platform: unknown
+- group: chemicals
+  match: [nouryon]
+  name: Nouryon
+  platform: unknown
+- group: chemicals
+  match: [=dow, dow benelux, dow chemical]
+  name: Dow Benelux
+  platform: unknown
+- group: chemicals
+  match: [sabic]
+  name: SABIC
+  platform: unknown
+- group: chemicals
+  match: [lyondellbasell]
+  name: LyondellBasell
+  platform: unknown
+- group: chemicals
+  match: [chemours]
+  name: Chemours Dordrecht
+  platform: unknown
+- group: chemicals
+  match: [covestro]
+  name: Covestro
+  platform: unknown
+- group: chemicals
+  match: [=oci, oci nitrogen]
+  name: OCI
+  platform: unknown
+- group: chemicals
+  match: [=yara]
+  name: Yara Sluiskil
+  platform: unknown
+- group: chemicals
+  match: [teijin aramid, teijin]
+  name: Teijin Aramid
+  platform: unknown
+- group: chemicals
+  match: [nobian]
+  name: Nobian
+  platform: unknown
+- group: chemicals
+  match: [corbion]
+  name: Corbion
+  platform: unknown
+- group: chemicals
+  match: [=basf]
+  name: BASF Nederland
+  platform: unknown
+- group: chemicals
+  match: [eurofins]
+  name: Eurofins Nederland
+  platform: unknown
+- group: industry
+  match: [=shv, shv holdings]
+  name: SHV Holdings
+  platform: unknown
+- group: industry
+  match: [hunter douglas]
+  name: Hunter Douglas
+  platform: unknown
+- group: food
+  match: [frieslandcampina, friesland campina]
+  name: FrieslandCampina
+  platform: unknown
+- group: food
+  match: [=vion, vion food]
+  name: Vion Food Group
+  platform: unknown
+- group: food
+  match: [cosun, royal cosun, suiker unie, aviko]
+  name: Royal Cosun (Suiker Unie, Aviko)
+  platform: unknown
+- group: food
+  match: [agrifirm]
+  name: Agrifirm
+  platform: unknown
+- group: food
+  match: [forfarmers]
+  name: ForFarmers
+  platform: unknown
+- group: food
+  match: [nutreco, trouw nutrition]
+  name: Nutreco (Trouw Nutrition)
+  platform: unknown
+- group: food
+  match: [cargill]
+  name: Cargill Nederland
+  platform: unknown
+- group: food
+  match: [flora food group, upfield]
+  name: Flora Food Group (Upfield)
+  platform: unknown
+- group: food
+  match: [jde peet's, jde peets, jacobs douwe egberts, =jde]
+  name: JDE Peet's
+  platform: unknown
+- group: food
+  match: [=swinkels, royal swinkels, swinkels family brewers, =bavaria]
+  name: Royal Swinkels Family Brewers (Bavaria)
+  platform: unknown
+- group: food
+  match: [=mars, mars nederland]
+  name: Mars Nederland
+  platform: unknown
+- group: food
+  match: [coca-cola, coca cola]
+  name: Coca-Cola Europacific Partners
+  platform: unknown
+- group: food
+  match: [nutricia, danone]
+  name: Danone Nutricia
+  platform: unknown
+- group: food
+  match: [refresco]
+  name: Refresco
+  platform: unknown
+- group: food
+  match: [rijk zwaan]
+  name: Rijk Zwaan
+  platform: unknown
+- group: food
+  match: [enza zaden, =enza]
+  name: Enza Zaden
+  platform: unknown
+- group: food
+  match: [koppert]
+  name: Koppert
+  platform: unknown
+- group: food
+  match: [floraholland, royal floraholland]
+  name: Royal FloraHolland
+  platform: unknown
+- group: health
+  match: [organon]
+  name: Organon
+  platform: unknown
+- group: health
+  match: [=msd, merck sharp & dohme]
+  name: MSD Nederland
+  platform: unknown
+- group: health
+  match: [=janssen, janssen-cilag, janssen pharmaceutica, johnson & johnson, =j&j]
+  name: Janssen (Johnson & Johnson)
+  platform: unknown
+- group: health
+  match: [sanquin]
+  name: Sanquin
+  platform: unknown
+- group: software
+  match: [chipsoft]
+  name: ChipSoft
+  platform: unknown
+- group: health
+  match: [buurtzorg]
+  name: Buurtzorg Nederland
+  platform: unknown
+- group: health
+  match: [radboudumc, radboud umc]
+  name: Radboudumc
+  platform: unknown
+- group: health
+  match: [antoni van leeuwenhoek, =nki, nederlands kanker instituut]
+  name: Antoni van Leeuwenhoek (NKI)
+  platform: unknown
+- group: health
+  match: [prinses máxima centrum, prinses maxima centrum]
+  name: Prinses Máxima Centrum
+  platform: unknown
+- group: health
+  match: [isala]
+  name: Isala
+  platform: unknown
+- group: health
+  match: [rijnstate]
+  name: Rijnstate
+  platform: unknown
+- group: health
+  match: [catharina ziekenhuis]
+  name: Catharina Ziekenhuis
+  platform: unknown
+- group: health
+  match: [máxima mc, maxima mc, maxima medisch centrum]
+  name: Máxima MC
+  platform: unknown
+- group: health
+  match: [jeroen bosch ziekenhuis]
+  name: Jeroen Bosch Ziekenhuis
+  platform: unknown
+- group: health
+  match: [=etz, elisabeth-tweesteden]
+  name: ETZ (Elisabeth-TweeSteden Ziekenhuis)
+  platform: unknown
+- group: health
+  match: [amphia]
+  name: Amphia
+  platform: unknown
+- group: health
+  match: [albert schweitzer ziekenhuis]
+  name: Albert Schweitzer ziekenhuis
+  platform: unknown
+- group: health
+  match: [maasstad]
+  name: Maasstad Ziekenhuis
+  platform: unknown
+- group: health
+  match: [franciscus gasthuis, franciscus vlietland]
+  name: Franciscus Gasthuis & Vlietland
+  platform: unknown
+- group: health
+  match: [haaglanden medisch centrum, =hmc]
+  name: Haaglanden Medisch Centrum
+  platform: unknown
+- group: health
+  match: [hagaziekenhuis, haga ziekenhuis]
+  name: HagaZiekenhuis
+  platform: unknown
+- group: health
+  match: [reinier de graaf]
+  name: Reinier de Graaf
+  platform: unknown
+- group: health
+  match: [meander medisch centrum, meander mc]
+  name: Meander Medisch Centrum
+  platform: unknown
+- group: health
+  match: [st. antonius ziekenhuis, antonius ziekenhuis]
+  name: St. Antonius Ziekenhuis
+  platform: unknown
+- group: health
+  match: [=olvg]
+  name: OLVG
+  platform: unknown
+- group: health
+  match: [spaarne gasthuis]
+  name: Spaarne Gasthuis
+  platform: unknown
+- group: health
+  match: [noordwest ziekenhuisgroep]
+  name: Noordwest Ziekenhuisgroep
+  platform: unknown
+- group: health
+  match: [martini ziekenhuis]
+  name: Martini Ziekenhuis
+  platform: unknown
+- group: health
+  match: [frisius mc, frisius, medisch centrum leeuwarden, =mcl]
+  name: Frisius MC (MCL)
+  platform: unknown
+- group: health
+  match: [gelre ziekenhuizen, =gelre]
+  name: Gelre ziekenhuizen
+  platform: unknown
+- group: health
+  match: [medisch spectrum twente, =mst]
+  name: Medisch Spectrum Twente
+  platform: unknown
+- group: health
+  match: [=zgt, ziekenhuisgroep twente]
+  name: ZGT (Ziekenhuisgroep Twente)
+  platform: unknown
+- group: health
+  match: [zuyderland]
+  name: Zuyderland
+  platform: unknown
+- group: health
+  match: [canisius wilhelmina, =cwz]
+  name: Canisius Wilhelmina Ziekenhuis
+  platform: unknown
+- group: health
+  match: [parnassia]
+  name: Parnassia Groep
+  platform: unknown
+- group: health
+  match: [arkin]
+  name: Arkin
+  platform: unknown
+- group: health
+  match: [ggz ingeest]
+  name: GGZ inGeest
+  platform: unknown
+- group: health
+  match: [ggz oost brabant]
+  name: GGZ Oost Brabant
+  platform: unknown
+- group: health
+  match: [pro persona]
+  name: Pro Persona
+  platform: unknown
+- group: health
+  match: [ggz centraal]
+  name: GGz Centraal
+  platform: unknown
+- group: health
+  match: [lentis]
+  name: Lentis
+  platform: unknown
+- group: health
+  match: [altrecht]
+  name: Altrecht
+  platform: unknown
+- group: health
+  match: ['''s heeren loo', s heeren loo]
+  name: '''s Heeren Loo'
+  platform: unknown
+- group: health
+  match: [=philadelphia, philadelphia zorg]
+  name: Philadelphia Zorg
+  platform: unknown
+- group: health
+  match: [cordaan]
+  name: Cordaan
+  platform: unknown
+- group: health
+  match: [=laurens, stichting laurens]
+  name: Laurens
+  platform: unknown
+- group: government
+  match: [=ind, immigratie- en naturalisatiedienst]
+  name: IND
+  platform: unknown
+- group: government
+  match: [=dji, dienst justitiële inrichtingen, dienst justitiele inrichtingen]
+  name: DJI
+  platform: unknown
+- group: government
+  match: [=rvo, rijksdienst voor ondernemend nederland]
+  name: RVO
+  platform: unknown
+- group: government
+  match: [=nvwa, nederlandse voedsel- en warenautoriteit]
+  name: NVWA
+  platform: unknown
+- group: government
+  match: [=ilt, inspectie leefomgeving en transport]
+  name: ILT
+  platform: unknown
+- group: government
+  match: [dictu]
+  name: DICTU
+  platform: unknown
+- group: government
+  match: [=cak]
+  name: CAK
+  platform: unknown
+- group: government
+  match: [=aivd]
+  name: AIVD
+  platform: unknown
+- group: government
+  match: [nederlands forensisch instituut, =nfi]
+  name: Nederlands Forensisch Instituut
+  platform: unknown
+- group: government
+  match: [openbaar ministerie]
+  name: Openbaar Ministerie
+  platform: unknown
+- group: government
+  match: [rechtspraak]
+  name: De Rechtspraak
+  platform: unknown
+- group: government
+  match: [=coa, centraal orgaan opvang asielzoekers]
+  name: COA
+  platform: unknown
+- group: government
+  match: [staatsbosbeheer]
+  name: Staatsbosbeheer
+  platform: unknown
+- group: government
+  match: [=kvk, kamer van koophandel]
+  name: KVK
+  platform: unknown
+- group: government
+  match: [=cbr]
+  name: CBR
+  platform: unknown
+- group: government
+  match: [ministerie van binnenlandse zaken, ministerie van bzk]
+  name: Ministerie van Binnenlandse Zaken en Koninkrijksrelaties
+  platform: unknown
+- group: government
+  match: [ministerie van buitenlandse zaken]
+  name: Ministerie van Buitenlandse Zaken
+  platform: unknown
+- group: government
+  match: [ministerie van economische zaken]
+  name: Ministerie van Economische Zaken
+  platform: unknown
+- group: government
+  match: [ministerie van financiën, ministerie van financien]
+  name: Ministerie van Financiën
+  platform: unknown
+- group: government
+  match: [ministerie van infrastructuur en waterstaat, ministerie van ienw]
+  name: Ministerie van Infrastructuur en Waterstaat
+  platform: unknown
+- group: government
+  match: [ministerie van justitie en veiligheid, ministerie van jenv]
+  name: Ministerie van Justitie en Veiligheid
+  platform: unknown
+- group: government
+  match: [ministerie van onderwijs, ministerie van ocw]
+  name: Ministerie van Onderwijs, Cultuur en Wetenschap
+  platform: unknown
+- group: government
+  match: [ministerie van sociale zaken, ministerie van szw]
+  name: Ministerie van Sociale Zaken en Werkgelegenheid
+  platform: unknown
+- group: government
+  match: [ministerie van volksgezondheid, ministerie van vws]
+  name: Ministerie van Volksgezondheid, Welzijn en Sport
+  platform: unknown
+- group: government
+  match: [ministerie van landbouw, ministerie van lvvn]
+  name: Ministerie van Landbouw, Visserij, Voedselzekerheid en Natuur
+  platform: unknown
+- group: government
+  match: [gemeente eindhoven]
+  name: Gemeente Eindhoven
+  platform: unknown
+- group: government
+  match: [gemeente groningen]
+  name: Gemeente Groningen
+  platform: unknown
+- group: government
+  match: [gemeente tilburg]
+  name: Gemeente Tilburg
+  platform: unknown
+- group: government
+  match: [gemeente almere]
+  name: Gemeente Almere
+  platform: unknown
+- group: government
+  match: [gemeente breda]
+  name: Gemeente Breda
+  platform: unknown
+- group: government
+  match: [gemeente nijmegen]
+  name: Gemeente Nijmegen
+  platform: unknown
+- group: government
+  match: [provincie noord-holland]
+  name: Provincie Noord-Holland
+  platform: unknown
+- group: government
+  match: [provincie zuid-holland]
+  name: Provincie Zuid-Holland
+  platform: unknown
+- group: government
+  match: [provincie utrecht]
+  name: Provincie Utrecht
+  platform: unknown
+- group: government
+  match: [provincie noord-brabant]
+  name: Provincie Noord-Brabant
+  platform: unknown
+- group: government
+  match: [provincie gelderland]
+  name: Provincie Gelderland
+  platform: unknown
+- group: government
+  match: [provincie overijssel]
+  name: Provincie Overijssel
+  platform: unknown
+- group: government
+  match: [provincie limburg]
+  name: Provincie Limburg
+  platform: unknown
+- group: government
+  match: [provincie groningen]
+  name: Provincie Groningen
+  platform: unknown
+- group: government
+  match: [provincie fryslân, provincie friesland, provinsje fryslân]
+  name: Provincie Fryslân
+  platform: unknown
+- group: government
+  match: [provincie drenthe]
+  name: Provincie Drenthe
+  platform: unknown
+- group: government
+  match: [provincie flevoland]
+  name: Provincie Flevoland
+  platform: unknown
+- group: government
+  match: [provincie zeeland]
+  name: Provincie Zeeland
+  platform: unknown
+- group: government
+  match: [hollands noorderkwartier, =hhnk]
+  name: Hoogheemraadschap Hollands Noorderkwartier
+  platform: unknown
+- group: government
+  match: [hoogheemraadschap van rijnland, =rijnland]
+  name: Hoogheemraadschap van Rijnland
+  platform: unknown
+- group: government
+  match: [=delfland, hoogheemraadschap van delfland]
+  name: Hoogheemraadschap van Delfland
+  platform: unknown
+- group: government
+  match: [=schieland, hoogheemraadschap van schieland]
+  name: Hoogheemraadschap van Schieland en de Krimpenerwaard
+  platform: unknown
+- group: government
+  match: [stichtse rijnlanden, =hdsr]
+  name: Hoogheemraadschap De Stichtse Rijnlanden
+  platform: unknown
+- group: government
+  match: [waterschap hollandse delta]
+  name: Waterschap Hollandse Delta
+  platform: unknown
+- group: government
+  match: [aa en maas]
+  name: Waterschap Aa en Maas
+  platform: unknown
+- group: government
+  match: [waterschap de dommel]
+  name: Waterschap De Dommel
+  platform: unknown
+- group: government
+  match: [brabantse delta]
+  name: Waterschap Brabantse Delta
+  platform: unknown
+- group: government
+  match: [waterschap rivierenland]
+  name: Waterschap Rivierenland
+  platform: unknown
+- group: government
+  match: [vallei en veluwe]
+  name: Waterschap Vallei en Veluwe
+  platform: unknown
+- group: government
+  match: [rijn en ijssel]
+  name: Waterschap Rijn en IJssel
+  platform: unknown
+- group: government
+  match: [vechtstromen]
+  name: Waterschap Vechtstromen
+  platform: unknown
+- group: government
+  match: [drents overijsselse delta]
+  name: Waterschap Drents Overijsselse Delta
+  platform: unknown
+- group: government
+  match: [hunze en aa's]
+  name: Waterschap Hunze en Aa's
+  platform: unknown
+- group: government
+  match: [noorderzijlvest]
+  name: Waterschap Noorderzijlvest
+  platform: unknown
+- group: government
+  match: [zuiderzeeland]
+  name: Waterschap Zuiderzeeland
+  platform: unknown
+- group: government
+  match: [waterschap limburg]
+  name: Waterschap Limburg
+  platform: unknown
+- group: government
+  match: [scheldestromen]
+  name: Waterschap Scheldestromen
+  platform: unknown
+- group: government
+  match: [wetterskip fryslân, wetterskip fryslan]
+  name: Wetterskip Fryslân
+  platform: unknown
+- group: government
+  match: [european patent office, =epo]
+  name: European Patent Office
+  platform: unknown
+- group: government
+  match: [europol]
+  name: Europol
+  platform: unknown
+- group: government
+  match: [european medicines agency, =ema]
+  name: European Medicines Agency
+  platform: unknown
+- group: government
+  match: [=ncia, nato communications and information agency]
+  name: NATO Communications and Information Agency
+  platform: unknown
+- group: education
+  match: [erasmus universiteit, erasmus university rotterdam]
+  name: Erasmus Universiteit Rotterdam
+  platform: unknown
+- group: education
+  match: [universiteit twente, university of twente]
+  name: Universiteit Twente
+  platform: unknown
+- group: education
+  match: [rijksuniversiteit groningen, university of groningen]
+  name: Rijksuniversiteit Groningen
+  platform: unknown
+- group: education
+  match: [radboud universiteit, radboud university]
+  name: Radboud Universiteit
+  platform: unknown
+- group: education
+  match: [maastricht university, universiteit maastricht]
+  name: Maastricht University
+  platform: unknown
+- group: education
+  match: [tilburg university]
+  name: Tilburg University
+  platform: unknown
+- group: education
+  match: [wageningen university, wageningen university & research, =wur]
+  name: Wageningen University & Research
+  platform: unknown
+- group: education
+  match: [hogeschool van amsterdam, =hva]
+  name: Hogeschool van Amsterdam
+  platform: unknown
+- group: education
+  match: [hogeschool rotterdam]
+  name: Hogeschool Rotterdam
+  platform: unknown
+- group: education
+  match: [fontys]
+  name: Fontys Hogescholen
+  platform: unknown
+- group: education
+  match: [hanzehogeschool, hanze]
+  name: Hanzehogeschool Groningen
+  platform: unknown
+- group: education
+  match: [hogeschool van arnhem en nijmegen, han university]
+  name: Hogeschool van Arnhem en Nijmegen
+  platform: unknown
+- group: education
+  match: [avans]
+  name: Avans Hogeschool
+  platform: unknown
+- group: education
+  match: [hogeschool utrecht]
+  name: Hogeschool Utrecht
+  platform: unknown
+- group: education
+  match: [saxion]
+  name: Saxion
+  platform: unknown
+- group: education
+  match: [haagse hogeschool, the hague university]
+  name: De Haagse Hogeschool
+  platform: unknown
+- group: education
+  match: [inholland]
+  name: Hogeschool Inholland
+  platform: unknown
+- group: education
+  match: [windesheim]
+  name: Hogeschool Windesheim
+  platform: unknown
+- group: education
+  match: [roc van amsterdam, roc van flevoland, roc van amsterdam-flevoland]
+  name: ROC van Amsterdam - Flevoland
+  platform: unknown
+- group: education
+  match: [albeda]
+  name: Albeda
+  platform: unknown
+- group: education
+  match: [zadkine]
+  name: Zadkine
+  platform: unknown
+- group: education
+  match: [roc midden nederland]
+  name: ROC Midden Nederland
+  platform: unknown
+- group: education
+  match: [summa college]
+  name: Summa College
+  platform: unknown
+- group: education
+  match: [=cito]
+  name: Cito
+  platform: unknown
+- group: research
+  match: [=nwo, nederlandse organisatie voor wetenschappelijk onderzoek]
+  name: NWO
+  platform: unknown
+- group: research
+  match: [=knaw]
+  name: KNAW
+  platform: unknown
+- group: research
+  match: [=nioz]
+  name: NIOZ
+  platform: unknown
+- group: research
+  match: [=nrg, nrg pallas, nrg-pallas, nuclear research and consultancy group]
+  name: NRG PALLAS
+  platform: unknown
+- group: research
+  match: [=differ, dutch institute for fundamental energy research]
+  name: DIFFER
+  platform: unknown
+- group: media
+  match: [=nos]
+  name: NOS
+  platform: unknown
+- group: media
+  match: [talpa]
+  name: Talpa Network
+  platform: unknown
+- group: media
+  match: [wolters kluwer]
+  name: Wolters Kluwer
+  platform: unknown
+- group: media
+  match: [elsevier, =relx]
+  name: Elsevier (RELX)
+  platform: unknown
+- group: media
+  match: [springer nature]
+  name: Springer Nature
+  platform: unknown
+- group: consulting
+  match: [sogeti]
+  name: Sogeti
+  platform: unknown
+- group: consulting
+  match: [kyndryl]
+  name: Kyndryl
+  platform: unknown
+- group: consulting
+  match: [wipro]
+  name: Wipro
+  platform: unknown
+- group: consulting
+  match: [hcltech, hcl technologies]
+  name: HCLTech
+  platform: unknown
+- group: consulting
+  match: [avanade]
+  name: Avanade
+  platform: unknown
+- group: consulting
+  match: [=alten, alten nederland]
+  name: Alten Nederland
+  platform: unknown
+- group: consulting
+  match: [ilionx]
+  name: Ilionx
+  platform: unknown
+- group: consulting
+  match: [axians]
+  name: Axians
+  platform: unknown
+- group: consulting
+  match: [simac]
+  name: Simac
+  platform: unknown
+- group: consulting
+  match: [ntt data]
+  name: NTT DATA
+  platform: unknown
+- group: consulting
+  match: [=bdo, bdo accountants]
+  name: BDO
+  platform: unknown
+- group: consulting
+  match: [grant thornton]
+  name: Grant Thornton
+  platform: unknown
+- group: consulting
+  match: [mazars, forvis mazars]
+  name: Forvis Mazars
+  platform: unknown
+- group: consulting
+  match: [baker tilly]
+  name: Baker Tilly
+  platform: unknown
+- group: consulting
+  match: [mckinsey]
+  name: McKinsey & Company
+  platform: unknown
+- group: consulting
+  match: [boston consulting group, =bcg]
+  name: Boston Consulting Group
+  platform: unknown
+- group: software
+  match: [=ortec]
+  name: ORTEC
+  platform: unknown
+- group: software
+  match: [planon]
+  name: Planon
+  platform: unknown
+- group: software
+  match: [cm.com]
+  name: CM.com
+  platform: unknown
+- group: software
+  match: [=sap]
+  name: SAP Nederland
+  platform: unknown
+- group: internet
+  match: [just eat takeaway, takeaway.com, thuisbezorgd]
+  name: Just Eat Takeaway.com
+  platform: unknown
+- group: internet
+  match: [vinted]
+  name: Vinted Netherlands
+  platform: unknown
+- group: internet
+  match: [prosus]
+  name: Prosus
+  platform: unknown
+- group: internet
+  match: [=funda]
+  name: Funda
+  platform: unknown
+- group: internet
+  match: [azerion]
+  name: Azerion
+  platform: unknown
+- group: internet
+  match: [tiqets]
+  name: Tiqets
+  platform: unknown
+- group: energy
+  match: [fastned]
+  name: Fastned
+  platform: unknown
+- group: other
+  match: [=iss, iss facility services]
+  name: ISS Facility Services
+  platform: unknown
+- group: other
+  match: [sodexo]
+  name: Sodexo Nederland
+  platform: unknown
+- group: other
+  match: [vebego, =hago]
+  name: Vebego
+  platform: unknown
+- group: other
+  match: [facilicom, trigion]
+  name: Facilicom Group (Trigion)
+  platform: unknown
+- group: other
+  match: [securitas]
+  name: Securitas Nederland
+  platform: unknown
+- group: other
+  match: [nederlandse loterij]
+  name: Nederlandse Loterij
+  platform: unknown
+- group: other
+  match: [postcode loterij, nationale postcode loterij]
+  name: Nationale Postcode Loterij
+  platform: unknown
+- group: other
+  match: [holland casino]
+  name: Holland Casino
+  platform: unknown
+- group: other
+  match: [efteling]
+  name: Efteling
+  platform: unknown
+- group: engineering
+  match: [=wsp, wsp nederland, lievense]
+  name: WSP Nederland
+  platform: unknown

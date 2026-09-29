@@ -1,0 +1,395 @@
+from __future__ import annotations
+
+import time
+from collections.abc import Iterator
+from contextlib import asynccontextmanager
+from pathlib import Path
+
+from fastapi import Depends, FastAPI, HTTPException, Query, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+from pydantic import BaseModel, Field
+from sqlalchemy import select, text
+from sqlalchemy.orm import Session
+
+from radar import stats
+from radar.cache import cached
+from radar.config import settings
+from radar.db import get_engine, init_db, new_session
+from radar.metrics import API_REQUESTS, API_SECONDS, QUEUE_DEPTH
+from radar.models import CrawlRun, Source
+
+WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title=settings.site_name, version="0.2.0", lifespan=lifespan, description=settings.site_tagline)
+_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()] or ["*"]
+app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET", "POST"], allow_headers=["*"])
+
+
+@app.middleware("http")
+async def _metrics_middleware(request: Request, call_next):
+    t0 = time.perf_counter()
+    response = await call_next(request)
+    path = request.url.path
+    if path.startswith("/api/") or path in ("/", "/healthz", "/readyz"):
+        # collapse dynamic segments so label cardinality stays small
+        label = "/api/breakdown/*" if path.startswith("/api/breakdown/") else path
+        API_REQUESTS.labels(label, str(response.status_code)).inc()
+        API_SECONDS.labels(label).observe(time.perf_counter() - t0)
+    return response
+
+
+def db() -> Iterator[Session]:
+    s = new_session()
+    try:
+        yield s
+    finally:
+        s.close()
+
+
+def filters(
+    role: str | None = None,
+    seniority: str | None = None,
+    city: str | None = None,
+    company: str | None = None,
+    english_only: bool | None = None,
+    sponsorship: bool | None = None,
+    remote: str | None = None,
+    days: int | None = Query(None, ge=1, le=365),
+    q: str | None = None,
+    skill: str | None = None,
+    include_closed: bool = False,
+    exclude_agencies: bool = False,
+    exclude_companies: str | None = None,
+    since: str | None = None,
+    skills_any: str | None = None,
+    ids: str | None = None,
+    language: str | None = None,
+    experience: str | None = None,
+    enrollment: str | None = None,
+    org_size: str | None = None,
+    confirmed_days: int | None = Query(None, ge=1, le=90),
+) -> stats.Filters:
+    return stats.Filters(role, seniority, city, company, english_only, sponsorship, remote, days, q, skill,
+                         include_closed, exclude_agencies, exclude_companies, since, skills_any, ids, language,
+                         experience, enrollment, org_size, confirmed_days)
+
+
+def _rows(session: Session, f: stats.Filters) -> list[stats.Row]:
+    return f.apply(stats.CACHE.rows(session))
+
+
+def _key(request: Request) -> str:
+    return f"{request.url.path}?{request.url.query}"
+
+
+@app.get("/api/overview")
+def overview(request: Request, session: Session = Depends(db)):
+    return cached(_key(request), lambda: stats.overview(session), ttl=60)
+
+
+@app.get("/api/skills")
+def skills(request: Request, top: int = Query(40, le=200), f: stats.Filters = Depends(filters),
+           session: Session = Depends(db)):
+    def compute():
+        rows = _rows(session, f)
+        return {"n": len(rows), "skills": stats.skill_counts(rows, top)}
+
+    return cached(_key(request), compute)
+
+
+@app.get("/api/cooccurrence")
+def cooccurrence(request: Request, top: int = Query(30, le=80), f: stats.Filters = Depends(filters),
+                 session: Session = Depends(db)):
+    def compute():
+        rows = _rows(session, f)
+        return {"n": len(rows), **stats.cooccurrence(rows, top)}
+
+    return cached(_key(request), compute)
+
+
+@app.get("/api/breakdown/{key}")
+def breakdown(request: Request, key: str, top: int = Query(20, le=100), f: stats.Filters = Depends(filters),
+              session: Session = Depends(db)):
+    allowed = {"city", "company", "ats", "seniority", "role_family", "remote_policy", "degree_required",
+               "posting_language", "experience", "org_size"}
+    if key not in allowed:
+        raise HTTPException(400, f"key must be one of {sorted(allowed)}")
+
+    def compute():
+        rows = _rows(session, f)
+        return {"n": len(rows), "items": stats.breakdown(rows, key, top)}
+
+    return cached(_key(request), compute)
+
+
+@app.get("/api/trends")
+def trends(request: Request, skills: str | None = None, weeks: int = Query(12, le=52),
+           f: stats.Filters = Depends(filters), session: Session = Depends(db)):
+    def compute():
+        f.include_closed = True
+        rows = _rows(session, f)
+        wanted = [s.strip() for s in skills.split(",")] if skills else None
+        return stats.trends(rows, wanted, weeks)
+
+    return cached(_key(request), compute)
+
+
+@app.get("/api/salary")
+def salary(request: Request, f: stats.Filters = Depends(filters), session: Session = Depends(db)):
+    return cached(_key(request), lambda: stats.salary(_rows(session, f)))
+
+
+@app.get("/api/postings")
+def postings(request: Request, page: int = Query(1, ge=1), size: int = Query(50, ge=1, le=200),
+             sort: str = "newest", skills_have: str | None = None, f: stats.Filters = Depends(filters),
+             session: Session = Depends(db)):
+    from radar.taxonomy import canonicalise
+
+    have = set(canonicalise((skills_have or "").split(",")))
+    return cached(_key(request), lambda: stats.posting_dicts(_rows(session, f), page, size, sort, have))
+
+
+@app.get("/api/skills/canonical")
+def canonical_skills(names: str):
+    """Map typed skill names to the tracked canonical names: LLM -> LLMs, ml -> Machine Learning, k8s -> Kubernetes."""
+    from radar.taxonomy import canonical_skill
+
+    return {n.strip(): canonical_skill(n) for n in names.split(",") if n.strip()}
+
+
+@app.get("/api/coverage")
+def coverage(request: Request, session: Session = Depends(db)):
+    """Top-employer tracker and source counts by kind, for the Coverage tab."""
+    from collections import Counter
+
+    from radar.recall import published
+    from radar.tracker import evaluate
+
+    def compute():
+        entries = evaluate(session)
+        by_kind = Counter()
+        healthy = Counter()
+        for s in session.scalars(select(Source)):
+            by_kind[s.kind or "employer"] += 1
+            if s.last_status == "ok":
+                healthy[s.kind or "employer"] += 1
+        return {
+            "tracker": [{"name": e.name, "group": e.group, "status": e.status, "platform": e.platform,
+                         "live_postings": e.live_postings} for e in entries],
+            "summary": {k: sum(1 for e in entries if e.status == k) for k in ("covered", "registered", "missing")},
+            "sources_by_kind": dict(by_kind),
+            "healthy_by_kind": dict(healthy),
+            "recall": published(session),
+        }
+
+    return cached(_key(request), compute, ttl=600)
+
+
+@app.get("/api/filters")
+def filter_options(request: Request, session: Session = Depends(db)):
+    def compute():
+        rows = [r for r in stats.CACHE.rows(session) if r.closed_at is None]
+        return {
+            "cities": [d["key"] for d in stats.breakdown(rows, "city", 40)],
+            "companies": [d["key"] for d in stats.breakdown(rows, "company", 300)],
+            "roles": [d["key"] for d in stats.breakdown(rows, "role_family", 20)],
+            "seniorities": [d["key"] for d in stats.breakdown(rows, "seniority", 10)],
+            "skills": [d["skill"] for d in stats.skill_counts(rows, 120)],
+        }
+
+    return cached(_key(request), compute)
+
+
+@app.get("/api/sources")
+def sources(session: Session = Depends(db)):
+    items = []
+    for s in session.scalars(select(Source).order_by(Source.ats, Source.company)):
+        items.append({
+            "id": s.id, "company": s.company, "ats": s.ats, "slug": s.slug, "active": s.active,
+            "status": s.last_status, "last_run_at": s.last_run_at.isoformat() if s.last_run_at else None,
+            "total": s.last_count, "nl": s.last_nl_count, "failures": s.consecutive_failures,
+            "discovered_by": s.discovered_by, "kind": s.kind, "note": s.last_error,
+        })
+    runs = [
+        {"id": r.id, "started_at": r.started_at.isoformat(), "finished_at": r.finished_at.isoformat()
+         if r.finished_at else None, "sources_ok": r.sources_ok, "sources_failed": r.sources_failed,
+         "seen": r.postings_seen, "new": r.postings_new, "closed": r.postings_closed}
+        for r in session.scalars(select(CrawlRun).order_by(CrawlRun.id.desc()).limit(20))
+    ]
+    return {"sources": items, "runs": runs}
+
+
+class GapRequest(BaseModel):
+    cv_text: str | None = Field(default=None, max_length=50_000)
+    skills: list[str] | None = Field(default=None, max_length=200)
+    role: str | None = None
+    seniority: str | None = None
+    city: str | None = None
+    english_only: bool | None = None
+    language: str | None = None
+    exclude_agencies: bool = False
+    days: int | None = 90
+
+
+@app.post("/api/gap")
+def gap(req: GapRequest, session: Session = Depends(db)):
+    if not (req.cv_text and len(req.cv_text.strip()) >= 20) and not req.skills:
+        raise HTTPException(422, "provide cv_text (20+ characters) or a skills list")
+    f = stats.Filters(role=req.role, seniority=req.seniority, city=req.city, english_only=req.english_only,
+                      days=req.days, exclude_agencies=req.exclude_agencies, language=req.language)
+    rows = _rows(session, f)
+    return stats.gap_analysis(rows, req.cv_text, req.skills)
+
+
+@app.get("/api/version")
+def version(session: Session = Depends(db)):
+    """Cheap freshness check for the page: it polls this and offers a reload when a crawl has finished."""
+    from radar.cache import data_version
+
+    last = session.scalar(select(CrawlRun.finished_at).where(CrawlRun.finished_at.is_not(None))
+                          .order_by(CrawlRun.finished_at.desc()).limit(1))
+    return {"version": data_version(), "last_crawl_at": last.isoformat() if last else None}
+
+
+class AdminCrawl(BaseModel):
+    scope: str = "due"  # due | all | company
+    company: str | None = None
+    force: bool = False
+
+
+def _admin(request: Request) -> None:
+    from radar import admin
+
+    if not admin.enabled():
+        raise HTTPException(404, "not found")
+    if not admin.authorised(request.headers.get("authorization")):
+        raise HTTPException(401, "admin token required")
+
+
+@app.post("/api/admin/crawl", include_in_schema=False)
+def admin_crawl(body: AdminCrawl, request: Request):
+    from fastapi.responses import JSONResponse
+
+    from radar import admin
+
+    _admin(request)
+    code, payload = admin.trigger(body.scope, body.company, body.force)
+    return JSONResponse(payload, status_code=code)
+
+
+@app.get("/api/admin/status", include_in_schema=False)
+def admin_status(request: Request):
+    from radar import admin
+
+    _admin(request)
+    return admin.status()
+
+
+@app.get("/healthz")
+def healthz():
+    """Liveness: the process is up."""
+    return {"ok": True}
+
+
+@app.get("/readyz")
+def readyz():
+    """Readiness: the database answers. Kubernetes stops routing to a replica that fails this."""
+    try:
+        with get_engine().connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as e:
+        raise HTTPException(503, f"database unavailable: {type(e).__name__}") from e
+    return {"ok": True}
+
+
+@app.get("/metrics", include_in_schema=False)
+def metrics():
+    if settings.redis_url:
+        from radar.queue import queue_depths
+
+        for name, depth in queue_depths().items():
+            QUEUE_DEPTH.labels(name).set(depth)
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    return Response(f"User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: {settings.site_url.rstrip('/')}/sitemap.xml\n",
+                    media_type="text/plain")
+
+
+def _live_tech_rows(session: Session) -> list[stats.Row]:
+    return stats.Filters().apply(stats.CACHE.rows(session))
+
+
+@app.get("/sitemap.xml", include_in_schema=False)
+def sitemap(session: Session = Depends(db)):
+    from xml.sax.saxutils import escape as xml_escape
+
+    from radar import pages
+
+    base = settings.site_url.rstrip("/")
+
+    def compute():
+        urls = [(f"{base}/", "hourly"), (f"{base}/companies", "daily")]
+        urls += [(f"{base}/company/{slug}", "daily") for _, slug, _ in pages.companies(_live_tech_rows(session))]
+        body = "".join(f"<url><loc>{xml_escape(u)}</loc><changefreq>{f}</changefreq></url>" for u, f in urls)
+        return (f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                f"{body}</urlset>")
+
+    return Response(cached("sitemap.xml", compute, ttl=3600), media_type="application/xml")
+
+
+@app.get("/companies", include_in_schema=False)
+def companies_page(session: Session = Depends(db)):
+    from radar import pages
+
+    return Response(cached("page:companies", lambda: pages.render_companies(_live_tech_rows(session)), ttl=3600),
+                    media_type="text/html")
+
+
+@app.get("/company/{slug}", include_in_schema=False)
+def company_page(slug: str, session: Session = Depends(db)):
+    from radar import pages
+
+    rows = _live_tech_rows(session)
+    name = pages.find_company(rows, slug)
+    if name is None:
+        raise HTTPException(404, "no employer with live tech postings under that name")
+    return Response(cached(f"page:company:{slug}", lambda: pages.render_company(name, rows), ttl=3600),
+                    media_type="text/html")
+
+
+def _render_index() -> str:
+    """index.html with the branding placeholders filled from settings, so renaming the site is one env var."""
+    import json as _json
+
+    html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+    aliases = [a.strip() for a in settings.site_aliases.split(",") if a.strip()]
+    ld = {
+        "@context": "https://schema.org", "@type": "WebSite", "name": settings.site_name,
+        "alternateName": aliases, "url": settings.site_url, "description": settings.site_tagline,
+        "inLanguage": ["en", "nl"],
+    }
+    return (html.replace("{{SITE_NAME}}", settings.site_name)
+                .replace("{{SITE_URL}}", settings.site_url.rstrip("/"))
+                .replace("{{SITE_TAGLINE}}", settings.site_tagline)
+                .replace("{{SITE_ALIASES}}", ", ".join(aliases))
+                .replace("{{SITE_JSONLD}}", _json.dumps(ld)))
+
+
+if WEB_DIR.exists():
+    app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
+
+    @app.get("/", include_in_schema=False)
+    def index():
+        return Response(_render_index(), media_type="text/html")

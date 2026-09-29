@@ -1,0 +1,85 @@
+image:
+  repository: ghcr.io/shreya-sebastian/nl-tech-job-radar
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Postgres lives outside the cluster (managed service or the VPS host). Put the URL in a Secret.
+database:
+  existingSecret: ""          # name of a Secret with key RADAR_DATABASE_URL; if empty, `url` is used
+  url: "postgresql+psycopg://radar:radar@host.k3d.internal:5432/radar"
+
+admin:
+  existingSecret: ""          # Secret with key RADAR_ADMIN_TOKEN; if empty and `token` is set, the chart creates one
+  token: ""                   # leave empty to disable the admin "crawl now" endpoints entirely
+
+redis:
+  enabled: true               # in-cluster Redis for the queue, rate limits and response cache
+  image: redis:7-alpine
+  storage: 1Gi
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 500m, memory: 256Mi}
+  externalUrl: ""             # set when redis.enabled=false
+
+config:
+  countries: "NL"
+  extractor: "rules"
+  hostRateLimits: "default=3,apply.workable.com=0.5,boards-api.greenhouse.io=4,api.lever.co=3"
+  cadenceHighMinutes: 60
+  cadenceNormalMinutes: 180
+  cadenceLowMinutes: 720
+  corsOrigins: "*"
+  siteName: "NL Tech Job Radar"          # e.g. "Tech Vacature Radar"
+  siteAliases: "TechJobsNL, Tech Jobs NL, Dutch tech jobs"
+  siteUrl: "https://radar.example.com"   # canonical public URL, used in robots.txt, sitemap and metadata
+  extraEnv: {}
+
+api:
+  replicas: 2
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {cpu: "1", memory: 1Gi}
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+worker:
+  replicas: 3
+  resources:
+    requests: {cpu: 100m, memory: 192Mi}
+    limits: {cpu: "1", memory: 768Mi}
+  metricsPort: 9100
+  # Scale on queue depth with KEDA (install KEDA separately). Falls back to fixed replicas when disabled.
+  keda:
+    enabled: false
+    minReplicas: 0
+    maxReplicas: 30
+    listLength: 20            # jobs waiting per worker before adding one
+    cooldownPeriod: 300
+
+scheduler:
+  schedule: "*/15 * * * *"    # enqueue due sources every 15 minutes
+finalizer:
+  schedule: "5,35 * * * *"    # dedup + gauges + cache version bump twice an hour
+linkcheck:
+  schedule: "15 3 * * *"      # nightly: re-fetch the oldest live postings, close the ones that are gone
+qualitycheck:
+  schedule: "45 3 * * *"      # nightly: data-quality report; a failed job is the alert
+
+ingress:
+  enabled: true
+  className: traefik          # k3s default; use nginx elsewhere
+  host: radar.example.com
+  tls: true
+  clusterIssuer: letsencrypt  # cert-manager ClusterIssuer name
+  annotations: {}
+
+serviceMonitor:
+  enabled: false              # true when kube-prometheus-stack is installed
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  fsGroup: 10001

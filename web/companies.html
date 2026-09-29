@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Employers hiring for tech in the Netherlands | {{SITE_NAME}}</title>
+<meta name="description" content="{{DESCRIPTION}}">
+<link rel="canonical" href="{{SITE_URL}}/companies">
+<link rel="stylesheet" href="/static/style.css?v=8">
+<script type="application/ld+json">{{JSONLD}}</script>
+<style>.cols{columns:3 220px;column-gap:24px;list-style:none;padding:0;margin:0}.cols li{padding:3px 0;break-inside:avoid}.cols a{color:var(--accent);text-decoration:none}</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div>
+      <h1><a href="/" style="color:inherit;text-decoration:none">{{SITE_NAME}}</a></h1>
+      <p class="tag">{{SITE_TAGLINE}}</p>
+    </div>
+  </div>
+  <nav class="tabs wrap">
+    <a href="/">Overview</a><a href="/#jobs">Jobs</a><a href="/#market">Market</a><a href="/companies" class="on">Employers</a><a href="/#coverage">Coverage</a>
+  </nav>
+</header>
+<main class="wrap">
+  <div class="card">
+    <h2>{{COUNT}} employers with open tech roles <span class="hint">number of live postings in brackets, most first</span></h2>
+    <ul class="cols">{{ITEMS}}</ul>
+  </div>
+  <p class="muted small">Only employers with at least one open tech posting located in the Netherlands are listed. Recruitment agencies are shown under their own name.</p>
+</main>
+<footer class="wrap muted"><p><b>{{SITE_NAME}}</b> lists tech vacancies in the Netherlands read directly from employers' career sites. Every listing links to the original page.</p></footer>
+</body>
+</html>

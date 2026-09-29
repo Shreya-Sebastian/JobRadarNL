@@ -1,0 +1,53 @@
+[project]
+name = "nl-tech-job-radar"
+version = "0.1.0"
+description = "Tech jobs in the Netherlands read from employers' own career sites, with skills, language and visa facts extracted."
+license = {text = "MIT"}
+authors = [{name = "Shreya Sebastian"}]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]",
+    "sqlalchemy>=2.0",
+    "httpx",
+    "pydantic>=2",
+    "pydantic-settings",
+    "beautifulsoup4",
+    "lxml",
+    "pyyaml",
+    "python-dateutil",
+    "openai",
+    "psycopg[binary]",
+    "redis",
+    "rq",
+    "prometheus-client",
+    "alembic",
+    "python-json-logger",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "respx", "ruff", "fakeredis"]
+
+[project.scripts]
+radar = "radar.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["radar*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["B008"]  # FastAPI's Depends()/Query() in defaults is the intended pattern
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

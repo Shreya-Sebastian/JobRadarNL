@@ -1,0 +1,15 @@
+# Apply once per cluster after cert-manager is running:  kubectl apply -f deploy/k8s/cluster-issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: you@example.com   # set your own address before applying: Let's Encrypt sends certificate expiry warnings here
+    privateKeySecretRef:
+      name: letsencrypt-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik

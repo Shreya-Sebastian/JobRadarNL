@@ -1,0 +1,62 @@
+# Local stack mirroring the Kubernetes deployment: Postgres, Redis, API, N workers, scheduler, finalizer.
+x-radar: &radar
+  build: .
+  environment: &radar-env
+    RADAR_DATABASE_URL: postgresql+psycopg://radar:radar@db:5432/radar
+    RADAR_REDIS_URL: redis://redis:6379/0
+    RADAR_EXTRACTOR: rules
+    RADAR_COUNTRIES: NL
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: radar
+      POSTGRES_PASSWORD: radar
+      POSTGRES_DB: radar
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U radar"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "no"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    <<: *radar
+    ports:
+      - "8000:8000"
+
+  worker:
+    <<: *radar
+    command: ["python", "-m", "radar.cli", "worker"]
+    deploy:
+      replicas: 4
+    volumes:
+      - ./data/enumerated:/app/data/enumerated
+
+  scheduler:
+    <<: *radar
+    # compose has no cron: loop the scheduler and finalizer instead (Kubernetes uses CronJobs)
+    command: ["sh", "-c", "while true; do python -m radar.cli schedule; sleep 900; python -m radar.cli finalize; sleep 900; done"]
+
+volumes:
+  pgdata:
+  redisdata:
