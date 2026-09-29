@@ -323,3 +323,20 @@ def test_search_landing_pages_bilingual_and_in_sitemap(fresh_db):
     assert 'lang="nl"' in home_nl and "ICT en tech vacatures in Nederland" in home_nl and "/vacatures/ict-amsterdam" in home_nl
     sm = client.get("/sitemap.xml").text
     assert "/vacatures/ict-amsterdam</loc>" in sm and "/jobs/english-speaking</loc>" in sm and "/nl/</loc>" in sm
+
+
+def test_unprefixed_english_pages_pair_with_nl_pages(fresh_db):
+    from radar.adapters.base import RawPosting
+    from radar.crawler import mark_duplicates
+    from radar.models import Posting
+
+    def raw(ext, url):
+        return RawPosting(external_id=ext, title="Lead Engineer", location="Eindhoven, Netherlands", url=url,
+                          description_html="Embedded C++ and Python. 40 hours, ref 137.",
+                          posted_at=datetime(2026, 9, 20))
+    with session_scope() as s:
+        src = _source(s, company="Madison People", ats="jsonld", slug="https://madisonpeople.example/sitemap.xml")
+        ingest(s, src, [raw("a", "https://madisonpeople.example/jobs/lead-engineer/"),
+                        raw("b", "https://madisonpeople.example/nl/jobs/lead-engineer-137/")])
+        mark_duplicates(s)
+        assert s.query(Posting).filter(Posting.duplicate_of.is_(None)).count() == 1

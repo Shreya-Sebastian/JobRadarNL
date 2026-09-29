@@ -346,10 +346,19 @@ def overview(session: Session) -> dict[str, Any]:
         for posted_at, first_seen, first_ok in fresh_rows
         if first_seen > first_ok + timedelta(minutes=10) and first_seen >= posted_at
     ]
+    # "New" means published in the last week: the employer's own posting date where it gives one; otherwise first
+    # seen, but only when that was after the source's first crawl (a new source's whole backlog is not "new").
+    week = datetime.utcnow() - timedelta(days=7)
     new_7d = session.scalar(
         select(func.count())
         .select_from(Posting)
-        .where(Posting.is_tech.is_(True), Posting.first_seen >= datetime.utcnow() - timedelta(days=7))
+        .join(Source, Source.id == Posting.source_id)
+        .where(Posting.is_tech.is_(True), Posting.closed_at.is_(None), Posting.duplicate_of.is_(None))
+        .where(
+            (Posting.posted_at >= week)
+            | (Posting.posted_at.is_(None) & (Posting.first_seen >= week)
+               & (Posting.first_seen > Source.first_success_at + timedelta(minutes=10)))
+        )
     )
     closed_7d = session.scalar(
         select(func.count())

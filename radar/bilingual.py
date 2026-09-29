@@ -56,7 +56,7 @@ def pair(postings: list[dict], threshold: float = 0.55, lone_threshold: float = 
     """(dutch_id, english_id) pairs among one source's postings. Each posting dict needs id, url, title,
     description, day (date string), city and company (a board such as AcademicTransfer hosts many employers)."""
     nl = [p for p in postings if path_language(p["url"]) == "nl"]
-    en = [p for p in postings if path_language(p["url"]) == "en"]
+    en = [p for p in postings if (path_language(p["url"]) or p.get("lang_hint")) == "en"]
     if not nl or not en:
         return []
     scored: list[tuple[float, int, int]] = []

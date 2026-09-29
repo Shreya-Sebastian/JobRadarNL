@@ -281,16 +281,21 @@ def _bilingual_pairs(session: Session) -> list[tuple[int, int]]:
     langs: dict[int, set[str]] = {}
     for r in rows:
         lang = path_language(r.url)
-        if not lang:
-            continue
-        langs.setdefault(r.source_id, set()).add(lang)
+        langs.setdefault(r.source_id, set()).add(lang or "none")
         day = (r.posted_at or r.first_seen)
         per_source.setdefault(r.source_id, []).append(
-            {"id": r.id, "url": r.url, "title": r.title, "company": r.company, "city": r.city,
+            {"id": r.id, "url": r.url, "title": r.title, "company": r.company, "city": r.city, "lang": lang,
              "day": day.date().isoformat() if day else None, "description": r.description or ""})
     out: list[tuple[int, int]] = []
     for sid, posts in per_source.items():
-        if {"nl", "en"} <= langs[sid]:
+        seen = langs[sid]
+        if "nl" in seen and "en" not in seen and "none" in seen:
+            # Sites that publish English without a prefix next to /nl/ pages (madisonpeople.com/jobs/... and
+            # /nl/jobs/...): the unprefixed pages are the English copies
+            for p in posts:
+                if p["lang"] is None:
+                    p["lang_hint"] = "en"
+        if {"nl", "en"} <= seen or any(p.get("lang_hint") for p in posts):
             out.extend(pair(posts))
     return out
 
