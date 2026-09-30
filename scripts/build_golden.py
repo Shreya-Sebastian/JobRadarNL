@@ -43,6 +43,7 @@ OVERRIDES: dict[int, dict] = {
     2: {"role_family": "it_support", **add("Networking")},  # "troubleshoot network issues (mainly Cisco)"
     4: {"seniority": "senior", "role_family": "product", "remote_policy": "onsite", "degree_required": "unknown"},
     7: {"dutch_required": True, "english_only": False},  # "What We Require ... Dutch language fluency"
+    9: {"degree_required": "bsc"},  # "Bachelor's or Master's degree": the minimum is a bachelor's
     10: {"remote_policy": "onsite", "skills_required": []},
     # "2 years" in this posting is a tenure perk (travel budget), not experience asked
     11: {"role_family": "security", "skills_required": [], "seniority": "unknown", "years_experience": None},
@@ -54,6 +55,7 @@ OVERRIDES: dict[int, dict] = {
          "skills_nice": ["Python", "SQL", "AWS", "Azure", "GCP"]},
     18: {"remote_policy": "onsite", **rm("Monitoring/Observability")},
     19: {**rm("UX/Design"), **add("Virtualization")},  # workloads on VMware
+    21: {"degree_required": "bsc"},  # "Bachelor's or Master's degree"
     22: rm("UX/Design", "LLMs"),  # "LLMs" came from "clients include ... OpenAI"
     23: rm("Statistics"),  # "statistical reporting" is a regulatory regime the team reports under, not a skill
     24: rm("Product Management"),
@@ -65,7 +67,7 @@ OVERRIDES: dict[int, dict] = {
     32: {"degree_required": "bsc", **rm("UX/Design")},
     33: {"role_family": "it_support", **add("Windows Server/AD"),  # "Active Directory, Exchange, MDM"
          **add_nice("Endpoint Management", "ITIL/ITSM", "Virtualization")},  # Intune, ITIL, virtualization
-    35: {"role_family": "other"},
+    35: {"role_family": "other", "remote_policy": "unknown", "degree_required": "mbo"},  # gym only; "MBO/4 to HBO"
     39: {"dutch_required": False, "english_only": True, "seniority": "senior", **add("Networking")},  # firewalls
 }
 

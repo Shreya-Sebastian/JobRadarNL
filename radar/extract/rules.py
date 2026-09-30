@@ -9,7 +9,7 @@ from radar.extract.schema import Extraction
 from radar.extract.sections import job_text
 from radar.taxonomy import find_skills
 
-RULES_VERSION = "rules-v13"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
+RULES_VERSION = "rules-v14"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
 
 # words only one of the languages uses: "in", "is", "we", "team", "over" and "of" are both Dutch and English,
 # "die" and "er" are also German
@@ -576,29 +576,422 @@ _OPENING_LEVEL = re.compile(
     r"leadership|stakeholders|leaders|managers|experts|staff|consultants|onderzoekers|professionals))", re.I)
 _SENIORITY_RX = [(k, re.compile(rx, re.I)) for k, rx in _SENIORITY]
 _ROLE_RX = [(k, re.compile(rx, re.I)) for k, rx in _ROLE]
-_REMOTE = re.compile(r"\bfully remote\b|\bremote[- ]first\b|\b100% remote\b|work from anywhere", re.I)
+
+
+# explicit visa / work-permit sponsorship (wins over relocation-only negatives such as "no relocation support")
+_VISA_STRONG = re.compile(
+    r"vis(?:a|um)[- ]?sponsor\w*|sponsor(?:ship|ing|s)? (?:of |for )?(?:a |your |the |work |residence |their )*"
+    r"(?:visas?|permits?)\b|visa (?:support|assistance|help)|(?:support|assist|help)\w* (?:\w+ ){0,3}?(?:with |"
+    r"throughout |"
+    r"during |in )(?:the |your |any )?(?:\w+ )?vis(?:a|um)\b|vis(?:a|um)[- ]?(?:application|process|procedure|"
+    r"aanvra)\w*|"
+    r"highly skilled migrants?|kennismigrant\w*|\bHSM[- ](?:visa|permit|status|scheme|sponsor\w*)|"
+    r"erkend referent|recogni[sz]ed (?:sponsor|referent)|"
+    r"work permit (?:support|sponsorship|application)|immigration (?:support|sponsorship|assistance|services)|"
+    r"sponsorship provided\W{0,3}yes|vis(?:a|um)\s*(?:\+|and|&)\s*housing (?:is )?provided|housing\s*(?:\+|and|&)\s*"
+    r"vis(?:a|um) (?:is |are )?provided|(?:or|and) (?:be )?eligible for (?:visa )?sponsorship|"
+    r"regelen (?:we|wij) (?:een |je |jouw )?(?:visum|verblijfsvergunning|werkvergunning)|"
+    r"we (?:can |will |do |are able to |gladly |happily )?sponsor (?:your |a |the |work |residence |relocation )*"
+    r"(?:visas?|permits?|relocation|candidates|you)\b",
+    re.I,
+)
+# relocation help and the 30% ruling: a sign of hiring from abroad, weaker than a visa statement
+_VISA_WEAK = re.compile(
+    r"relocation (?:package|support|assistance|budget|team|help|bonus|allowance|expenses|services|compensation|"
+    r"reimbursement)|relocati(?:e|on)[- ]?pakket\w*|relocatie[- ]?ondersteuning|verhuispakket|"
+    r"help(?:s|ing)? you (?:to )?relocate|(?:assist|support|help)\w* (?:you |candidates |employees |people )?(?:\w+ )?"
+    r"(?:with|in|throughout) (?:your |the )?(?:relocation|moving|move)\b|assistance with relocation|"
+    r"(?:assist\w*|support\w*|help\w*) (?:to |for )?(?:candidates|employees|people|those|anyone) who (?:relocate|move)|"
+    r"make your move (?:to \w+ )?(?:as )?smooth|relocation (?:is |are )?(?:offered|provided|covered|reimbursed)|"
+    r"30\s?%[- ]?(?:tax )?(?:ruling|regeling|facility)|expat (?:support|services|package|centre|center|desk)",
+    re.I,
+)
+_NEG_BEFORE = re.compile(r"\b(?:no|not(?! only)|geen|niet|cannot|unable|without|never|nor|nooit)\b|n[’']t\b", re.I)
+_NEG_AFTER = re.compile(r"^\W{0,4}(?:[\w-]+\W+){0,4}?(?:is |are |will be |wordt |kunnen wij )?(?:not|niet|unavailable|"
+                        r"nee|no)\b(?! (?:matter|longer)\b)", re.I)
+_FIELD_VALUE = re.compile(r"^\s*[:?]\s*(\S[^\n]*)?")  # "VISA Sponsorship:\n\nTravel Requirements:" form fields
+_CLAUSE_END = re.compile(r"[.!?;\n•|]")
+
+_NO_VISA = re.compile(
+    # "we cannot provide visa sponsorship", "we are not able to offer relocation", "we will not sponsor applicants"
+    r"(?:\bno\b|\bnot\b(?! only)|cannot|unable to|n[’']t\b|\bnever\b)(?:\s+[\w’'-]+){0,3}?\s+(?:offer\w*|"
+    r"provid\w*|sponsor\w*|"
+    r"support\w*|assist\w*|apply for|help with|facilitat\w*)(?:\s+[\w’'/-]+){0,3}?\s+(?:vis(?:a|um)\w*|sponsor\w*|"
+    r"relocat\w*|work permits?|work or residence permits?|residence permits?|work visas?|immigration)|"
+    # object first: "relocation support is not offered", "visa sponsorship not available", "relocation is not possible"
+    r"(?:vis(?:a|um)\w*|sponsor\w*|relocat\w*)(?:\s+[\w/-]+){0,4}?\s+(?:is |are |will be |wordt |kunnen wij |"
+    r"kunnen we )?"
+    r"(?:unfortunately |currently |sadly )?(?:not|niet|un)\s*(?:\w+\s)?(?:offered|provided|available|possible|"
+    r"supported|"
+    r"included|mogelijk|bieden|aangeboden|aanbieden)|"
+    r"\bno (?:visa |relocation |immigration |work permit )?(?:sponsorship|relocation)\b|"
+    r"sponsorship\W{0,3}[:?]\s*(?:no|nee)\b|"
+    # must already be allowed to work here
+    r"(?:must|need to|needs to|have to|has to|required to|should|will need to)\s+(?:already\s+|currently\s+|also\s+)?"
+    r"(?:have|hold|possess|be|obtain)\s+(?:the\s+|a\s+)?(?:full\s+|legal\s+|permanent\s+|valid\s+|existing\s+)*"
+    r"(?:right|eligib\w*|authori[sz]\w*|permitted|allowed|entitled|legally)\s+(?:\w+\s+)?to\s+(?:live\s+and\s+)?work|"
+    r"(?:right|eligib\w*|authori[sz]\w*|legally allowed|permitted) to (?:live and )?work (?:permanently )?in (?:the )?"
+    r"(?:netherlands|nl|eu|european union|europe|eea|uk or eu|country|job location)|"
+    r"\bvalid (?:eu[- ]|dutch |nl |netherlands )?(?:work(?:ing)? (?:permit|visa|authori[sz]ation)|residen(?:ce|cy)"
+    r"(?:[/ ]?(?:and )?work)? permit)|"
+    r"(?:\beu\b|\beea\b|european|dutch)(?:[/ ](?:eea|eu)|[- ]?member state)?[ -](?:citizen\w*|passport\w*|nationals?|"
+    r"nationality|residen\w*)(?: holders?)?\s*(?:is |are )?(?:required|only|mandatory|needed)|"
+    r"(?:\beu\b|european|dutch)[- ](?:work(?:ing)? )?(?:permit|rights|authori[sz]ation|work visa) (?:is )?"
+    r"(?:required|needed|mandatory)|"
+    r"(?:have|need|hold) (?:to have )?an eu[- ]passport|(?:have|hold|possess) an? (?:eu|dutch|valid) work permit|"
+    r"(?:already )?hold (?:a |an )?(?:permanent |valid )(?:eu |dutch )?work (?:and residence )?permit|"
+    r"\bvalid [\w/ -]{0,16}work (?:authori[sz]ation|permit)|"
+    r"already (?:based|living|located|residing|reside|live) in (?:the netherlands|nl|europe|the eu)|"
+    r"without (?:the need for |requiring |needing |any )*(?:a |company |employer |visa |company-sponsored |further )*"
+    r"(?:sponsorship|work permit|visa)|"
+    r"(?:do not|don't|does not|doesn't|won't|will not) (?:currently |now or in the future )?(?:require|"
+    r"need) (?:a |any )?"
+    r"(?:visa|sponsorship|work permit)|"
+    # Dutch
+    r"geen\W{0,15}(?:vis(?:a|um)\w*|sponsor\w*|relocat\w*|verhuis\w*)|"
+    r"(?:vis(?:a|um)\w*|sponsor\w*|relocat\w*)[^.\n]{0,40}\b(?:niet|geen)\b\W{0,3}(?:mogelijk|bieden|aan)|"
+    r"geldige [\w -]{0,20}?(?:werk|verblijfs)[- ]?(?:vergunning|visum)|(?:nederlandse |eu-?)?"
+    r"werkvergunning (?:is )?(?:vereist|noodzakelijk|verplicht)|in nederland mag werken|gerechtigd (?:zijn )?(?:om )?"
+    r"in nederland te (?:wonen en te )?werken|zonder werkvergunning",
+    re.I,
+)
+
+
+# "Candidates with the right to work in NL are preferred", "Do you have a valid work permit (if applicable)?"
+_HEDGED = re.compile(r"prefer\w*|a plus|an advantage|\bpr[eé]\b|\?|if applicable", re.I)
+
+
+def _clause(text: str, m: re.Match) -> str:
+    start = max(0, m.start() - 110)
+    ends = list(_CLAUSE_END.finditer(text, start, m.start()))
+    s = ends[-1].end() if ends else start
+    e = _CLAUSE_END.search(text, m.end())
+    return text[s : e.end() if e else len(text)]
+
+
+def _unnegated(rx: re.Pattern, text: str) -> tuple[bool, bool]:
+    """(any match that is not negated in its own clause, any negated match)"""
+    pos = neg = False
+    for m in rx.finditer(text):
+        start = max(0, m.start() - 110)
+        ends = list(_CLAUSE_END.finditer(text, start, m.start()))
+        before = text[ends[-1].end() if ends else start : m.start()]
+        if re.match(r"\W*(?:if|als|in case|should|when)\b", before, re.I) and "," in before:
+            before = before.rsplit(",", 1)[1]  # "If you don't have an EU passport, we sponsor your visa"
+        after = text[m.end() : m.end() + 60]
+        e = _CLAUSE_END.search(after)
+        after = after[: e.start()] if e else after
+        fv = _FIELD_VALUE.match(text[m.end() : m.end() + 40])
+        if fv:  # a form field: "VISA Sponsorship: No", or left empty
+            val = (fv.group(1) or "").strip().lower()
+            if re.match(r"(yes|ja|available|possible|provided)\b", val):
+                pos = True
+            elif re.match(r"(no|nee|not)\b", val):
+                neg = True
+            continue
+        if _NEG_BEFORE.search(before) or _NEG_AFTER.search(after):
+            neg = True
+        else:
+            pos = True
+    return pos, neg
+
+
+def _windows(text: str, anchor: re.Pattern, pad: int = 250) -> str:
+    """Only the text around anchor words, joined by newlines (clause breaks): the long patterns then scan a
+    fraction of each posting, and every one of their matches contains an anchor word."""
+    spans: list[list[int]] = []
+    for m in anchor.finditer(text):
+        a, b = max(0, m.start() - pad), min(len(text), m.end() + pad)
+        while a > 0 and not text[a - 1].isspace():  # never cut a word in half ("two" -> "wo")
+            a -= 1
+        while b < len(text) and not text[b].isspace():
+            b += 1
+        if spans and a <= spans[-1][1]:
+            spans[-1][1] = b
+        else:
+            spans.append([a, b])
+    return "\n".join(text[a:b] for a, b in spans)
+
+
+_VISA_ANCHOR = re.compile(
+    r"vis[au]m?|sponsor|relocat|permit|vergunning|migrant|30\s?%|referent|immigration|verhuis|expat|right|eligib|"
+    r"authori[sz]|citizen|passport|national|residen|already|gerechtigd|mag werken|\bhsm\b|moving|\bmove\b|"
+    r"permitted to|allowed to|entitled to|legally", re.I)
+
+
+def detect_visa(text: str) -> bool | None:
+    text = _windows(text or "", _VISA_ANCHOR)
+    strong_pos, strong_neg = _unnegated(_VISA_STRONG, text)
+    if strong_pos:
+        return True
+    if any(not _HEDGED.search(_clause(text, m)) for m in _NO_VISA.finditer(text)):
+        return False
+    weak_pos, weak_neg = _unnegated(_VISA_WEAK, text)
+    if weak_pos:
+        return True
+    if strong_neg or weak_neg:
+        return False
+    return None
+
+
+_PLACE = r"(?:office|kantoor|site|on[- ]?site|location|locatie|hq|headquarters|campus|lab|client|klant)"
+# "Senior Security Engineer (Remote, EU/CET)", "... - Remote", "Remote Data Engineer"; not "Coupling remote resonators"
+_REMOTE_TITLE = re.compile(r"(?:^|[-–|(\[,/:]\s*)remote\b(?![- ](?:sens\w*|control\w*|monitor\w*|support|operat\w*|"
+                           r"pilot\w*|access|infra\w*|service\w*|diagnos\w*))|\bremote\s*(?:$|[)\]\-–|,/])", re.I)
+_POLICY_LABEL = (r"\b(?:location|locatie|work model|workplace(?: type)?|werklocatie|type werk|work location|werkplek|"
+                 r"werkregeling|work arrangements?|flexible work arrangements?|working policy|working environment|"
+                 r"where is the work|work setup|work type|arbeidsplaats)(?:\s*[:\-–]\s*|\s*\n\s*)")
+_REMOTE = re.compile(
+    r"\bfully[- ]remote\w*|\b100\s?% remote|\bremote[- ](?:first|only|native|based)\b|\bfull[- ]time remote|"
+    r"\b(?:role|position|job|vacancy|opportunity|functie) is (?:a |an )?(?:fully |100% |entirely |"
+    r"completely )?remote\b|"
+    r"\b(?:is|as) a (?:fully )?remote (?:role|position|job)|"
+    + _POLICY_LABEL + r"(?:fully |100% )?remote\b(?!\s*(?:or|/|\+|&|,|-|–|of)\s*(?:hybri|office|on|kantoor|in[- ]))|"
+    r"\bremote(?:ly)?(?: working| work)? (?:within|across|from anywhere in|anywhere in) (?:the )?(?:netherlands|"
+    r"nl|europe|"
+    r"eu|emea|cet|any)|\bwork (?:fully |100% )?remotely from (?:anywhere|home|any)|\bwork from anywhere\b|"
+    r"(?:^|\n)\s*remote\s*[-–]\s*(?:emea|europe|eu|global|nl|netherlands)\b|\bremote-global\b|"
+    r"\bvolledig (?:remote|op afstand|thuis|vanuit huis)|\b100\s?% (?:thuis|vanuit huis)|"
+    r"\bremote (?:role|position|job)\b(?! (?:is )?not)|"
+    # remote is one of the options: "Hybrid or remote working setup", "remote, hybrid or from the Rotterdam office"
+    r"\bhybri(?:d|de)(?: working| work| werken)?,? (?:or|of|and|en|/) (?:fully |volledig )?remote\b|"
+    r"\bremote(?:ly)?,? (?:or|of|/) hybri(?:d|de)\b|\bremote, hybrid\b|\bin overleg (?:zelfs |ook )?volledig remote",
+    re.I,
+)
 _HYBRID = re.compile(
-    r"\bhybrid\b|days? (?:a|per) week (?:in|at) the office|\d\s*days? (?:in the )?office|"
-    r"from home|thuiswerk",
+    r"(?<!cloud )(?<!cloud and )(?<!cloud, )(?<!on-prem and )(?<!on-premise and )(?<!multi- and )(?<!public, )"
+    r"\bhybri(?:d|de)\b(?![ -]?(?:cloud|multi|omgevingen|infra|it\b|environments|architect|oplossing|solution|"
+    r"ai\b|power|"
+    r"system|quantum|vloot|fleet|hospitality|leadership|profiel|ervaring\b|delivery|approach|nano|energ|food|"
+    r"zzp|landschap|"
+    r"landscape|search|retrieval|technical|techniek|radar|kubernetes|netwerk|network|vehicle|electric|engine|method|"
+    r"machine|bond|integrat|mobile|app|data\b|database|workload|platform|simulat|model(?:s|l\w*)? (?:for|of|"
+    r"to) (?!work)|"
+    r"comput|storage|identit|deploy|rag\b|learning|genetic|physics|modelling|models\b))|"
+    r"\b(?:[1-4]|one|two|three|four|een|één|twee|drie|vier)(?:\s*(?:[-–/]|to|or|tot|of)\s*(?:[1-5]|two|three|"
+    r"four|five|twee|drie|vier|vijf))?\s*"
+    r"(?:\(\d\)\s*)?(?:days?|dagen)\s*(?:a|per|p/|in the|/)\s*(?:week|wk)\s*(?:\w+\s+){0,4}?(?:in|at|from|on|op|vanuit|"
+    r"naar)?\s*(?:the |our |het |ons |onze )?(?:" + _PLACE + r"|home|thuis|remote|remotely|in[- ]person)|"
+    r"\b(?:[1-4]|one|two|three|four|een|één|twee|drie|vier)(?:\s*(?:[-–/]|to|or|tot|of)\s*(?:[1-5]|two|three|"
+    r"four|five|twee|drie|vier|vijf))?\s*"
+    r"(?:days?|dagen)\s*(?:\w+\s+){0,2}?(?:in|at|from|on|op|vanuit|naar) (?:the |our |het |ons |"
+    r"onze )?(?:office|kantoor|"
+    r"home|thuis|on[- ]?site)|"
+    r"\b(?:office|kantoor|remote|home|thuiswerk)[- ]?(?:days?|dag(?:en)?)\b|\bremote days|"
+    r"\bfrom home\b|\bvanuit huis\b|\bthuis\s?werk\w*|\bthuis (?:te )?werken|\bhome[- ]?office|"
+    r"\bwork(?:ing)? remotely\b|"
+    r"\b(?:deels|gedeeltelijk|partly|partially|part)\)? (?:werken |working |work )?(?:remote|op kantoor|in the office|"
+    r"on[- ]?site|thuis|vanuit huis|from home)|"
+    r"\b(?:on[- ]?site|onsite|in[- ]office|in the office|at the office|op kantoor|in[- ]person)(?: presence|"
+    r" attendance)?"
+    r"\W{0,3}(?:\w+\W+){0,2}?(?:[1-4]|one|two|three|four|twee|drie|vier)(?:\s*(?:[-–/]|to|or|tot|of)\s*(?:[1-5]|"
+    r"two|three|four|five|twee|drie|vier|vijf))?\s*"
+    r"(?:days?|dagen)|"
+    r"\b(?:mix|combination|combinatie|balance|blend) (?:of|between|van|tussen) (?:\w+ ){0,3}?(?:office|home|"
+    r"remote|kantoor|"
+    r"thuis|on[- ]?site)|"
+    r"\bremote (?:work(?:ing)?|werken) (?:is )?(?:possible|mogelijk|options?|allowed|available|policy|opportunit)|"
+    r"\b(?:flexible|flexibel) (?:remote|home|thuis)[- ]?werk\w*|\bflexible (?:remote|home) work|"
+    r"\bwork (?:from|in) the office (?:at least|minimum|min\.?) |\bremote[- ]friendly\b|"
+    r"\b(?:grotendeels|largely|mostly|mainly|voornamelijk) (?:remote|thuis|vanuit huis|from home)|"
+    # "able to work from our Amsterdam office at least 2 to 3 days per week"
+    r"\b(?:office|kantoor|hq|headquarters|campus|hub)\W+(?:\w+\W+){0,5}?(?:[1-4]|one|two|three|four|twee|drie|vier)"
+    r"(?:\s*(?:[-–/]|to|or|tot|of)\s*(?:[1-5]|two|three|four|five|twee|drie|vier|vijf))?\s*(?:days?|"
+    r"dagen)\s*(?:a|per|in the|/)\s*(?:week|wk)|"
+    r"\b[1-9]0\s?% (?:on[- ]?site|in (?:the )?office|remote|from home|thuis|op kantoor)",
     re.I,
 )
 _ONSITE = re.compile(
-    r"\bon[- ]site\b|\bonsite\b|in the office 5|fully in[- ]office|office[- ]first|"
-    r"(?:do not|don't|no) (?:offer )?remote(?:-only)?|remote(?:-only)? (?:work )?is not (?:possible|an option)",
+    r"\b(?:fully|100\s?%|entirely|volledig|always|completely) (?:on[- ]?site|in[- ]office|office[- ]based|op kantoor|"
+    r"op locatie|in the office|from the office|at the office|at our office|in[- ]person)|"
+    r"\b(?:5|five|vijf) (?:full )?(?:days?|dagen)\s*(?:a|per|in the|/)\s*(?:week|wk)\s*(?:\w+\s+){0,3}?(?:in|at|"
+    r"from|on|op|"
+    r"vanuit)?\s*(?:the |our |het |ons )?" + _PLACE + r"|"
+    r"\b(?:on[- ]?site|onsite|in[- ]office|office[- ]based|op kantoor|in the office|at the office) (?:5|five|"
+    r"vijf) days|"
+    r"\b(?:on[- ]?site|onsite|in[- ]office|office[- ]based|in[- ]person) (?:role|position|job|functie|only|"
+    r"working|work\b|"
+    r"presence (?:is )?(?:required|essential|expected|mandatory))|"
+    r"\b(?:role|position|job|functie|vacancy) is (?:an? )?(?:fully )?(?:on[- ]?site|onsite|in[- ]office|"
+    r"office[- ]based|"
+    r"in[- ]person|based (?:in|at) (?:the|our) office)|"
+    r"\ban? (?:fully )?(?:on[- ]?site|onsite|in[- ]office|office[- ]based) (?:role|position|job)|"
+    r"\((?:on[- ]?site|onsite|in[- ]office|office[- ]based)\)|"
+    + _POLICY_LABEL + r"(?:on[- ]?site|onsite|office|kantoor|op locatie|in[- ]office)\b|"
+    r"#LI-On-?site\b|\bon[- ]?site \((?:5|five|vijf|full)|\b(?:role|position|job) is based on[- ]?site\b|"
+    r"\bwork on[- ]?site (?:in|at) (?:our|the) (?:\w+ )?office|(?:^|\n)[ \t]*on[- ]?site[ \t]*(?:\n|$)|"
+    r"\bnot (?:a |an )?(?:fully )?remote\b|\bno (?:fully )?remote\b|\bnon[- ]remote\b|\bgeen (?:remote|thuiswerk\w*)|"
+    r"\bremote(?:-only)? (?:work(?:ing)? )?(?:is )?not (?:possible|an option|available|supported)|"
+    r"(?:thuiswerk\w*|remote werken|op afstand werken|vanuit huis werken) (?:is )?niet mogelijk|"
+    r"\boffice[- ]first\b|\bfully in[- ]office\b|\bin the office 5|"
+    r"\b(?:do not|don't|doesn't|does not|cannot|can't|no) (?:offer |support |allow )?remote(?:-only)?|"
+    r"\bom on[- ]?site (?:in \w+ )?te werken|\bwe (?:work|are) (?:fully |always )?on[- ]?site\b|"
+    r"\b(?:not|don't|do not) hire for (?:strictly |fully |purely )?remote",
     re.I,
 )
+_REMOTE_NEG = re.compile(r"\b(?:no|not(?! only)|geen|niet|cannot|never|isn't|aren't|nor|zonder|unless|tenzij)\b|"
+                         r"n[’']t\b", re.I)
+# a benefit, not the policy: "1 month per year fully remote", "work from anywhere for up to 4 weeks a year"
+_REMOTE_PERIOD = re.compile(
+    r"\b(?:\d+|one|two|three|four|six|eight|a|een|één|twee|drie|vier|zes|acht)\s*(?:full |paid |working |work |"
+    r"calendar )?(?:weeks?|months?|days?|maand(?:en)?|weken|dagen|werkdagen)\b[^.\n]{0,30}?(?:per|a|each|every|in a|/|"
+    r"of the|in het|per kalender)\s*(?:calendar )?(?:year|jaar)|\bper jaar\b|/\s?year|\babroad\b|\bbuitenland\b", re.I)
+# company-wide boilerplate: "from in-office to fully remote, depending on the requirements of their role"
+_REMOTE_HEDGE = re.compile(r"depending on|afhankelijk van|some (?:roles|positions|of these)|certain roles", re.I)
+_AFTER_NEG = re.compile(
+    r"\W{0,3}(?:is |are |zijn )?(?:not|niet|geen) (?:possible|mogelijk|an option|allowed|available)", re.I)
+_CLAUSE_END_R = re.compile(r"[.!?;\n•|]")
+
+
+def _clause_parts(text: str, m: re.Match, back: int = 60) -> tuple[str, str]:
+    start = max(0, m.start() - back)
+    ends = list(_CLAUSE_END_R.finditer(text, start, m.start()))
+    before = text[ends[-1].end() if ends else start : m.start()]
+    e = _CLAUSE_END_R.search(text, m.end(), m.end() + 120)
+    after = text[m.end() : e.start() if e else m.end() + 120]
+    return before, after
+
+
+def _policy_hit(rx: re.Pattern, text: str, period_ok: bool = True) -> bool:
+    for m in rx.finditer(text):
+        before, after = _clause_parts(text, m)
+        if _REMOTE_NEG.search(before[-40:]) or _AFTER_NEG.match(after):
+            continue
+        if not period_ok and (_REMOTE_PERIOD.search(before) or _REMOTE_PERIOD.search(after[:60])
+                              or _REMOTE_HEDGE.search(before + after)):
+            continue
+        return True
+    return False
+
+
+_REMOTE_ANCHOR = re.compile(
+    r"remote|hybri|home|thuis|huis|office|kantoor|on[- ]?site|in[- ]person|locati|anywhere|afstand|\bsite\b|\bhq\b|"
+    r"headquarters|campus|\blab\b|client|klant|\bhub\b", re.I)
+
+
+def detect_remote(title: str, text: str) -> str:
+    text = _windows(text or "", _REMOTE_ANCHOR)
+    # the title wins when it names the policy: "Product Engineer (Hybrid Amsterdam)"
+    if re.search(r"\bhybri(?:d|de)\b(?![ -]?(?:cloud|power|network|dynamic|infra|it\b|system|quantum|solution|"
+                 r"architect|data|integrat|platform|app|mobile|vehicle|electric|engine|search|ai\b|ml\b|simulat|"
+                 r"model))",
+                 title or "", re.I):
+        return "hybrid"
+    if re.search(r"\b(?:on[- ]?site|in[- ]office)\b", title or "", re.I):
+        return "onsite"
+    if _policy_hit(_REMOTE, text, period_ok=False) or (
+        _REMOTE_TITLE.search(title or "") and not _ONSITE.search(text) and not _policy_hit(_HYBRID, text)
+    ):
+        return "remote"
+    if _policy_hit(_HYBRID, text):
+        return "hybrid"
+    if _ONSITE.search(text):
+        return "onsite"
+    if _REMOTE_TITLE.search(title or ""):
+        return "remote"
+    return "unknown"
+
+
 _DEGREE = [
-    ("phd", r"\bph\.?d\b|doctorate|doctoral"),
-    ("msc", r"\bmsc\b|\bm\.sc\b|master(?:'s|s)? (?:degree|in |of science)|\bwo\b|university degree|universitair"),
-    ("bsc", r"\bbsc\b|\bb\.sc\b|bachelor|\bbs\b (?:\(or higher\) )?in"),
-    ("hbo", r"\bhbo\b"),
-    ("mbo", r"\bmbo\b"),
+    # a PhD as a requirement, not the PhD position itself ("this PhD project", "PhD candidate", "four other PhDs")
+    ("phd", r"(?<!your )(?<!this )(?<!the )(?<!our )(?<!during )(?<!funded )(?<!year )(?<!other )(?<!doing a )"
+            r"(?<!start a )(?<!starting a )(?<!towards a )(?<!for a )"
+            r"\bph\.?\s?d\.?(?:['’]s)?\b(?!['’]s\b)(?![\s-]*(?:position|project|candidate|student|researcher|"
+            r"vacanc|programme|"
+            r"program|track|thesis|research|defen[cs]e|trajector|supervis|fellow|scholarship|journey|stud|"
+            r"level position|"
+            r"opportunit|network|intern|salary|allowance|contract|traineeship|school|course|life|period|phase))|"
+            r"\bdoctorate\b|\bdoctoral degree|\bgepromoveerd|\bpromotieonderzoek (?:afgerond|voltooid)"),
+    ("msc", r"\bm\.?\s?sc\b(?![\s-]*(?:(?:and|en|or|of|/)\s*ph\.?d\s*)?(?:students|studenten|theses|projects|"
+            r"interns?))|(?-i:\bMS)\s*(?:degree|in\b|or PhD|/\s?PhD)|\bmasters? of (?:een )?ph\.?d\b|"
+            r"(?<!scrum )(?<!certified )(?<!quiz)\bmasters?(?:['’]s?)?(?:\s+(?:degree|diploma|"
+            r"in\b(?! (?:excel|het|de|the|multitask|problem|communic|organi|plannen|verbind|sales))|level|or\b|"
+            r"opleiding|programme|program|student|graduate|of (?:science|engineering|arts|business|laws|philosophy|"
+            r"computer|information|applied|data))|\s*/\s*(?:phd|ph\.d|doctor))|"
+            r"\bmaster(?:diploma|opleiding|niveau|titel|degree|studie|student|s?graad)\w*|\bwo\b|"
+            r"\buniversity master|\b(?:afgeronde|completed|finished|behaalde) (?:\w+ )?masters?\b|"
+            r"\buniversitair\w* (?:opleiding|niveau|diploma|master|denkniveau|werk|achtergrond|studie)|"
+            r"\bacademisch\w* (?:werk[- ] en )?(?:denk)?(?:niveau|opleiding|achtergrond|diploma|master)|"
+            r"\buniversity degree"),
+    # a degree without a level ("a degree in Computer Science") stays unknown: only an explicit level counts
+    ("bsc", r"\bb\.?\s?sc\b|\bbachelor\w*|\bbs\b (?:\(or higher\) )?(?:degree|in)\b|\bb\.?tech\b|\bb\.?eng\b"),
+    ("hbo", r"\bhbo\w*(?!['’]s\b)|\bhogeschool(?:opleiding|diploma|niveau)|\bhts\b|\bheao\b|\bhlo\b|"
+            r"\buniversity of applied sciences (?:degree|diploma|level|education)|\bhigher professional education|"
+            r"\b(?:degree|diploma|education|opleiding) (?:from|at) (?:a |an )?university of applied sciences"),
+    ("mbo", r"\bmbo\w*(?!['’]s\b)"),
 ]
 _DEGREE_RX = [(k, re.compile(rx, re.I)) for k, rx in _DEGREE]
 _DEGREE_LEVEL = {"mbo": 0, "hbo": 1, "bsc": 1, "msc": 2, "phd": 3}  # hbo is a bachelor's level
 _NO_DEGREE = re.compile(
-    r"(no|without a?|regardless of) (?:formal )?(?:degree|diploma)|degree (?:is )?not required", re.I
+    r"(no|without a?|regardless of) (?:formal )?(?:degree|diploma)|degree (?:is )?not (?:required|necessary|"
+    r"needed|a must)|"
+    r"(?:don't|do not|doesn't|does not) (?:need|require) (?:a |any )?(?:formal )?(?:[\w-]+,? ){0,4}(?:or )?(?:degrees?|"
+    r"diplomas?)\b|"
+    r"geen (?:specifiek |formeel )?diploma (?:vereist|nodig|noodzakelijk)|diploma (?:is )?niet (?:vereist|nodig|"
+    r"noodzakelijk)",
+    re.I,
 )
+# a degree that is only a plus is not the minimum asked
+_DEGREE_PLUS = re.compile(r"a plus|is a bonus|\bbonus\b|nice[- ]to[- ]have|an advantage|\bpluspunt|\bpr[eé]\b|"
+                          r"\bvoordeel\b|\bextra\b", re.I)
+# "HBO diploma (of MBO-4 met ruime ervaring)", "or an MBO 4 background combined with substantial practical experience":
+# an alternative route next to the level asked, not the level itself
+_MBO_ALT_BEFORE = re.compile(r"(?:\bof|\bor)\s+\(?(?:een |an |a )?(?:\w+\s)?$", re.I)
+_MBO_ALT_AFTER = re.compile(r"^[^.;\n]{0,70}?(?:experience|ervaring|who has reached|heeft bereikt)", re.I)
+_ANY_DEGREE = re.compile(r"\b(?:ph\.?d|m\.?sc|b\.?sc|master|bachelor|hbo|mbo|wo\b|universit|academisch|doctora)", re.I)
+_OTHER_ITEM = re.compile(r"\b(?:en|and|or|of)\b[^,]*?(?:opleiding|diploma|certific\w*|degree|course|cursus)", re.I)
+# "at least 4 years relevant working experience (or PhD)": the PhD replaces experience, it is not the level asked
+_INSTEAD_OF_EXPERIENCE = re.compile(r"(?:experience|ervaring)[^.;\n]{0,15}\(?\s*(?:or|of)\s*(?:a\s+)?$", re.I)
+_DEG_CLAUSE_END = re.compile(r"[.!?;\n•|]")
+_POSTDOC_TITLE = re.compile(r"\bpost[- ]?doc\w*|\bpostdoctoral", re.I)
+
+
+def _degree_levels(text: str) -> list[str]:
+    found = []
+    for key, rx in _DEGREE_RX:
+        for m in rx.finditer(text):
+            s, e = m.start(), m.end()
+            ends = list(_DEG_CLAUSE_END.finditer(text, max(0, s - 60), s))
+            before = text[ends[-1].end() if ends else max(0, s - 60) : s]
+            after = text[e : e + 90]
+            cut = _DEG_CLAUSE_END.search(after)
+            after = after[: cut.start()] if cut else after
+            # "Master's degree is a plus", "Nice to have: a PhD"; not "mbo 4, hbo is een pre" (the plus is hbo's)
+            plus = _DEGREE_PLUS.search(after)
+            if plus and not _ANY_DEGREE.search(after[: plus.start()]) and not _OTHER_ITEM.search(after[: plus.start()]):
+                continue
+            plus = list(_DEGREE_PLUS.finditer(before))
+            if plus and not _ANY_DEGREE.search(before[plus[-1].end() :]):
+                continue
+            if key == "phd" and _INSTEAD_OF_EXPERIENCE.search(text[max(0, s - 60) : s]):
+                continue
+            if key == "mbo" and _MBO_ALT_BEFORE.search(text[max(0, s - 25) : s]) and _MBO_ALT_AFTER.match(text[e:]):
+                continue
+            found.append(key)
+            break
+    return found
+
+
+_DEGREE_ANCHOR = re.compile(
+    r"ph\.?\s?d|doctora|gepromoveerd|promotie|m\.?\s?sc|\bms\b|master|\bwo\b|universit|academisch|b\.?\s?sc|bachelor|"
+    r"\bbs\b|b\.?tech|b\.?eng|hbo|hogeschool|\bhts\b|heao|\bhlo\b|applied sciences|higher professional|mbo|degree|"
+    r"diploma", re.I)
+
+
+def detect_degree(title: str, core: str, text: str) -> str:
+    core, text = _windows(core, _DEGREE_ANCHOR), _windows(text, _DEGREE_ANCHOR)
+    if _NO_DEGREE.search(text):
+        return "none"
+    # the requirement is the lowest level named: "Bachelor's or Master's" asks for a bachelor, and the Dutch
+    # "hbo/wo-niveau" (applied or research university) for hbo, not for a master's
+    if _POSTDOC_TITLE.search(title or ""):
+        return "phd"
+    found = _degree_levels(core) or _degree_levels(text)
+    if not found:
+        return "unknown"
+    low = min(_DEGREE_LEVEL[k] for k in found)
+    lowest = [k for k in found if _DEGREE_LEVEL[k] == low]
+    return "bsc" if "bsc" in lowest else lowest[0]
 
 
 def detect_language(text: str) -> str:
@@ -765,11 +1158,7 @@ def extract_rules(title: str, description: str) -> Extraction:
     skills_req = find_skills(title + "\n" + required_part)
     skills_nice = [s for s in find_skills(nice_part) if s not in skills_req]
 
-    visa: bool | None = None
-    if _NO_VISA.search(text):
-        visa = False
-    elif _VISA.search(text):
-        visa = True
+    visa = detect_visa(text)
 
     # requirements usually sit before the benefits section, but not always: fall back to the whole text
     years = find_years(core)
@@ -782,26 +1171,9 @@ def extract_rules(title: str, description: str) -> Extraction:
         if m:
             seniority = m.group(1).lower()
 
-    if _REMOTE.search(text):
-        remote = "remote"
-    elif _HYBRID.search(text):
-        remote = "hybrid"
-    elif _ONSITE.search(text):
-        remote = "onsite"
-    else:
-        remote = "unknown"
+    remote = detect_remote(title, text)
 
-    degree = "unknown"
-    if _NO_DEGREE.search(text):
-        degree = "none"
-    else:
-        # the requirement is the lowest level named: "Bachelor's or Master's" asks for a bachelor, and the Dutch
-        # "hbo/wo-niveau" (applied or research university) for hbo, not for a master's
-        found = [key for key, rx in _DEGREE_RX if rx.search(core)] or [key for key, rx in _DEGREE_RX if rx.search(text)]
-        if found:
-            low = min(_DEGREE_LEVEL[k] for k in found)
-            lowest = [k for k in found if _DEGREE_LEVEL[k] == low]
-            degree = "bsc" if "bsc" in lowest else lowest[0]
+    degree = detect_degree(title, core, text)
 
     lo, hi = parse_salary(text)
     return Extraction(

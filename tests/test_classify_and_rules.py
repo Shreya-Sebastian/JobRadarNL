@@ -501,3 +501,142 @@ def test_dutch_requirement_in_english_and_dutch_postings():
     for text in optional:
         e = extract_rules("Backend Engineer", text)
         assert e.dutch_required is False and e.english_only is True, text
+
+
+def test_visa_sponsorship_statements():
+    from radar.extract.rules import detect_visa
+
+    cases = [
+        ('We offer visa sponsorship and relocation support. Hybrid: 2 days in the office.', True),
+        ('You must already have the right to work in the Netherlands.', False),
+        ('At this moment we are not providing relocation sponsorships.', False),
+        ('Kindly note that relocation support is not offered for this role.', False),
+        ('You have the legal right to work here without requiring visa sponsorship.', False),
+        ('Wij bieden geen visa sponsorship aan.', False),
+        ('Our relocation team assists you when moving to the Netherlands.', True),
+        ('Visa sponsorship available (including transfer of Dutch visa; no relocation support)', True),
+        ('Visa sponsorship may be available where applicable. We do not provide relocation support.', True),
+        ('Employee Status:\nRegular\nRelocation:\n\nVISA Sponsorship:\n\nTravel Requirements:\n', None),
+        ('Relocation:\nNo relocation\nVISA Sponsorship:\nNo\nTravel Requirements:\n', False),
+        ('Did you know that we sponsor more than 2,000 children worldwide', None),
+        ('Please note no relocation support will be provided.', False),
+        ('as we don’t offer any visa sponsorship.', False),
+        ('Visa sponsorship not available for this role.', False),
+        ('For this position we can not sponsor a visa.', False),
+        ('without the need for visa sponsorship by Strada.', False),
+        ('verhuizing of visumsponsoring niet mogelijk, ook niet via de regeling voor Kennismigranten (Highly Skilled Migrant – HSM).', False),
+        ('We are open to support with relocation efforts.', True),
+        ('We offer relocation expenses for employees coming from abroad', True),
+        ('Relocatiepakket (inclusief visumsponsoring en ondersteuning)', True),
+        ("If you're relocating from abroad, we provide full support throughout the visa process", True),
+        ('AMOLF assists any new foreign PhD-student with housing and visa applications', True),
+        ('Uitgebreid verhuispakket voor internationale sollicitanten.', True),
+        ('Sponsorship Provided: Yes Location: Rotterdam', True),
+        ('Is role eligible for Immigration Sponsorship? No. Please note that we will not sponsor applicants for work visas', False),
+        ('EU citizenship required.', False),
+        ('Wij kunnen echter geen visum sponsorship aanbieden.', False),
+        ('Please note, we don’t offer relocation for this position.', False),
+        ('Legally authorised to work in the country of hire without company sponsorship', False),
+        ('A favourable tax agreement, the ‘30% ruling’, may apply to non-Dutch applicants.', True),
+        ('Not only do we offer visa sponsorship, we also pay for your flight.', True),
+        ("If you don't have an EU passport, we can sponsor your visa.", True),
+        ('you can trade PTO for internet costs, our bicycle plan, company fitness and relocation costs.', None),
+        ('Kennismigrant: wij zijn erkend referent bij de IND.', True),
+        ('Relocation is not possible.', False),
+        ('Relocatie of ondersteuning bij visumaanvragen kunnen wij niet bieden.', False),
+        ('Voor deze functie bieden wij geen sponsoring voor een verblijfs- of werkvergunning.', False),
+        ('We cannot sponsor visas.', False),
+        ('No visa sponsorship.', False),
+        ('You must have a valid work permit.', False),
+        ('geen sponsoring mogelijk', False),
+        ('We are a recognised sponsor with the IND and can apply for your highly skilled migrant permit.', True),
+        ('Visa Sponsorship (if applicable)', True),
+        ('Did you know that we sponsor the local football club.', None),
+    ]
+    for text, want in cases:
+        assert detect_visa(text) is want, text
+
+
+def test_remote_policy():
+    from radar.extract.rules import extract_rules
+
+    cases = [
+        ('Engineer', 'We offer visa sponsorship. Hybrid: 2 days in the office.', 'hybrid'),
+        ('Engineer', 'We are an office-first company and do not offer remote-only roles.', 'onsite'),
+        ('Engineer', 'Hybrid working (50/50); 1 month per year fully remote;', 'hybrid'),
+        ('Engineer', "we're explicitly not a hybrid or remote-first company - you can't build robots from home, so we're onsite five days a week", 'onsite'),
+        ('Engineer', 'Most people work in a hybrid setup, minimum two days per week in the office. Work from anywhere for up to 4 weeks a year.', 'hybrid'),
+        ('Engineer', 'Organize on-site Tableau training sessions.', 'unknown'),
+        ('Engineer', 'Onsite presence: 2 days per week in Utrecht.', 'hybrid'),
+        ('Engineer', 'Provide demos both remote and onsite across Europe. This is a remote role, with travel as required.', 'remote'),
+        ('Engineer', 'Werkregeling: Onsite | Hybride', 'hybrid'),
+        ('Engineer', 'Support commissioning on site.', 'unknown'),
+        ('Engineer', 'Location: Remote, preference for Netherlands.', 'remote'),
+        ('Engineer', 'Hybride werken: thuis, bij de klant of op kantoor.', 'hybrid'),
+        ('Engineer', 'Je ontwerpt beveiliging voor Azure en hybride cloudomgevingen.', 'unknown'),
+        ('Engineer', 'Experience with hybrid cloud and on-prem infrastructure.', 'unknown'),
+        ('Engineer', 'in verband met (deels) werken op kantoor.', 'hybrid'),
+        ('Engineer', 'with up to two remote days per week', 'hybrid'),
+        ('Engineer', 'This role is remote, but candidates must be based in Netherlands.', 'remote'),
+        ('Engineer', 'Je bent 2 dagen per week op kantoor in Utrecht.', 'hybrid'),
+        ('Engineer', 'Thuiswerken is niet mogelijk; je werkt 5 dagen per week op locatie.', 'onsite'),
+        ('Engineer', 'We work 4 dagen per week (32 uur).', 'unknown'),
+        ('Engineer', 'Fully remote within NL.', 'remote'),
+        ('Engineer', 'Remote within the Netherlands.', 'remote'),
+        ('Engineer', 'We are a remote-first company.', 'remote'),
+        ('Engineer', 'This is an on-site role in Eindhoven.', 'onsite'),
+        ('Remote Sensing Scientist', 'Work on radar remote sensing.', 'unknown'),
+        ('Senior Security Engineer (Remote, EU/CET)', 'Join us.', 'remote'),
+        ('IT Support Engineer', 'Provide remote support and remote monitoring for our clients using remote control tools.', 'unknown'),
+        ('Engineer', 'Based in Amsterdam or willing to relocate; this role is on-site and is not remote.', 'onsite'),
+        ('Engineer', 'Thuiswerkvergoeding en een goede pensioenregeling.', 'hybrid'),
+        ('Engineer', "You'll be in the office 3 days a week.", 'hybrid'),
+        ('Engineer', 'Werken op locatie bij de klant.', 'unknown'),
+        ('Engineer', 'Flexible Work Arrangements:\nHybrid\nShift:', 'hybrid'),
+        ('Engineer', 'Flexible Work Arrangements:\nNot Applicable\nShift:', 'unknown'),
+        ('Engineer', 'Hybrid AI models for physics.', 'unknown'),
+        ('Engineer', 'Work model: Hybrid', 'hybrid'),
+    ]
+    for title, text, want in cases:
+        assert extract_rules(title, text).remote_policy == want, (title, text)
+
+
+def test_minimum_degree():
+    from radar.extract.rules import extract_rules
+
+    cases = [
+        ('Software Engineer', 'Je hebt een afgeronde hbo- of wo-opleiding in informatica.', 'hbo'),
+        ('Software Engineer', "You have a Bachelor's or Master's degree in Computer Science.", 'bsc'),
+        ('Software Engineer', "You hold a Master's degree; a PhD is a plus.", 'msc'),
+        ('Software Engineer', 'You have a PhD in physics or a related field.', 'phd'),
+        ('Software Engineer', 'Mbo- of hbo-werk- en denkniveau.', 'mbo'),
+        ('Software Engineer', 'A degree is not required, skills matter.', 'none'),
+        ('Backend Engineer', 'Required: Python and AWS. MSc in Computer Science required. Nice to have: Kafka.', 'msc'),
+        ('PM', 'We are an office-first company. You are a master of change.', 'unknown'),
+        ('ISO', "Nice to have: Fluency in Dutch. A bachelor's degree in CS.", 'bsc'),
+        ('Engineer', "Master's or PhD degree in Electrical Engineering.", 'msc'),
+        ('PhD Position in Micro-Robotics', 'This PhD project focuses on robots. You have an MSc in mechanical engineering.', 'msc'),
+        ('PhD in Quantum codes', 'join a doctoral network as a PhD candidate at TU/e.', 'unknown'),
+        ('Postdoc in X', "The postdoc will work with four other PhD's.", 'phd'),
+        ('DBA', 'BE or Master Degree in Computer Science.', 'msc'),
+        ('Senior Manager', 'Master’s degree in Information Security, IT, Business, or a related field', 'msc'),
+        ('DevOps', "Daarbij vragen wij minimaal een MBO4-diploma, kennis van API's.", 'mbo'),
+        ('Manager', 'een masterdiploma, met een voorkeur voor technologie', 'msc'),
+        ('AI Engineer', 'Een afgeronde, relevante academische opleiding als fundament.', 'msc'),
+        ('Developer', 'Degree in Computer Science or a related technical field', 'unknown'),
+        ('CRA', 'Have a degree in Life Sciences or have equivalent experience', 'unknown'),
+        ('Engineer', 'Werken bij het Universitair Medisch Centrum Utrecht.', 'unknown'),
+        ('Control Engineer', 'This could also be someone with an MBO education level who has reached an HBO working and thinking level through practical experience. Technical MBO/4 to HBO work and thinking level', 'mbo'),
+        ('Test Engineer', 'You bring HBO / Bachelor level of working and thinking, or an MBO 4 background combined with substantial practical experience', 'bsc'),
+        ('Sales Engineer', 'BS Degree in Engineering (preferably Computer Science/Engineering) is a plus', 'unknown'),
+        ('Support', 'BSc in IT/Computer Science preferred; ITIL a plus', 'bsc'),
+        ('Engineer', "An organisation's degree of innovation depends on diversity. A high degree of freedom.", 'unknown'),
+        ('Scrum Master', 'As Scrum Master, you coach teams. Certified Scrum Master (PSM).', 'unknown'),
+        ('Engineer', 'Master Data Management experience.', 'unknown'),
+        ('Engineer', 'Je hebt een WO-niveau.', 'msc'),
+        ('Engineer', 'Je beschikt over hbo/wo werk- en denkniveau.', 'hbo'),
+        ('Engineer', 'Een afgeronde opleiding in een technische richting.', 'unknown'),
+        ('Engineer', 'Currently pursuing a degree in Computer Science.', 'unknown'),
+    ]
+    for title, text, want in cases:
+        assert extract_rules(title, text).degree_required == want, (title, text)
