@@ -46,10 +46,12 @@
 </head>
 <body>
 <main class="an">
-  <form class="gate" id="gate" hidden>
+  <form class="gate" id="gate" hidden autocomplete="off">
     <h1>Analytics</h1>
     <p class="sub">Enter the admin token. It is kept in this browser tab only.</p>
-    <input type="password" id="token" autocomplete="current-password" placeholder="admin token" required>
+    <!-- not a login password: keep browsers from saving it and filling it into the sign-in page -->
+    <input type="password" id="token" name="admin-token" autocomplete="off" data-lpignore="true" data-1p-ignore
+           data-form-type="other" placeholder="admin token" required>
     <button class="primary" type="submit">Open</button>
     <p class="err" id="gate-err"></p>
   </form>
