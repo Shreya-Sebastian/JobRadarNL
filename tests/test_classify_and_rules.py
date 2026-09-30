@@ -54,6 +54,8 @@ def test_seniority_and_years():
     assert detect_seniority("Junior Developer") == "junior"
     assert detect_seniority("Senior Data Scientist") == "senior"
     assert detect_seniority("Staff Engineer") == "staff"
+    assert detect_seniority("Technical Fellow, Compilers") == "staff"
+    assert detect_seniority("Postdoctoral Fellow in Genomics") == "unknown"
     assert detect_seniority("Head of Engineering") == "manager"
     assert detect_seniority("Software Engineer", "At least 5 years of experience") == "senior"
     assert detect_seniority("Software Engineer", "1-2 years of experience") == "junior"

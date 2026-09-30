@@ -178,7 +178,7 @@ _SENIORITY = [
                 r"talent ?programm?a?\b|development program(me)?\b|starters?functie|starters?programma|"
                 r"\bstarter\b(?! kit)"),
     ("junior", r"\bjunior\b|\bgraduate\b|entry[- ]level|\bstarter\b|early career|\bassociate\b(?!\s*director)"),
-    ("staff", r"\bstaff\b|\bprincipal\b|\bdistinguished\b|\bfellow\b"),
+    ("staff", r"\bstaff\b|\bprincipal\b|\bdistinguished\b|\b(?:technical|engineering) fellow\b"),
     (
         "manager",
         r"(?<!product )(?<!project )(?<!account )(?<!program )\bmanager\b|\bhead of\b|\bdirector\b|\bvp\b|"
