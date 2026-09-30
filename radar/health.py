@@ -18,6 +18,8 @@ from radar.config import settings
 log = logging.getLogger(__name__)
 
 STALE_AFTER = timedelta(hours=3)
+# at least this share of the active sources should have been crawled in the last STALE_AFTER
+MIN_CRAWLED_SHARE = 0.01
 REPEAT_AFTER = timedelta(hours=12)
 _STALE_KEY = "radar:alert:stale"
 _STALE_SENT_KEY = "radar:alert:stale:sent"
@@ -50,20 +52,40 @@ def last_successful_crawl() -> datetime | None:
         s.close()
 
 
-def check_freshness(redis, now: datetime | None = None, last=_UNSET) -> str | None:
-    """Alert when no source has been crawled successfully for STALE_AFTER; send an all-clear once it recovers.
+def crawl_volume(now: datetime) -> tuple[int, int]:
+    """(active sources, active sources crawled in the last STALE_AFTER)."""
+    from radar.db import new_session
+    from radar.models import Source
+
+    s = new_session()
+    try:
+        active = s.scalar(select(func.count()).select_from(Source).where(Source.active.is_(True))) or 0
+        recent = s.scalar(select(func.count()).select_from(Source).where(
+            Source.active.is_(True), Source.last_run_at >= now - STALE_AFTER)) or 0
+        return active, recent
+    finally:
+        s.close()
+
+
+def check_freshness(redis, now: datetime | None = None, last=_UNSET, volume=_UNSET) -> str | None:
+    """Alert when no source has been crawled successfully for STALE_AFTER, or when almost none were crawled in that
+    time (jobs stuck in the queue while a few still get through); send an all-clear once it recovers.
     Returns 'stale', 'recovered' or None."""
     now = now or datetime.utcnow()
     last = last_successful_crawl() if last is _UNSET else last
     if last is None:
         return None  # an empty database (a fresh install): nothing to compare with
-    if now - last >= STALE_AFTER:
+    active, recent = crawl_volume(now) if volume is _UNSET else volume
+    too_few = active >= 100 and recent < max(5, int(active * MIN_CRAWLED_SHARE))
+    if now - last >= STALE_AFTER or too_few:
         redis.set(_STALE_KEY, last.isoformat())
         if redis.set(_STALE_SENT_KEY, now.isoformat(), nx=True, ex=int(REPEAT_AFTER.total_seconds())):
             hours = (now - last).total_seconds() / 3600
+            window = int(STALE_AFTER.total_seconds() // 3600)
             alert("crawling has stopped",
-                  f"No source has been crawled successfully for {hours:.1f} hours (last success: {last:%Y-%m-%d %H:%M} "
-                  f"UTC).\n\nListings on {settings.site_url} are not being refreshed. Check the worker logs:\n"
+                  f"Only {recent} of {active} active sources were crawled in the last {window} hours; the last "
+                  f"successful crawl was {hours:.1f} hours ago ({last:%Y-%m-%d %H:%M} UTC).\n\n"
+                  f"Listings on {settings.site_url} are not being refreshed. Check the worker logs and the queue:\n"
                   "kubectl -n radar logs deploy/radar-radar-worker --tail=100")
         return "stale"
     if redis.get(_STALE_KEY):

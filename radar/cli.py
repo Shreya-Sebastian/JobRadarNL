@@ -522,7 +522,9 @@ def cmd_worker(args: argparse.Namespace) -> None:
     queues = [get_queue(MAINT_QUEUE), get_queue(CRAWL_QUEUE)]
     cls = SimpleWorker if (args.simple or sys.platform == "win32") else Worker
     worker = cls(queues, connection=get_redis())
-    worker.work(burst=args.burst, with_scheduler=False)
+    # the scheduler moves retried jobs (Retry with an interval) back onto the queue; without it they stay
+    # "scheduled" for ever, and every later crawl of that source is skipped as already queued
+    worker.work(burst=args.burst, with_scheduler=True)
 
 
 def cmd_serve(args: argparse.Namespace) -> None:

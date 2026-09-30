@@ -34,12 +34,26 @@ def enqueue_crawl(source_id: int):
     job_id = f"crawl-{source_id}"
     try:
         existing = Job.fetch(job_id, connection=q.connection)
-        if existing.get_status() in ("queued", "started", "deferred", "scheduled"):
+        status = existing.get_status()
+        if status == "scheduled" and _older_than(existing, hours=1):
+            existing.delete()  # a retry that never ran (no scheduler at the time): replace it with a fresh job
+        elif status in ("queued", "started", "deferred", "scheduled"):
             return None
     except Exception:
         pass
     return q.enqueue("radar.tasks.crawl_source", source_id, job_id=job_id, result_ttl=3600, failure_ttl=86400,
                      retry=_retry())
+
+
+def _older_than(job, hours: float) -> bool:
+    from datetime import UTC, datetime, timedelta
+
+    at = job.ended_at or job.enqueued_at or job.created_at
+    if at is None:
+        return True
+    if at.tzinfo is None:
+        at = at.replace(tzinfo=UTC)
+    return datetime.now(UTC) - at > timedelta(hours=hours)
 
 
 def _retry():
