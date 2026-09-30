@@ -465,3 +465,18 @@ def test_years_ranges_written_numbers_and_non_experience_years():
     }
     for text, want in cases.items():
         assert find_years(text) == want, text
+
+
+def test_levels_and_role_families_from_titles():
+    from radar.extract.rules import detect_role, detect_seniority
+
+    levels = {"Medior/Senior Developer": "medior", "Software Engineer II": "medior", "Onderzoeksstage AI": "intern",
+              "Backstage Developer": "unknown", "Hoofd ICT": "manager", "Technical Application Manager": "unknown",
+              "Team leader Servicedesk": "lead", "Ervaren Data Engineer": "medior"}
+    roles = {"SOC Analist": "security", "Functioneel Beheerder": "it_support", "Mechanical Design Engineer": "other",
+             "PLC Software Engineer": "embedded", "Business Developer": "other",
+             "AI Full Stack Engineer": "fullstack", "Senior Java Developer": "backend"}
+    for title, want in levels.items():
+        assert detect_seniority(title) == want, title
+    for title, want in roles.items():
+        assert detect_role(title) == want, title

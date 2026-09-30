@@ -321,61 +321,146 @@ def detect_enrollment(text: str, title: str = "") -> bool | None:
     return None
 
 
+# functional titles that are individual-contributor jobs, not people management: "Product Manager", "Change Manager"
+_IC_MANAGER = ["product", "project", "account", "program", "programme", "marketing", "contract", "vendor", "category",
+               "partnership", "community", "relations", "change", "release", "incident", "problem", "configuration",
+               "asset", "escalation", "risk", "application", "success", "sales", "development", "growth", "bid", "cost",
+               "delivery"]
+_NO_LEVEL_WORD = r"^(?!.*\b(?:junior|jr|medior|senior|sr|lead|staff|principal|manager|director|head|chief)\b)"
+_LADDER_END = r"(?=\s*(?:$|[,(\-–|/:\[]))"
 _SENIORITY = [
-    ("intern", r"\bintern(ship)?\b|\bstage\b|\bstagiair|working student|werkstudent|afstudeer"),
+    ("intern", r"\binterns?(?:hips?)?\b|\w*(?<!back)(?<!early-)(?<!early )stage(?:s|opdracht\w*|plaats\w*|plek\w*)?\b|"
+               r"stagiai?re?|working student|werkstudent|afstudeer|\bthesis\b|scriptie|\bgraduation\b|^student\b"),
     ("trainee", r"\btrainee(ship)?s?\b|traineeprogramma|graduate (programme|program|scheme)|young professional|"
                 r"talent ?programm?a?\b|development program(me)?\b|starters?functie|starters?programma|"
-                r"\bstarter\b(?! kit)"),
+                r"\bstarter\b(?! kit)|\bbbl\b|apprentice\w*|\bleerling\b|leerwerk\w*|\bin opleiding\b|"
+                r"betaalde opleiding|opleiding tot\b"),
+    # US-style ladder numbers when no level word is given: "Software Engineer II", "Clinical Research Associate I - ..."
+    ("junior", _NO_LEVEL_WORD + r".*[a-z]\s+i" + _LADDER_END),
+    ("medior", _NO_LEVEL_WORD + r".*[a-z]\s+ii" + _LADDER_END),
+    ("senior", _NO_LEVEL_WORD + r".*[a-z]\s+(?:iii|iv)" + _LADDER_END),
     # "associate" is junior unless the title names another level ("Senior Associate", "Associate Director")
-    ("junior", r"\bjunior\b|\bgraduate\b|entry[- ]level|\bstarter\b|early career|"
+    ("junior", r"\bjunior\b|\bjr\b\.?|\bgraduate\b|entry[- ]level|\bstarter\b|early career|"
                r"^(?!.*\b(?:senior|sr|staff|principal|manager|director|head|lead|chief|vp)\b).*\bassociate\b"),
+    ("medior", r"\bmedior\b|\bmid[- ]level\b|\bintermediate\b|\bmiddle\b(?! east)"),
     ("staff", r"\bstaff\b|\bprincipal\b|\bdistinguished\b|\b(?:technical|engineering) fellow\b"),
     (
         "manager",
-        r"(?<!product )(?<!project )(?<!account )(?<!program )\bmanager\b|\bhead of\b|\bdirector\b|\bvp\b|"
-        r"\bchief\b|\bcto\b",
+        "".join(f"(?<!{w} )(?<!{w}-)" for w in _IC_MANAGER) + r"\bmanager\b|\bhead\b(?!\s*line)|\bdirector\b|"
+        r"\bdirecteur\b|\bhoofd\b|\bvp\b|\bchief\b|\bcto\b|\bcio\b|\bciso\b|bedrijfsleider|afdelingshoofd|"
+        r"vestigingsleider|groepsleider|\bgroup leader\b",
     ),
-    ("lead", r"\blead\b|\btech ?lead\b|\bteam ?lead\b|\bteamleider\b|\barchitect\b"),
+    ("lead", r"\blead\b|\btech ?lead\b|\bteam ?lead(?:er)?\b|\bteamleider\b|(?<!project )(?<!project-)\bleader\b|"
+             r"\bsupervisor\b|\barchitect\b"),
     ("senior", r"\bsenior\b|\bsr\.?\b"),
-    ("medior", r"\bmedior\b|\bmid[- ]level\b|\bintermediate\b"),
 ]
 _ROLE = [
-    ("product", r"product (owner|manager)|scrum master|agile coach|project manager|delivery manager"),
+    ("product", r"product (owner|manager)|projectmanager|scrum master|agile coach|project manager|delivery manager|"
+                r"release train engineer"),
+    # sales and pre-sales engineering is a sales job whatever the product: "Sales Engineer", "Solutions Engineer"
+    ("other", r"\bsales\b(?! data| analy)|pre-?sales|business ?develop\w*|product develop\w*|"
+          r"(?<!deployed )\bsolutions? engineer\w*|"
+              r"\bvalue engineer|\bmarketing (?:manager|lead|director|specialist|executive|intern\w*)|marketeer|"
+              r"account executive"),
+    ("fullstack", r"full[- ]?stack"),
     (
         "it_support",
-        r"support (engineer|specialist|analyst)|technical support|helpdesk|service desk|"
-        r"system administrator|systeembeheer|werkplek|\bict\b|it (engineer|support|specialist)",
+        r"support (engineer|specialist|analyst)|technical support|helpdesk|service ?desk|"
+        r"system administrator|systeembeheer|werkplek|applicatiebeheer\w*|functioneel beheer\w*|"
+        r"applicatie ?beheer\w*|application (?:manager|management|administrator|support)|"
+        r"modern workplace|workplace (?:engineer|services|automation)|microsoft 365|\bm365\b|"
+        r"technical services engineer|"
+        r"service management|\bitsm\b|\bitil\b",
     ),
     (
         "ml",
-        r"machine learning|\bml\b|\bai\b|deep learning|computer vision|\bnlp\b|llm|data scientist|"
-        r"research (scientist|engineer)|applied scientist",
+        r"machine learning|\bml\b|\bai\b(?! infra)|deep learning|computer vision|\bnlp\b|llm|data scientist|"
+        r"research (scientist|engineer)|applied scientist|mlops|prompt engineer",
     ),
     (
         "simulation",
         r"simulat|\bcfd\b|computational|numerical model|finite[- ]element|\bfea\b|multiphysics|digital twin|"
         r"modell?ing (?:engineer|scientist|specialist)",
     ),
-    ("data", r"\bdata\b|analytics|\bbi\b|business intelligence|analist|analyst"),
-    ("security", r"security|cyber|\bsoc\b|penetration|\biam\b|\bgrc\b"),
+    ("security", r"security|cyber|\bsoc\b|penetration|\biam\b|\bgrc\b|informatiebeveilig\w*|(?<!ship )vulnerabilit\w*|"
+                 r"\bit[- ]?audit\w*|technology risk|\bpki\b|threat|detection engineer"),
+    ("data", r"\bdata\b(?! ?cent(?:er|re))|analytics|\bbi\b|business intelligence|analist|analyst"),
     (
         "platform",
-        r"devops|\bsre\b|site reliability|platform|infrastructure|\bcloud\b|kubernetes|"
-        r"systems? engineer|network engineer|linux|\bdba\b|database administrator",
+        r"devops|devsecops|\bsre\b|site reliability|platform|\bcloud\b|kubernetes|"
+        # IT infrastructure, not the civil and energy kind ("Project Leader Underground Infrastructure")
+        r"^(?!.*(?:civil|civiel|underground|ondergrond|energ|environment|construct|soil|resources|regional|"
+        r"project ?lead|"
+        r"projectleid|supervisor|contract|cost|risico|jurist|communicatie|lecturer|phd)).*infrastru|"
+        r"systems? engineer|systeem ?engineer|network engineer|linux|\bdba\b|database administrator|"
+        r"netwerk ?(?:engineer|beheer\w*|specialist|architect)|"
+        r"network (?:administrator|specialist|architect|operations|automation|consultant)|\bnoc\b|\bhpc\b|"
+        r"observability",
     ),
     ("embedded", r"embedded|firmware|\bfpga\b|hardware|electronics|\basic\b|\brtl\b|\bsoc design\b|"
-                 r"\bic design|\brf\b|microwave|photonic|analog design"),
+                 r"\bic design|\brf\b|microwave|photonic|analog design|\bplc\b|scada|\bdcs\b|pcs7|mechatroni\w*|"
+                 r"\bpcb\b|optoelectron\w*|gebouwautomati\w*|building automation|industri\w* automati\w*|"
+                 r"procesautomati\w*|(?<!business )process automation|process control|meet[- ]? ?(?:en|"
+                 r"&) ?regel\w*|motion control"),
     ("mobile", r"\bios\b|android|mobile|flutter|react native"),
-    ("qa", r"\bqa\b|\btest\b|tester|quality assurance|test automation"),
+    ("qa", r"\bqa\b|\btest\b|tester|quality assurance|test ?automati\w*|testautomatiseerder|tosca|"
+           r"\btest(?:engineer|analist|analyst|coördinator|coordinator|manager|specialist)\b|\btesting engineer|"
+           r"software (?:testing|quality)|testing (?:&|and) verification"),
     ("frontend", r"front[- ]?end|\bui\b engineer|react|angular|vue|web developer"),
-    ("fullstack", r"full[- ]?stack"),
     (
         "backend",
-        r"back[- ]?end|software (engineer|developer)|developer|engineer|ontwikkelaar|programm|"
-        r"python|java|\.net|golang|scala|kotlin|c\+\+|\bapi\b",
+        r"back[- ]?end|software ?(?:engineer|developer|development|ontwikkel\w*)|developer|ontwikkelaar|programm|"
+        r"python|java|\.net|golang|scala|kotlin|c\+\+|\bapi\b|\bphp\b|\bruby\b|\brust\b|elixir|mendix|outsystems|"
+        r"sitecore|software architect|\btech lead\b|integrati(?:e|on) ?specialist",
     ),
+    ("data", r"\bgis\b|geo[- ]?ict|geodata|geo[- ]?informati"),
+    # ICT in general is the IT department once more specific families have had their say ("ICT Traineeship Java")
+    (
+        "platform",
+        r"\binfra (?:engineer|specialist)|infrabeheer|openshift|virtuali[sz]ation|mainframe|z/os|"
+        r"storage engineer|firewall|telecom ?engineer|engineer telecom|"
+        r"telecommunicatie|glasvezel|\b(?:azure|aws|gcp) (?:engineer|specialist|consultant|architect)|"
+        r"database[- ]?(?:engineer|operations)|release engineer|build engineer|ci/cd|\bwindows (?:\w+ )?engineer",
+    ),
+    ("it_support", r"\bict\b|\bit (engineer|support|specialist)|\bit[- ](?:medewerker|technician|coördinator|"
+                   r"coordinator)|"
+                   r"system technician|technisch beheer\w*|\bbeheerder\b"),
+    ("embedded", r"robot\w*|\bros ?2?\b|\biot\b|\bot[- ](?:engineer|specialist)|it/ ?ot\b|signal processing|\bgnss\b|"
+                 r"radar|vision engineer|quantum (?:\w+ )*engineer|"
+                 r"^(?:(?:junior|medior|senior|lead|zzp)\s+)?automation engineer\s*$"),
+    # engineers of other disciplines (electrical, mechanical, civil, process, cost, commissioning) are not software
+    (
+        "other",
+        r"electri|elektr|mechani|werktuig|civil|civiel|structural|construct|geotechn|hydrau|piping|pipeline|"
+        r"stress engineer|bouwkund|installati|\bhvac\b|\be&(?:amp;)?i\b|\b[ew]\b(?!-)|instrumentat|commissioning|"
+        r"inbedrijf|field service|service engineer|site engineer|project ?engineer|work preparation|werkvoorbereid|"
+        r"draftsman|tekenaar|modelleur|\bbim\b|\bcad\b|\bcam engineer|proce(?:ss?|s) ?engineer|procesengineer|"
+        r"process (?:development|improvement|safety|technology)|production engineer|manufacturing engineer|"
+        r"industriali[sz]ation|factory engineer|packaging|logisti\w*|maintenance|reliability engineer|rotating|"
+        r"equipment engineer|scheepsbouw|marine|maritie?m|naval|offshore|subsea|dredg\w*|yacht|jachten|propulsion|"
+        r"aerospace|turbojet|thermal|optical engineer|acoustic|homologation|regulatory|safety engineer|"
+        r"machineveiligheid|spanning|high voltage|power (?:system|engineer|distribution|electronics)|energie|"
+        r"energy|warmte|koude|koeltechniek|refrigerat|sprinkler|brandmeld|\brail\b|spoor|trein|bruggen|tunnels|"
+        r"waterbouw|watertechn\w*|kabels|leidingen|infratechniek|ondergrond\w*|cost ?engineer|kostenengineer|"
+        r"calculat\w*|tender|proposal|detail engineer|beveiliger\b|orderpicker|controls? engineer|\bbid\b|"
+        r"failure analysis|quality control|kwaliteit\w*",
+    ),
+    ("platform", r"data ?cent(?:er|re)s?"),
     ("design", r"\bux\b|\bui\b|designer|user experience"),
+    ("backend", r"engineer|engineering"),
 ]
+_EXPERIENCED = re.compile(r"\bervaren\b|\bexperienced\b", re.I)
+_LEVEL_WORDS = r"junior|jr\.?|medior|mid[- ]level|senior|sr\.?|lead|staff|principal|manager"
+_LEVEL_RANGE = re.compile(
+    rf"\b({_LEVEL_WORDS})\s*(?:/|-|–|\bof\b|\bor\b|\bto\b|\btot\b|&|\ben\b|\bén\b)\s*({_LEVEL_WORDS})(?!\w)", re.I)
+_RANGE_LEVEL = {"junior": "junior", "jr": "junior", "medior": "medior", "mid-level": "medior", "mid level": "medior",
+                "senior": "senior", "sr": "senior", "lead": "lead", "staff": "staff", "principal": "staff",
+                "manager": "manager"}
+_RANGE_RANK = {"junior": 0, "medior": 1, "senior": 2, "lead": 3, "staff": 3, "manager": 4}
+# the level named in the opening lines, but not the colleagues you work with ("onder begeleiding van senior collega's")
+_OPENING_LEVEL = re.compile(
+    r"\b(senior|junior|medior)\b(?!\s*(?:collega|colleague|engineers|developers|team ?members|teamleden|management|"
+    r"leadership|stakeholders|leaders|managers|experts|staff|consultants|onderzoekers|professionals))", re.I)
 _SENIORITY_RX = [(k, re.compile(rx, re.I)) for k, rx in _SENIORITY]
 _ROLE_RX = [(k, re.compile(rx, re.I)) for k, rx in _ROLE]
 _REMOTE = re.compile(r"\bfully remote\b|\bremote[- ]first\b|\b100% remote\b|work from anywhere", re.I)
@@ -412,10 +497,18 @@ def detect_language(text: str) -> str:
 
 
 def detect_seniority(title: str, text: str = "") -> str:
+    m = _LEVEL_RANGE.search(title)
+    if m and not _SENIORITY_RX[0][1].search(title) and not _SENIORITY_RX[1][1].search(title):
+        a, b = (_RANGE_LEVEL[g.lower().rstrip(".")] for g in m.groups())
+        if a != b and _RANGE_RANK[a] != _RANGE_RANK[b]:
+            return min((a, b), key=_RANGE_RANK.get)
     for key, rx in _SENIORITY_RX:
         if rx.search(title):
             return key
     years = find_years(text)
+    if _EXPERIENCED.search(title):
+        # "Ervaren Data Engineer", "Experienced Quant": not junior, and senior only when the years say so
+        return "senior" if years is not None and years >= 5 else "medior"
     if years is not None:
         if years >= 5:
             return "senior"
@@ -500,7 +593,7 @@ def extract_rules(title: str, description: str) -> Extraction:
     seniority = detect_seniority(title, text if years is None else f"{years} years of experience")
     if seniority == "unknown":
         # "We are looking for a Senior Information Security Officer ..." in the first lines
-        m = re.search(r"\b(senior|junior|medior)\b", text[:300], re.I)
+        m = _OPENING_LEVEL.search(text[:300])
         if m:
             seniority = m.group(1).lower()
 
