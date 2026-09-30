@@ -171,71 +171,65 @@ def verify_sources(session: Session, since_days: int = 3, min_share: float = 0.3
 
 
 def quality_report(session: Session) -> dict:
-    live = list(
-        session.execute(
-            select(
-                Posting.id,
-                Posting.title,
-                Posting.url,
-                Posting.city,
-                Posting.description,
-                Posting.posted_at,
-                Posting.first_seen,
-                Posting.is_tech,
-                Posting.extraction,
-                Posting.link_status,
-                Posting.link_checked_at,
-                Posting.last_seen,
-                Source.kind,
-            ).join(Source, Source.id == Posting.source_id)
-            .where(Posting.closed_at.is_(None), Posting.duplicate_of.is_(None))
-        ).all()
-    )
-    n = max(1, len(live))
-    tech = [r for r in live if r.is_tech]
-    nt = max(1, len(tech))
+    """Shares and counts that describe the health of the live data. One streaming pass over the live postings,
+    reading only the length of each description, so it fits in memory on a small server."""
     stale = datetime.utcnow() - timedelta(days=90)
     week_ago = datetime.utcnow() - timedelta(days=7)
     month_ago = datetime.utcnow() - timedelta(days=30)
     half_year = datetime.utcnow() - timedelta(days=180)
+    c = dict.fromkeys(("live", "tech", "empty", "no_city", "no_date", "bad_url", "stale", "unknown_seniority",
+                       "no_skills", "confirmed", "checked", "old", "agency", "link_gone", "link_known"), 0)
+    q = (select(Posting.url, Posting.city, func.length(Posting.description), Posting.posted_at, Posting.first_seen,
+                Posting.is_tech, Posting.extraction, Posting.link_status, Posting.link_checked_at, Posting.last_seen,
+                Source.kind)
+         .join(Source, Source.id == Posting.source_id)
+         .where(Posting.closed_at.is_(None), Posting.duplicate_of.is_(None))
+         .execution_options(stream_results=True, yield_per=500))
+    for row in session.execute(q):
+        url, city, desc_len, posted, first_seen, is_tech, ex, link_status, checked_at, last_seen, kind = row
+        c["live"] += 1
+        c["empty"] += (desc_len or 0) < 200
+        c["no_city"] += not city
+        c["no_date"] += posted is None
+        c["bad_url"] += not (url or "").startswith("http")
+        c["stale"] += (posted or first_seen) < stale
+        c["old"] += (posted or first_seen) < half_year
+        c["confirmed"] += bool(last_seen and last_seen >= week_ago)
+        c["checked"] += bool(checked_at and checked_at >= month_ago)
+        c["agency"] += kind == "agency"
+        if link_status:
+            c["link_known"] += 1
+            c["link_gone"] += link_status in ("gone", "redirected")
+        if is_tech:
+            ex = ex or {}
+            c["tech"] += 1
+            c["unknown_seniority"] += ex.get("seniority") in (None, "unknown")
+            c["no_skills"] += not ex.get("skills_required") and not ex.get("skills_nice")
+    n, nt = max(1, c["live"]), max(1, c["tech"])
 
     def share(count: int, base: int) -> float:
         return round(count / max(1, base), 4)
 
     report = {
-        "live_postings": len(live),
-        "live_tech": len(tech),
-        "empty_description_share": share(sum(1 for r in live if len(r.description or "") < 200), n),
-        "unknown_city_share": share(sum(1 for r in live if not r.city), n),
-        "missing_posted_date_share": share(sum(1 for r in live if r.posted_at is None), n),
-        "invalid_url_count": sum(1 for r in live if not (r.url or "").startswith("http")),
-        "stale_over_90_days_share": share(sum(1 for r in live if (r.posted_at or r.first_seen) < stale), n),
-        "tech_unknown_seniority_share": share(
-            sum(1 for r in tech if (r.extraction or {}).get("seniority") in (None, "unknown")), nt
-        ),
-        "tech_no_skills_share": share(
-            sum(
-                1
-                for r in tech
-                if not (r.extraction or {}).get("skills_required") and not (r.extraction or {}).get("skills_nice")
-            ),
-            nt,
-        ),
-        "confirmed_7d_share": share(sum(1 for r in live if r.last_seen and r.last_seen >= week_ago), n),
-        "link_checked_30d_share": share(
-            sum(1 for r in live if r.link_checked_at and r.link_checked_at >= month_ago), n
-        ),
-        "open_over_180_days_share": share(sum(1 for r in live if (r.posted_at or r.first_seen) < half_year), n),
-        "agency_share": share(sum(1 for r in live if r.kind == "agency"), n),
+        "live_postings": c["live"],
+        "live_tech": c["tech"],
+        "empty_description_share": share(c["empty"], n),
+        "unknown_city_share": share(c["no_city"], n),
+        "missing_posted_date_share": share(c["no_date"], n),
+        "invalid_url_count": c["bad_url"],
+        "stale_over_90_days_share": share(c["stale"], n),
+        "tech_unknown_seniority_share": share(c["unknown_seniority"], nt),
+        "tech_no_skills_share": share(c["no_skills"], nt),
+        "confirmed_7d_share": share(c["confirmed"], n),
+        "link_checked_30d_share": share(c["checked"], n),
+        "open_over_180_days_share": share(c["old"], n),
+        "agency_share": share(c["agency"], n),
         "sources_unverified": session.scalar(
             select(func.count()).select_from(Source)
             .where(Source.active.is_(True), Source.last_error.like("unverified%"))
         )
         or 0,
-        "link_checked_gone_share": share(
-            sum(1 for r in live if r.link_status in ("gone", "redirected")),
-            max(1, sum(1 for r in live if r.link_status)),
-        ),
+        "link_checked_gone_share": share(c["link_gone"], max(1, c["link_known"])),
         "sources_partial": session.scalar(
             select(func.count()).select_from(Source).where(Source.last_status == "partial")
         )
