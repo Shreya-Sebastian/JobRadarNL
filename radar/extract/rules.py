@@ -146,7 +146,21 @@ _ENROL_REQ = re.compile(
     r"(?:pursuing|following|completing) (?:a|an|your) (?:bachelor|master|degree|studies|hbo|wo)|"
     r"(?:bachelor|master)['\u2019]?s? student|working student|werkstudent|"
     r"afstudeer\w*|graduation (?:internship|project|assignment)|thesis (?:internship|project)|"
-    r"(?:only|solely) (?:open )?(?:for|to) students|alleen (?:voor )?studenten",
+    r"(?:only|solely) (?:open )?(?:for|to) students|alleen (?:voor )?studenten|"
+    # "currently enrolled as a student", "remain enrolled for the duration"
+    r"enrol{1,2}ed as (?:a |an )?student|(?:currently|remain|still) enrol{1,2}ed|"
+    # "final stage of your master's", "penultimate year of study", "last year of your bachelor"
+    r"(?:final|last|penultimate|second|third|fourth) (?:stage|phase|year)s? of (?:your |a |an |the )?"
+    r"(?:bachelor|master|msc|bsc|degree|studies|study|studie|program)|"
+    r"(?:currently |actively )?studying (?:towards|toward|for) (?:a |an |your )|(?:are|is) currently studying|"
+    r"(?:ongoing|current) (?:bachelor|master|msc|bsc|degree|studies|study)|"
+    r"(?:msc|bsc|master|bachelor|phd|hbo|wo|mbo)(?:[- ]?\d)?(?:/(?:hbo|wo|mbo))?['\u2019]?s?[- ]stud(?:ents?|enten)\b|"
+    r"looking for (?:a |an )?(?:motivated |enthusiastic |talented |curious )?students?\b|\bis a student\b|"
+    # Dutch: "je volgt minimaal een MBO-4 opleiding", "laatste jaar van je opleiding", school days during the stage
+    r"je volgt (?:minimaal |momenteel |nu |op dit moment )?een [\w/-]*\s?(?:opleiding|studie)|"
+    r"(?:laatste|tweede|derde|vierde) jaar van (?:je|jouw) (?:opleiding|studie|bachelor|master)|"
+    r"je zit in (?:het )?(?:laatste|tweede|derde|vierde) jaar|naast je [\w/ -]{0,12}studie|"
+    r"stageovereenkomst|internship agreement with your (?:university|school)|terugkomdag|schoolopdracht",
     re.I,
 )
 _ENROL_NOT = re.compile(
@@ -158,16 +172,108 @@ _ENROL_NOT = re.compile(
     r"(?:ook |ook geschikt )?voor (?:pas |recent )?afgestudeerden|afgestudeerd\w* (?:zijn |is )?(?:ook )?welkom|"
     r"geen inschrijving (?:vereist|nodig|noodzakelijk)|hoef\w* (?:je )?niet (?:meer )?ingeschreven|"
     r"not (?:required|necessary) to be a student|non-students?|niet[- ]studenten|"
+    r"(?:or|and) (?:have |are )?(?:recently|just|newly) graduated|or (?:a )?recent graduate|\(near-?\)\s?graduates|"
+    r"studenten of (?:pas )?afgestudeerden|"
     r"(?<!geen )(?<!no )(?:werkervaringsplek|work experience placement)",  # not "geen werkervaringsplek"
     re.I,
 )
 
 
-def detect_enrollment(text: str) -> bool | None:
+# more phrasings found by reading live internships that the patterns above missed
+_ENROL_REQ = re.compile(_ENROL_REQ.pattern + "|" + "|".join([
+    # "you need to be registered as a student during the entire internship", "be registered at a Dutch university"
+    r"registered as (?:a |an )?(?:[\w-]+ )?student|(?:be|are|remain|stay|being|is) registered (?:at|with) (?:a |"
+    r"an |the |your )?"
+    r"(?:dutch |eu |recogni[sz]ed |accredited )?(?:universit|educational|school|hogeschool|institution|onderwijs)",
+    # "Master Thesis student"
+    r"thesis students?\b",
+    # "We are looking for a highly motivated student" (replaces the fixed adjective list)
+    r"looking for (?:a |an )?(?:[\w-]+ ){0,3}students?\b",
+    # "Ben je momenteel bezig met een opleiding op HBO/WO niveau", "bezig met de afronding van een HBO- of WO-studie"
+    r"bezig met (?:een |je |jouw |de afronding van )[^.\n]{0,40}?(?:opleiding|studie)|je volgt onderwijs",
+    # "graduating between September 2027 - July 2028"
+    r"graduating (?:between|in|by) (?:[a-z]+ )?20\d\d",
+    # "Je volgt momenteel in Nederland een wo-opleiding", "Je volgt op dit moment een relevante voltijd opleiding"
+    r"je volgt\b[^.;\n]{0,50}?(?:opleiding|studie)\b",
+    # inverted order: "Volg je een mbo-, hbo- of wo-opleiding", "Volg jij een MBO, HBO of WO opleiding", "volg je
+    # de Master"
+    r"volg (?:je|jij) (?:momenteel |nu |op dit moment |bijvoorbeeld )?(?:een|de) [^.;?\n]{0,40}?(?:opleiding|"
+    r"studie|master|bachelor)\b",
+    # bullet order: "een mbo-, hbo- of wo-opleiding volgt", "Een hbo- of wo-studie volgt"; "welke opleiding je volgt"
+    r"(?:opleiding|studie) volgt\b|(?:welke|wat voor) (?:opleiding|studie) je (?:volgt|doet)",
+    # "Ben jij een gedreven (master) student", "Je bent student Bedrijfskunde", "Ben jij derdejaars bachelor- of
+    # masterstudent"
+    r"(?:je bent|jij bent|ben je|ben jij|bent u) (?:[\w()/-]+ ){0,4}?\w*student(?:e)?\b",
+    # "we zoeken een creatieve student", "op zoek naar een gemotiveerde student in het derde jaar"
+    r"(?:zoeken|zoekt|op zoek naar) (?:we |wij )?(?:een )?(?:[\w-]+ ){0,4}?student(?:e|en)?\b",
+    # compounds: "masterstudent", "derdejaars", "student-stage", "student in het vierde jaar"
+    r"\b(?:master|bachelor|rechten|universitaire?)-?student(?:e|en)?\b|\b(?:eerste|tweede|derde|vierde|laatste)jaars\b|"
+    r"student-?stag(?:e|iair)|student(?:e|en)? in het (?:eerste|tweede|derde|vierde|laatste) jaar",
+    # "Je zit in de laatste fase van je Bachelor", "in de eindfase van een bachelor- of masteropleiding",
+    # "in het laatste jaar van een masteropleiding"
+    r"(?:laatste|afrondende|eind) ?(?:fase|jaar) van (?:je|jouw|een|de|het|uw) [^.;\n]{0,40}?(?:opleiding|"
+    r"studie|bachelor|master|\bwo\b|hbo|mbo)",
+    # "Studeert aan HBO Orthopedisch Technologie"
+    r"studeert aan\b",
+    # thesis: "scriptiestagiair", "schrijven van je master scriptie", "write your master's thesis"
+    r"scriptie-?stag\w*|scriptie-?onder(?:zoek|werp)|schrijven van (?:je|jouw) (?:master ?|bachelor ?)?scriptie|"
+    r"(?:je|jouw) (?:master ?|bachelor ?)?scriptie (?:te )?schrijven|leidt tot (?:je|jouw) scriptie|"
+    r"(?:write|writing|complete|completing) (?:your|a|the) (?:master['\u2019]?s? |bachelor['\u2019]?s? |msc |"
+    r"bsc )?thesis",
+    # EN "You: Are studying Marketing", "You… are studying at HBO or WO", "Studying at HBO or WO level",
+    # "Currently studying a Master's degree"
+    r"\byou\W{0,4}(?:are|'re|\u2019re) (?:currently |still )?studying\b|(?:^|\n)\W*(?:are )?(?:currently )?studying\b|"
+    r"\bcurrently studying\b|\bstudying (?:at |a |an )(?:dutch |relevant |recogni[sz]ed )?(?:hbo|wo|mbo|"
+    r"universit|master|bachelor|"
+    r"msc|bsc|degree|hogeschool|college|school)",
+    # "You are a 3rd or 4th-year student", "final-year student"
+    r"\b(?:1st|2nd|3rd|4th|first|second|third|fourth|final|last)(?:[- ]year)?(?: (?:or|and|/) (?:1st|2nd|3rd|"
+    r"4th|first|second|"
+    r"third|fourth|final|last))?[- ]year (?:[\w-]+ )?students?\b",
+    # "You are currently following a (Dutch) legal/financial MBO/HBO education"
+    r"(?:currently|are|you're) following an? [^.\n]{0,40}?(?:education|programme|program|studies|study|degree)\b",
+    # "Pursuing a PhD", "pursuing an MSc"
+    r"pursuing (?:a |an |your )?(?:phd|msc|bsc|university|master|bachelor)",
+    # "The project needs to be part of your MSc program", "a mandatory part of your curriculum"
+    r"part of your (?:[\w'\u2019-]+ ){0,3}?(?:curriculum|study|studies|program|programme|degree|education|opleiding)\b",
+    # "University education (last year Bachelor or Master degree)"
+    r"(?:final|last|penultimate) (?:stage|phase|year)s? (?:of )?(?:your |a |an |the )?(?:bachelor|master|msc|"
+    r"bsc|degree)",
+    # "while balancing your studies", "alongside your studies"
+    r"(?:alongside|next to|besides|while|balanc\w*|combin\w* (?:it )?with) (?:it with )?your stud(?:ies|y)\b",
+    # "TNO will arrange an appropriate internship agreement"
+    r"internship agreement",
+    # German postings: "Du absolvierst derzeit ein Studium", "immatrikuliert", "eingeschrieben"
+    r"absolvierst (?:derzeit |aktuell )?ein\w* \w*studium|immatrikuliert|eingeschrieben",
+]), re.I)
+_ENROL_NOT = re.compile(_ENROL_NOT.pattern + "|" + "|".join([
+    # "If you have recently graduated in Computer Science"
+    r"(?:have|having|who|you|you've) (?:recently|just|newly) graduated",
+    # "You're a recent graduate", "You are a student or starter", "student of pas afgestudeerde"
+    r"(?:are|re|\u2019re|is) (?:a )?(?:recent|new|fresh) graduate|"
+    r"(?<![:|] )\bstudent(?:e|en|s)? (?:of|or|en|and|/) (?:een |a )?(?:pas |recent(?:e|ly)? |net |"
+    r"new )?(?:afgestudeerde?n?|graduates?|starters?|young professionals?)",
+    # "Ben je (bijna) afgestudeerd", "net afgestudeerd"
+    r"\((?:bijna|net)\) afgestudeerd|\b(?:net|pas|recent|onlangs) afgestudeerd",
+]), re.I)
+# a title that says thesis, afstudeer or werkstudent is evidence even when the text is empty
+_TITLE_REQ = re.compile(
+    r"afstudeer|graduation (?:internship|project|assignment)|(?<!non-)(?<!non )thesis|scriptie|werkstudent|"
+    r"working student|"
+    r"student[- ]?stag|\b(?:mbo|hbo|wo)\b(?:[- ]?\d)?[^\n]{0,40}?stag|stag\w*[^\n]{0,40}?\b(?:mbo|hbo|wo)\b", re.I)
+
+
+# titles of student jobs whose level is not "intern": "Onderzoeksstage", "Bijbaan IT", "Internships / Graduation"
+_STUDENT_TITLE = re.compile(r"stage|stagiair|intern|bijbaan|werkstudent|working student|student|afstudeer|"
+                            r"graduation (?:internship|project|assignment)|thesis", re.I)
+
+
+def detect_enrollment(text: str, title: str = "") -> bool | None:
     """Does an internship require being enrolled as a student? None when the posting does not say."""
-    if _ENROL_NOT.search(text or ""):
+    text = _ODD_SPACES.sub(" ", text or "")
+    if _ENROL_NOT.search(text):
         return False
-    if _ENROL_REQ.search(text or ""):
+    if _ENROL_REQ.search(text) or _TITLE_REQ.search(title or ""):
         return True
     return None
 
@@ -317,8 +423,13 @@ def _to_int(s: str | None) -> int | None:
         return None
 
 
+# non-breaking and thin spaces are common in pasted posting text and would break every " " in the patterns
+_ODD_SPACES = re.compile(r"[     ]")
+
+
 def extract_rules(title: str, description: str) -> Extraction:
-    text = description or ""
+    text = _ODD_SPACES.sub(" ", description or "")
+    title = _ODD_SPACES.sub(" ", title or "")
     lang = detect_language(text) if text else "en"
     core = _BENEFITS_SPLIT.split(text, maxsplit=1)[0] if text else ""
     # skills come from the role and requirement sections when the posting has headers, so the company intro and
@@ -388,5 +499,7 @@ def extract_rules(title: str, description: str) -> Extraction:
         visa_sponsorship=visa,
         remote_policy=remote,
         degree_required=degree,
-        enrollment_required=detect_enrollment(text),
+        # only asked of internships and student jobs, so a regular posting that mentions students is never hidden
+        enrollment_required=(detect_enrollment(text, title)
+                             if seniority == "intern" or _STUDENT_TITLE.search(title) else None),
     )
