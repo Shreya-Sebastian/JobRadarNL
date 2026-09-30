@@ -199,8 +199,10 @@ def mark_duplicates(session: Session) -> int:
       3. same original URL (ignoring query strings),
       4. the Dutch and English copy of one vacancy on a bilingual career site (see radar/bilingual.py); the
          English copy is kept as canonical,
-      5. one vacancy advertised once per city: same board, employer and title, the same text apart from the city
-         names, posted within 14 days; the canonical copy lists the other cities in `also_in`,
+      5. the same vacancy under several addresses: same board, employer and title and the same text apart from city
+         names, whatever the URL (/vacatures/ and /vacature/, /eu/ and /us/, one page per city, a reposted ad);
+         the canonical copy lists any other cities in `also_in`. Different titles with the same text are kept
+         apart, since that is often an agency's boilerplate around different jobs,
       6. the same page in another language: the URL differs only by a language segment (/fr/, /es/, /en-gb/).
     Same title on the same board with different text, or identical text under a different URL slug (often a
     different location encoded in the slug), is kept: that is usually a separate requisition."""
@@ -268,7 +270,9 @@ def mark_duplicates(session: Session) -> int:
     also_in: dict[int, set[str]] = {}
     for group in _per_city_groups(session, rows):
         # only copies no earlier rule has merged, so every city listed is one that is really folded in here
-        group = sort_members([r for r in group if r.id not in canonical_of])
+        group = sorted((r for r in group if r.id not in canonical_of),  # employer copy, then English, then oldest
+                       key=lambda r: (_kind_rank.get(r.kind or "employer", 0), _ATS_PRIORITY.get(r.ats, 3),
+                                      _lang_rank(r.url), r.first_seen, r.id))
         if len(group) < 2:
             continue
         keep = group[0]
@@ -334,14 +338,14 @@ def _lang_rank(url: str) -> int:
 
 
 def _per_city_groups(session: Session, rows: list) -> list[list]:
-    """Groups of postings that are one vacancy listed once per city (rule 5)."""
+    """Groups of postings that are one vacancy under several addresses (rule 5)."""
     from radar.normalize import norm_company, norm_title
 
     candidates: dict[tuple, list] = {}
     for r in rows:
         key = (r.source_id, norm_company(r.company or "").lower(), norm_title(r.title or ""))
         candidates.setdefault(key, []).append(r)
-    candidates = {k: v for k, v in candidates.items() if len(v) > 1 and len({r.city for r in v}) > 1}
+    candidates = {k: v for k, v in candidates.items() if len(v) > 1}
     ids = [r.id for v in candidates.values() for r in v]
     text: dict[int, str] = {}
     for i in range(0, len(ids), 500):  # only the candidates' descriptions, never the whole table
@@ -353,20 +357,9 @@ def _per_city_groups(session: Session, rows: list) -> list[list]:
         by_sig: dict[str, list] = {}
         for r in members:
             by_sig.setdefault(_text_signature(text.get(r.id) or "", cities), []).append(r)
-        for sig, same in by_sig.items():
-            if not sig or len(same) < 2:
-                continue
-            same.sort(key=lambda r: r.posted_at or r.first_seen)
-            cluster = [same[0]]
-            for r in same[1:]:
-                if ((r.posted_at or r.first_seen) - (cluster[0].posted_at or cluster[0].first_seen)).days <= 14:
-                    cluster.append(r)
-                else:
-                    if len(cluster) > 1:
-                        groups.append(cluster)
-                    cluster = [r]
-            if len(cluster) > 1:
-                groups.append(cluster)
+        # one board, one title, one text: one vacancy to a job seeker, whether it was posted twice, under two
+        # paths or once per city
+        groups.extend(same for sig, same in by_sig.items() if sig and len(same) > 1)
     return groups
 
 

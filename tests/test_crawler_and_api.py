@@ -367,12 +367,12 @@ def test_one_vacancy_listed_per_city_becomes_one_listing_with_its_cities(fresh_d
     with session_scope() as s:
         src = _source(s, company="Agency", ats="jsonld", slug="https://agency.example/sitemap.xml")
         ingest(s, src, [raw("1", "Zwolle"), raw("2", "Emmen"), raw("3", "Assen", 22),
-                        raw("4", "Groningen", day=1)])  # same text but 19 days earlier: a separate round
+                        raw("4", "Groningen", day=1)])  # the same ad posted again 19 days earlier: still one job
         mark_duplicates(s)
         shown = s.query(Posting).filter(Posting.duplicate_of.is_(None)).all()
-        assert len(shown) == 2
-        merged = next(p for p in shown if p.also_in)
-        assert sorted([merged.city, *merged.also_in]) == ["Assen", "Emmen", "Zwolle"]
+        assert len(shown) == 1
+        merged = shown[0]
+        assert sorted([merged.city, *merged.also_in]) == ["Assen", "Emmen", "Groningen", "Zwolle"]
 
     from radar.api import app
     client = TestClient(app)
@@ -419,3 +419,34 @@ def test_dutch_employer_pages(fresh_db):
     en = client.get("/company/acme-robotics").text
     assert 'hreflang="nl" href="https://techjobsradar.nl/nl/bedrijf/acme-robotics"' in en and "{{" not in en
     assert "/nl/bedrijf/acme-robotics</loc>" in client.get("/sitemap.xml").text
+
+
+
+def test_same_vacancy_under_two_paths_is_one_listing_but_different_titles_stay(fresh_db):
+    from radar.adapters.base import RawPosting
+    from radar.crawler import mark_duplicates
+    from radar.models import Posting
+
+    text = "Je bouwt met ons team aan de frontend van onze applicaties in React en TypeScript, in een agile team."
+    boiler = "Nijwald is een detacheerder in Twente met mooie klanten in de maakindustrie en de hightech sector."
+
+    def raw(ext, title, url, desc):
+        return RawPosting(external_id=ext, title=title, location="Zwolle, Netherlands", url=url,
+                          description_html=desc, posted_at=datetime(2026, 9, 25))
+    with session_scope() as s:
+        src = _source(s, company="Politie", ats="jsonld", slug="https://kombijde.example/sitemap.xml")
+        ingest(s, src, [raw("a", "DevOps frontend developer", "https://kombijde.example/vacatures/devops-_1338704.html", text),
+                        raw("b", "DevOps frontend developer", "https://kombijde.example/vacature/devops-_1338704.html", text)])
+        agency = _source(s, company="Nijwald", ats="jsonld", slug="https://nijwald.example/sitemap.xml")
+        ingest(s, agency, [raw("c", "Project Engineer", "https://nijwald.example/vacature/project-engineer/2484", boiler),
+                           raw("d", "Sales Engineer", "https://nijwald.example/vacature/sales-engineer/2485", boiler)])
+        mark_duplicates(s)
+        shown = s.query(Posting).filter(Posting.duplicate_of.is_(None)).all()
+        assert sorted(p.company for p in shown) == ["Nijwald", "Nijwald", "Politie"]
+
+
+def test_a_posting_date_in_the_future_is_dropped():
+    from radar.normalize import _plausible_posted
+
+    assert _plausible_posted(datetime(2484, 9, 29)) is None
+    assert _plausible_posted(datetime(2026, 9, 25)) == datetime(2026, 9, 25)

@@ -234,8 +234,18 @@ def normalize(raw: RawPosting, company: str) -> dict:
         "remote": remote,
         "url": raw.url[:1000],
         "description": text,
-        "posted_at": raw.posted_at,
+        "posted_at": _plausible_posted(raw.posted_at),
         "valid_through": _valid_through(raw),
         "content_hash": content_hash(raw.title, text),
         "dedup_key": dedup_key(company, raw.title, city),
     }
+
+
+def _plausible_posted(posted):
+    """A posting date more than two days in the future is a parsing error (an id read as a year), not a date."""
+    from datetime import datetime, timedelta
+
+    if posted is None:
+        return None
+    naive = posted.replace(tzinfo=None) if getattr(posted, "tzinfo", None) else posted
+    return None if naive > datetime.utcnow() + timedelta(days=2) or naive.year < 2000 else posted
