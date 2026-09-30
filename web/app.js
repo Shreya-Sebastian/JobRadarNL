@@ -899,7 +899,7 @@
   }
 
   // ---------- COVERAGE ----------
-  let coverageStatus = "missing";
+  let coverageStatus = "covered";
   async function renderCoverage() {
     const [cov, src] = await Promise.all([api("/api/coverage"), api("/api/sources")]);
     const kinds = cov.sources_by_kind, healthy = cov.healthy_by_kind;
