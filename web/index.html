@@ -124,15 +124,13 @@
 <!-- ============ MARKET ============ -->
 <section class="tab" data-tab="market">
   <p class="muted" id="mk-scope"></p>
-  <div class="card">
-    <h2><span data-i18n="mk.trend">New postings per week</span> <span class="hint" data-i18n="mk.trend.hint">and the skills you follow</span></h2>
-    <div class="chart"><canvas id="mk-trend"></canvas></div>
-  </div>
   <div class="grid three">
     <div class="card"><h2 data-i18n="mk.cities">Cities</h2><div class="chart"><canvas id="mk-city"></canvas></div></div>
     <div class="card"><h2 data-i18n="mk.seniority">Seniority</h2><div class="chart"><canvas id="mk-seniority"></canvas></div></div>
     <div class="card"><h2 data-i18n="mk.exp">Experience asked</h2><div class="chart"><canvas id="mk-exp"></canvas></div></div>
     <div class="card"><h2 data-i18n="mk.roles">Role family</h2><div class="chart"><canvas id="mk-role"></canvas></div></div>
+    <div class="card"><h2 data-i18n="mk.lang">Posting language</h2><div class="chart"><canvas id="mk-lang"></canvas></div></div>
+    <div class="card"><h2 data-i18n="mk.remote">Remote policy</h2><div class="chart"><canvas id="mk-remote"></canvas></div></div>
   </div>
   <div class="grid two">
     <div class="card">
@@ -140,12 +138,9 @@
       <table class="table" id="mk-companies"><thead><tr><th data-i18n="th.employer">Employer</th><th data-i18n="th.open">Open tech roles</th><th data-i18n="th.share">Share</th></tr></thead><tbody></tbody></table>
     </div>
     <div class="card">
-      <h2><span data-i18n="mk.salary">Stated salaries</span> <span class="hint" data-i18n="mk.salary.hint">only postings that state a salary</span></h2>
+      <h2><span data-i18n="mk.salary">Stated salaries</span> <span class="hint" data-i18n="mk.salary.hint">per year, from postings that state a salary</span></h2>
       <div id="mk-salary" class="salary"></div>
-      <h2 class="mt" data-i18n="mk.lang">Posting language</h2>
-      <div class="chart short"><canvas id="mk-lang"></canvas></div>
-      <h2 class="mt" data-i18n="mk.remote">Remote policy</h2>
-      <div class="chart short"><canvas id="mk-remote"></canvas></div>
+      <p class="muted small" data-i18n="mk.salary.note">Each posting counts with the middle of its stated range. A quarter of these postings pay less than the lower quarter, a quarter more than the upper quarter.</p>
     </div>
   </div>
 </section>
@@ -305,6 +300,6 @@
   <p class="mt-6 border-t border-line pt-6"><b class="text-ink">{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites, refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in. CV text you paste is used once to find skills and is not stored.</span> <a href="{{PRIVACY_PATH}}" data-i18n="privacy">Privacy</a> · <a href="{{FEEDBACK_PATH}}" data-i18n="feedback">Feedback</a>{{SOURCE_LINK}}</p>
  </div>
 </footer>
-<script src="/static/app.js?v=53"></script>
+<script src="/static/app.js?v=55"></script>
 </body>
 </html>

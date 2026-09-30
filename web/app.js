@@ -34,7 +34,7 @@
       "th.sector": "Sector", "th.status": "Status", "th.livetech": "Live tech postings", "th.platform": "Platform", "th.kind": "Kind", "th.postings": "Postings",
       "pager.prev": "‹ Prev", "pager.next": "Next ›",
       "mk.trend": "New postings per week", "mk.trend.hint": "and the skills you follow", "mk.cities": "Cities", "mk.seniority": "Seniority",
-      "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "only postings that state a salary",
+      "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "per year, from postings that state a salary", "mk.salary.note": "Each posting counts with the middle of its stated range. A quarter of these postings pay less than the lower quarter, a quarter more than the upper quarter.",
       "mk.lang": "Posting language", "mk.remote": "Remote policy",
       "p.looking": "Job preferences", "p.looking.hint": "Saved in this browser, and in your account when you are logged in. Used for Best matches on the Overview, for e-mail alerts, and by <b>Use my profile</b> on the Jobs tab.",
       "p.roles": "Roles", "p.levels": "Levels", "p.enter": "type and press Enter", "p.exclude": "Employers to hide", "p.language": "Posting language",
@@ -59,7 +59,7 @@
       "jobs.match": "{n} jobs match", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Dutch required, no English needed", "lang.en.title": "No Dutch required", "lang.both.title": "Dutch and English both required",
       "visa.yes": "yes", "visa.no": "no", "visa.unknown": "?", "save": "save", "remove": "remove",
-      "salary.none": "No posting in this selection states a salary.", "salary.n": "n", "salary.median": "median",
+      "salary.none": "No posting in this selection states a salary.", "salary.n": "postings state a salary", "salary.median": "median", "salary.p25": "lower quarter", "salary.p75": "upper quarter",
       "lang.chart.en": "English", "lang.chart.nl": "Dutch", "lang.chart.other": "Other",
       "remote.remote": "Remote", "remote.hybrid": "Hybrid", "remote.onsite": "On-site", "remote.unknown": "Not stated",
       "trend.all": "all new postings",
@@ -143,7 +143,7 @@
       "th.sector": "Sector", "th.status": "Status", "th.livetech": "Open techvacatures", "th.platform": "Platform", "th.kind": "Soort", "th.postings": "Vacatures",
       "pager.prev": "‹ Vorige", "pager.next": "Volgende ›",
       "mk.trend": "Nieuwe vacatures per week", "mk.trend.hint": "en de skills die je volgt", "mk.cities": "Steden", "mk.seniority": "Niveau",
-      "mk.roles": "Rolfamilie", "mk.hiring": "Wie neemt aan", "mk.salary": "Vermelde salarissen", "mk.salary.hint": "alleen vacatures die een bedrag noemen",
+      "mk.roles": "Rolfamilie", "mk.hiring": "Wie neemt aan", "mk.salary": "Vermelde salarissen", "mk.salary.hint": "per jaar, uit vacatures die een salaris noemen", "mk.salary.note": "Elke vacature telt mee met het midden van de genoemde range. Een kwart van deze vacatures betaalt minder dan het onderste kwart, een kwart meer dan het bovenste kwart.",
       "mk.lang": "Taal van de vacature", "mk.remote": "Thuiswerkbeleid",
       "p.looking": "Voorkeuren", "p.looking.hint": "Opgeslagen in deze browser, en in je account als je bent ingelogd. Gebruikt voor Beste matches op het Overzicht, voor e-mailalerts, en door <b>Mijn profiel gebruiken</b> op het tabblad Vacatures.",
       "p.roles": "Rollen", "p.levels": "Niveaus", "p.enter": "typ en druk op Enter", "p.exclude": "Werkgevers verbergen", "p.language": "Taal van de vacature",
@@ -167,7 +167,7 @@
       "jobs.match": "{n} vacatures gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Nederlands vereist, geen Engels nodig", "lang.en.title": "Geen Nederlands vereist", "lang.both.title": "Nederlands en Engels allebei vereist",
       "visa.yes": "ja", "visa.no": "nee", "visa.unknown": "?", "save": "bewaren", "remove": "verwijderen",
-      "salary.none": "Geen vacature in deze selectie noemt een salaris.", "salary.n": "n", "salary.median": "mediaan",
+      "salary.none": "Geen vacature in deze selectie noemt een salaris.", "salary.n": "vacatures noemen een salaris", "salary.median": "mediaan", "salary.p25": "onderste kwart", "salary.p75": "bovenste kwart",
       "lang.chart.en": "Engels", "lang.chart.nl": "Nederlands", "lang.chart.other": "Anders",
       "remote.remote": "Volledig thuis", "remote.hybrid": "Hybride", "remote.onsite": "Op kantoor", "remote.unknown": "Niet vermeld",
       "trend.all": "alle nieuwe vacatures",
@@ -698,12 +698,10 @@
   async function renderMarket() {
     const p = new URLSearchParams();
     $("#mk-scope").textContent = t("scope.label", { s: t("scope.all") });
-    const followed = state.profile.skills.slice(0, 5);
-    const [city, sen, role, comp, sal, lang, remote, trend, exp] = await Promise.all([
+    const [city, sen, role, comp, sal, lang, remote, exp] = await Promise.all([
       api("/api/breakdown/city", withParams(p, { top: 12 })), api("/api/breakdown/seniority", p),
       api("/api/breakdown/role_family", p), api("/api/breakdown/company", withParams(p, { top: 20 })),
       api("/api/salary", p), api("/api/breakdown/posting_language", p), api("/api/breakdown/remote_policy", p),
-      api("/api/trends", withParams(p, { weeks: 12, skills: followed.join(",") })),
       api("/api/breakdown/experience", p),
     ]);
     const order = (k) => EXP.indexOf(k);
@@ -714,11 +712,10 @@
     barChart("mk-role", role.items.map((i) => roleLabel(i.key)), role.items.map((i) => i.count), { color: palette[3] });
     $("#mk-companies tbody").innerHTML = comp.items.map((i) => `<tr><td>${companyLink(i.key)}</td><td>${i.count}</td><td>${Math.round(i.share * 100)}%</td></tr>`).join("");
     $("#mk-salary").innerHTML = sal.n
-      ? [[t("salary.n"), sal.n], ["p25", "€" + fmt(sal.p25)], [t("salary.median"), "€" + fmt(sal.median)], ["p75", "€" + fmt(sal.p75)]].map(([l, v]) => `<div class="kpi"><b>${v}</b><span>${esc(l)}</span></div>`).join("")
+      ? [[t("salary.n"), fmt(sal.n)], [t("salary.p25"), "€" + fmt(sal.p25)], [t("salary.median"), "€" + fmt(sal.median)], [t("salary.p75"), "€" + fmt(sal.p75)]].map(([l, v]) => `<div class="kpi"><b>${v}</b><span>${esc(l)}</span></div>`).join("")
       : `<p class="muted">${t("salary.none")}</p>`;
     doughnut("mk-lang", lang.items.map((i) => t("lang.chart." + i.key) === "lang.chart." + i.key ? i.key : t("lang.chart." + i.key)), lang.items.map((i) => i.count));
     doughnut("mk-remote", remote.items.map((i) => remoteLabel(i.key)), remote.items.map((i) => i.count));
-    lineChart("mk-trend", trend.weeks, [{ label: t("trend.all"), data: trend.total }, ...Object.entries(trend.series).map(([k, v]) => ({ label: k, data: v }))]);
   }
 
   // ---------- PROFILE ----------
