@@ -16,11 +16,11 @@
   // ---------- translations ----------
   const I18N = {
     en: {
-      "tab.overview": "Overview", "tab.jobs": "Jobs", "tab.market": "Market", "tab.profile": "Profile", "tab.coverage": "Coverage",
+      "tab.overview": "Overview", "tab.jobs": "Jobs", "tab.market": "Market", "tab.profile": "Profile",
       
       
-      "ov.skills": "Most requested skills", "ov.skills.hint": "Click a bar to open those jobs.",
-      "ov.graph": "Skills asked for together", "ov.graph.hint": "a line joins skills named in the same posting",
+      "ov.skills": "Most requested skills",
+      "ov.graph": "Skills asked for together",
       "ov.matches": "Best matches for you",
       "ov.matches.empty": 'Add your skills under <a href="#profile">Profile</a> to see matches.',
       "f.search": "Search", "f.search.ph": "title or company", "f.window": "Window", "f.window.all": "All live", "f.window.1": "Last 24 h",
@@ -34,26 +34,26 @@
       "th.sector": "Sector", "th.status": "Status", "th.livetech": "Live tech postings", "th.platform": "Platform", "th.kind": "Kind", "th.postings": "Postings",
       "pager.prev": "‹ Prev", "pager.next": "Next ›",
       "mk.trend": "New postings per week", "mk.trend.hint": "and the skills you follow", "mk.cities": "Cities", "mk.seniority": "Seniority",
-      "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "per year, from postings that state a salary",
+      "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "per year",
       "mk.lang": "Posting language", "mk.remote": "Remote policy",
-      "p.looking": "Job preferences", "p.looking.hint": "Saved in this browser, and in your account when you are logged in. Used for Best matches on the Overview, for e-mail alerts, and by <b>Use my profile</b> on the Jobs tab.",
-      "p.roles": "Roles", "p.levels": "Levels", "p.enter": "type and press Enter", "p.exclude": "Employers to hide", "p.language": "Posting language",
+      "p.looking": "Job preferences",
+      "p.roles": "Roles", "p.levels": "Levels", "p.exclude": "Employers to hide", "p.language": "Posting language",
       "p.visa": "Only jobs that mention visa sponsorship", "p.agencies": "Hide recruitment agencies", "p.save": "Save profile", "p.export": "Export",
-      "p.import": "Import", "p.clear": "Clear", "p.skills": "Skills", "p.skills.hint": "Used for match scores and the gap analysis. Add skills by typing, or extract them from your CV text.",
-      "p.extract": "Extract skills from CV text", "p.cv.ph": "Paste your CV here. It is only used to detect skills and is not stored.", "p.extract.btn": "Extract",
-      "p.gap": "Gap analysis", "p.gap.hint": "against the jobs that fit your profile", "p.gap.btn": "Analyse", "p.saved": "Saved jobs",
-      "cv.title": "What this radar covers",
-      "cv.p1": "Postings are read from employers' own career sites and from the public job boards of the platforms employers use, such as Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters and Homerun, plus AcademicTransfer for universities and Werken voor Nederland for the national government. Employers come from a list of the 540 largest Dutch employers, the IND register of recognised sponsors and the platforms' own directories. Only postings located in the Netherlands and classified as tech roles are counted. Every listing links to the employer's original page.",
-      "cv.p2": "<b>Not here yet:</b> employers on career-site platforms without an adapter (SAP SuccessFactors is partly covered, Radancy, Phenom, iCIMS are not), most big-tech companies' own job APIs, and anything that only exists on LinkedIn. The table below lists the tracked large employers and whether each one is covered.",
-      "cv.large": "Large employers", "cv.sources": "Sources", "cv.sources.hint": "every board, its status and yield on the last crawl",
-      "cv.flag": "⚑ marks a board whose posting pages could not be reached on the last link check; its postings are kept but may be stale. \"partial\" means the board returned far fewer postings than before and nothing was closed.",
-      "footer": "lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites, refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in. CV text you paste is used once to find skills and is not stored.",
+      "p.import": "Import", "p.clear": "Clear", "p.skills": "Skills",
+      "p.extract": "Extract skills from CV text", "p.cv.ph": "Paste your CV text", "p.extract.btn": "Extract",
+      "p.gap": "Gap analysis", "p.gap.btn": "Analyse", "p.saved": "Saved jobs",
+     
+     
+     
+     
+     
+      "footer": "lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites. Built by Shreya Sebastian.",
       // dynamic strings
       "kpi.live": "live tech postings", "kpi.employers": "employers", "kpi.sources": "sources healthy", "kpi.crawl": "last crawl",
       "title": "{n} tech jobs in the Netherlands",
-      "scope.all": "all live tech postings", "scope.label": "Scope: {s}.",
+     
       
-      "match.hint": "by overlap with your {n} skills", "match.hint.profile": ", within your profile filters",
+     
       "match.none": "No live posting fits all your profile filters. Loosen a level or city under Profile.",
       "li.match": "match {p}%", "li.have": "you have {s}", "li.missing": "missing {s}", "agency": "agency", "closed": "closed",
       "jobs.match": "{n} jobs match", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", 
@@ -69,18 +69,18 @@
       "p.considered": "{n} postings considered", "p.coverage": "Your skills cover {p}% of all skill mentions in these postings. The most demanded skills you do not list:",
       "skill.tracked": "“{v}” is tracked as “{c}”.", "skill.unknown": "“{v}” is not one of the tracked skills, so it will not affect matches.",
       "ph.city": "city…", "ph.employer": "employer name…", "ph.skill": "skill…",
-      "cv.kpi.employer": "employer sites and job boards healthy", "cv.kpi.agency": "agency boards healthy",
-      "cv.summary": "{c} covered, {r} registered without live postings, {m} missing of {t}",
-      "status.covered": "covered", "status.registered": "registered", "status.missing": "missing", "status.pending": "pending", "status.inactive": "inactive", "status.blocked": "blocked",
-      "kind.employer": "employer", "kind.board": "board", "kind.agency": "agency", "kind.aggregator": "aggregator", "kind.test": "test",
+     
+     
+     
+     
       "role.ml": "ML / AI", "role.data": "Data", "role.backend": "Backend", "role.frontend": "Frontend", "role.fullstack": "Full-stack", "role.platform": "Platform / DevOps",
       "role.mobile": "Mobile", "role.embedded": "Embedded / hardware", "role.simulation": "Simulation / computational", "role.security": "Security", "role.qa": "QA / Test", "role.product": "Product", "role.design": "Design", "role.it_support": "IT support", "role.other": "Other",
       "level.intern": "intern", "level.trainee": "trainee / graduate programme", "level.junior": "junior", "level.medior": "medior", "level.senior": "senior", "level.lead": "lead", "level.staff": "staff / principal", "level.manager": "manager", "level.unknown": "unknown",
       "fail": "Failed to load: {e}",
       "f.confirmed": "Only confirmed on the employer's site in the last 7 days",
-      "f.confirmed.title": "Keeps postings that the employer's own careers site still listed at a crawl in the last 7 days, or whose page was opened and checked in that time.",
+     
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
-      "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. Some long-open roles are standing vacancies, so check the date on the employer's page.",
+      "trust.expires": "closes on {d}",
       "loading": "Loading the latest jobs…",
       "pw.choose": "Choose your new password.", "pw.label": "Password", "pw.none": "No password yet. You sign in with an e-mail link or Google; add a password to sign in with it too.",
       "pw.has": "You can sign in with your password, an e-mail link or Google.", "pw.set": "Set a password", "pw.change": "Change password",
@@ -89,14 +89,14 @@
       "pw.removed": "Password removed.", "pw.wrong": "The current password is not right.", "pw.short": "Use at least 10 characters.",
       "pw.confirm": "Remove your password? You can still sign in with an e-mail link or Google.",
       "alerts.label": "Job alerts by e-mail", "alerts.off": "Off", "alerts.daily": "Daily", "alerts.weekly": "Weekly",
-      "alerts.hint": "Uses your saved profile. Every e-mail has an unsubscribe link.", "alerts.saved": "Saved.",
+      "alerts.saved": "Saved.",
       "alerts.noprofile": "Saved. Set roles, cities or skills in your profile below, or the alert matches every new job.",
       "acct.login": "Log in", "acct.settings": "Account settings", "acct.none.title": "You are not logged in",
       "acct.nudge": 'Your profile and saved jobs are kept in this browser. <a href="/login">Log in</a> to have them on every device.',
       "acct.loggedout": "You are logged out.",
       "acct.fail": "Could not send the link. Try again later.",
       "acct.expired": "That login link has expired or was already used. Request a new one.", "acct.welcome": "You are logged in.",
-      "acct.in.as": "Logged in as", "acct.in.sync": 'Your <a href="#profile">profile</a> and saved jobs are kept in your account.',
+      "acct.in.as": "Logged in as",
       "acct.synced": "Synced.", "acct.sync.fail": "Not synced; changes are kept in this browser.", "acct.logout": "Log out",
       "acct.export": "Download data", "acct.delete": "Delete account",
       "acct.delete.confirm": "Delete your account? Your e-mail address, profile and saved jobs are removed from the server. This browser keeps its own copy.",
@@ -105,31 +105,31 @@
       "fresh.text": "New listings are in.", "fresh.reload": "Refresh", "fresh.later": "Later",
       "adm.title": "Admin: refresh listings", "adm.token": "Admin token", "adm.company": "Employer (for a single-employer crawl)",
       "adm.force": "Ignore the 10-minute cool-down", "adm.due": "Crawl sources that are due", "adm.one": "Crawl this employer", "adm.all": "Crawl everything",
-      "adm.hint": "Only for the site owner. Needs the token set in RADAR_ADMIN_TOKEN; it is kept for this browser tab only. Crawls respect every employer's rate limit and robots.txt.",
+     
       "f.exp": "Experience asked", "p.exp": "Experience asked", "mk.exp": "Experience asked", "yrs": "yrs",
       "f.size": "Hiring activity (open roles)", "f.sort.small": "Smaller organisations first", "f.sort.large": "Larger organisations first",
-      "f.emp": "Company size (employees)", "f.emp.title": "Headcount from Wikidata and Wikipedia where known; worldwide for international companies. Smaller companies are often unknown.",
+      "f.emp": "Company size (employees)",
       "emp.1-49": "under 50", "emp.50-249": "50-249", "emp.250-4999": "250-4,999", "emp.5000+": "5,000+", "emp.unknown": "unknown",
-      "f.size.title": "How many roles the organisation has open right now, in all fields.",
+     
       "size.small": "a few openings (under 10)", "size.medium": "10-99 openings", "size.large": "100+ openings",
-      "f.noenrol": "Exclude internships that require enrolment", "f.noenrol.title": "Drops internships whose text says you must be enrolled at a university or school; internships that do not say so stay",
+      "f.noenrol": "Exclude internships that require enrolment",
       "enrol.required": "enrolment required", "enrol.open": "open to graduates",
-      "f.degree": "Degree asked", "f.degree.title": "The minimum degree the posting asks for. HBO counts as a bachelor's; \"HBO or WO\" counts as HBO.",
+      "f.degree": "Degree asked",
       "deg.bachelor": "Bachelor's (HBO / WO)", "deg.master": "Master's", "deg.phd": "PhD", "deg.mbo": "MBO", "deg.unstated": "not stated",
       "exp.none": "none asked (entry level)", "exp.1": "≤ 1 year", "exp.2-3": "2-3 years", "exp.4-5": "4-5 years", "exp.6+": "6+ years", "exp.unspecified": "not stated",
       "co.back": "← Market", "co.skills": "Skills asked for", "co.level": "Seniority", "co.lang": "Posting language", "co.roles": "Open tech roles",
       "co.kpi.roles": "open tech roles", "co.kpi.cities": "cities", "co.kpi.en": "need no Dutch", "co.kpi.visa": "mention visa sponsorship", "co.kpi.new": "new in 30 days",
       "co.none": "No open tech roles at the moment.", "co.title": "{c}: tech jobs", "co.permalink": "Permanent page", "co.all": "All employers",
-      "cv.recall": "Independent recall check", "cv.recall.all": "of a sample of {n} IT postings on Adzuna",
-      "cv.recall.tech": "of the {n} that are tech roles", "cv.recall.emp": "of the {n} tech roles posted by employers (no agencies)",
-      "cv.recall.note": "Checked on {d} against a random sample from Adzuna's job search API (data source: Adzuna). A posting counts as covered only when the radar lists the same employer with a matching title. Agency reposts are excluded from the last figure because the radar shows them under the hiring employer.",
+     
+     
+     
     },
     nl: {
-      "tab.overview": "Overzicht", "tab.jobs": "Vacatures", "tab.market": "Markt", "tab.profile": "Profiel", "tab.coverage": "Dekking",
+      "tab.overview": "Overzicht", "tab.jobs": "Vacatures", "tab.market": "Markt", "tab.profile": "Profiel",
       
       
-      "ov.skills": "Meest gevraagde skills", "ov.skills.hint": "Klik op een balk om die vacatures te openen.",
-      "ov.graph": "Skills die samen gevraagd worden", "ov.graph.hint": "een lijn verbindt skills uit dezelfde vacature",
+      "ov.skills": "Meest gevraagde skills",
+      "ov.graph": "Skills die samen gevraagd worden",
       "ov.matches": "Beste matches voor jou",
       "ov.matches.empty": 'Voeg je skills toe onder <a href="#profile">Profiel</a> om matches te zien.',
       "f.search": "Zoeken", "f.search.ph": "functietitel of werkgever", "f.window": "Periode", "f.window.all": "Alle open", "f.window.1": "Laatste 24 uur",
@@ -143,25 +143,25 @@
       "th.sector": "Sector", "th.status": "Status", "th.livetech": "Open techvacatures", "th.platform": "Platform", "th.kind": "Soort", "th.postings": "Vacatures",
       "pager.prev": "‹ Vorige", "pager.next": "Volgende ›",
       "mk.trend": "Nieuwe vacatures per week", "mk.trend.hint": "en de skills die je volgt", "mk.cities": "Steden", "mk.seniority": "Niveau",
-      "mk.roles": "Rolfamilie", "mk.hiring": "Wie neemt aan", "mk.salary": "Vermelde salarissen", "mk.salary.hint": "per jaar, uit vacatures die een salaris noemen",
+      "mk.roles": "Rolfamilie", "mk.hiring": "Wie neemt aan", "mk.salary": "Vermelde salarissen", "mk.salary.hint": "per jaar",
       "mk.lang": "Taal van de vacature", "mk.remote": "Thuiswerkbeleid",
-      "p.looking": "Voorkeuren", "p.looking.hint": "Opgeslagen in deze browser, en in je account als je bent ingelogd. Gebruikt voor Beste matches op het Overzicht, voor e-mailalerts, en door <b>Mijn profiel gebruiken</b> op het tabblad Vacatures.",
-      "p.roles": "Rollen", "p.levels": "Niveaus", "p.enter": "typ en druk op Enter", "p.exclude": "Werkgevers verbergen", "p.language": "Taal van de vacature",
+      "p.looking": "Voorkeuren",
+      "p.roles": "Rollen", "p.levels": "Niveaus", "p.exclude": "Werkgevers verbergen", "p.language": "Taal van de vacature",
       "p.visa": "Alleen vacatures die visumsponsoring noemen", "p.agencies": "Wervingsbureaus verbergen", "p.save": "Profiel opslaan", "p.export": "Exporteren",
-      "p.import": "Importeren", "p.clear": "Wissen", "p.skills": "Skills", "p.skills.hint": "Gebruikt voor matchscores en de gap-analyse. Typ skills in, of haal ze uit je cv-tekst.",
-      "p.extract": "Skills uit cv-tekst halen", "p.cv.ph": "Plak hier je cv. Het wordt alleen gebruikt om skills te herkennen en niet opgeslagen.", "p.extract.btn": "Herkennen",
-      "p.gap": "Gap-analyse", "p.gap.hint": "tegen de vacatures die bij je profiel passen", "p.gap.btn": "Analyseren", "p.saved": "Bewaarde vacatures",
-      "cv.title": "Wat deze radar dekt",
-      "cv.p1": "Vacatures worden gelezen van de eigen carrièresites van werkgevers en van de openbare vacatureborden van de platforms die werkgevers gebruiken, zoals Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters en Homerun, plus AcademicTransfer voor universiteiten en Werken voor Nederland voor de Rijksoverheid. Werkgevers komen uit een lijst van de 540 grootste Nederlandse werkgevers, het IND-register van erkende referenten en de overzichten van de platforms zelf. Alleen vacatures in Nederland die als techfunctie zijn geclassificeerd tellen mee. Elke vacature linkt naar de originele pagina van de werkgever.",
-      "cv.p2": "<b>Nog niet aanwezig:</b> werkgevers op platforms zonder adapter (SAP SuccessFactors deels, Radancy, Phenom en iCIMS niet), de eigen vacature-API's van de meeste big-techbedrijven, en alles wat alleen op LinkedIn staat. De tabel hieronder toont de gevolgde grote werkgevers en of ze gedekt zijn.",
-      "cv.large": "Grote werkgevers", "cv.sources": "Bronnen", "cv.sources.hint": "elk vacaturebord, de status en opbrengst bij de laatste crawl",
-      "cv.flag": "⚑ markeert een bord waarvan de vacaturepagina's bij de laatste linkcontrole onbereikbaar waren; de vacatures blijven staan maar kunnen verouderd zijn. \"partial\" betekent dat het bord veel minder vacatures teruggaf dan eerder en er niets is gesloten.",
-      "footer": "toont tech-, software-, data- en IT-vacatures in Nederland van de eigen carrièresites van werkgevers, elke paar uur ververst. Elke vacature linkt naar de originele pagina van de werkgever. Gemaakt door Shreya Sebastian. Je profiel en bewaarde vacatures blijven in je browser, tenzij je inlogt. Geplakte cv-tekst wordt één keer gebruikt om skills te herkennen en niet opgeslagen.",
+      "p.import": "Importeren", "p.clear": "Wissen", "p.skills": "Skills",
+      "p.extract": "Skills uit cv-tekst halen", "p.cv.ph": "Plak je cv-tekst", "p.extract.btn": "Herkennen",
+      "p.gap": "Gap-analyse", "p.gap.btn": "Analyseren", "p.saved": "Bewaarde vacatures",
+     
+     
+     
+     
+     
+      "footer": "toont tech-, software-, data- en IT-vacatures in Nederland van de eigen carrièresites van werkgevers. Gemaakt door Shreya Sebastian.",
       "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.sources": "bronnen gezond", "kpi.crawl": "laatste crawl",
       "title": "{n} ICT en tech vacatures in Nederland",
-      "scope.all": "alle open techvacatures", "scope.label": "Bereik: {s}.",
+     
       
-      "match.hint": "op overlap met je {n} skills", "match.hint.profile": ", binnen je profielfilters",
+     
       "match.none": "Geen open vacature past bij al je profielfilters. Versoepel een niveau of stad onder Profiel.",
       "li.match": "match {p}%", "li.have": "je hebt {s}", "li.missing": "mist {s}", "agency": "bureau", "closed": "gesloten",
       "jobs.match": "{n} vacatures gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", 
@@ -177,18 +177,18 @@
       "p.considered": "{n} vacatures bekeken", "p.coverage": "Je skills dekken {p}% van alle skillvermeldingen in deze vacatures. De meest gevraagde skills die je niet noemt:",
       "skill.tracked": "“{v}” wordt bijgehouden als “{c}”.", "skill.unknown": "“{v}” is geen bijgehouden skill en telt niet mee voor matches.",
       "ph.city": "stad…", "ph.employer": "naam werkgever…", "ph.skill": "skill…",
-      "cv.kpi.employer": "werkgeverssites en vacatureborden gezond", "cv.kpi.agency": "bureauborden gezond",
-      "cv.summary": "{c} gedekt, {r} geregistreerd zonder open vacatures, {m} ontbreekt van {t}",
-      "status.covered": "gedekt", "status.registered": "geregistreerd", "status.missing": "ontbreekt", "status.pending": "wacht", "status.inactive": "inactief", "status.blocked": "geblokkeerd",
-      "kind.employer": "werkgever", "kind.board": "verzamelbord", "kind.agency": "bureau", "kind.aggregator": "doorplaatser", "kind.test": "test",
+     
+     
+     
+     
       "role.ml": "ML / AI", "role.data": "Data", "role.backend": "Backend", "role.frontend": "Frontend", "role.fullstack": "Full-stack", "role.platform": "Platform / DevOps",
       "role.mobile": "Mobiel", "role.embedded": "Embedded / hardware", "role.simulation": "Simulatie / modellering", "role.security": "Security", "role.qa": "QA / Test", "role.product": "Product", "role.design": "Design", "role.it_support": "IT-support", "role.other": "Overig",
       "level.intern": "stage", "level.trainee": "traineeship / starterprogramma", "level.junior": "junior", "level.medior": "medior", "level.senior": "senior", "level.lead": "lead", "level.staff": "staff / principal", "level.manager": "manager", "level.unknown": "onbekend",
       "fail": "Laden mislukt: {e}",
       "f.confirmed": "Alleen bevestigd op de site van de werkgever in de laatste 7 dagen",
-      "f.confirmed.title": "Houdt vacatures die de eigen carrièresite van de werkgever bij een crawl in de laatste 7 dagen nog toonde, of waarvan de pagina in die tijd is geopend en gecontroleerd.",
+     
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
-      "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. Sommige langlopende vacatures staan altijd open, dus controleer de datum op de pagina van de werkgever.",
+      "trust.expires": "sluit op {d}",
       "loading": "De nieuwste vacatures laden…",
       "pw.choose": "Kies je nieuwe wachtwoord.", "pw.label": "Wachtwoord", "pw.none": "Nog geen wachtwoord. Je logt in met een e-maillink of Google; voeg een wachtwoord toe om daar ook mee in te loggen.",
       "pw.has": "Je kunt inloggen met je wachtwoord, een e-maillink of Google.", "pw.set": "Wachtwoord instellen", "pw.change": "Wachtwoord wijzigen",
@@ -197,14 +197,14 @@
       "pw.removed": "Wachtwoord verwijderd.", "pw.wrong": "Het huidige wachtwoord klopt niet.", "pw.short": "Gebruik minstens 10 tekens.",
       "pw.confirm": "Je wachtwoord verwijderen? Je kunt nog steeds inloggen met een e-maillink of Google.",
       "alerts.label": "Vacature-alerts per e-mail", "alerts.off": "Uit", "alerts.daily": "Dagelijks", "alerts.weekly": "Wekelijks",
-      "alerts.hint": "Gebruikt je opgeslagen profiel. Elke e-mail heeft een afmeldlink.", "alerts.saved": "Opgeslagen.",
+      "alerts.saved": "Opgeslagen.",
       "alerts.noprofile": "Opgeslagen. Kies functies, steden of skills in je profiel hieronder, anders past elke nieuwe vacature.",
       "acct.login": "Inloggen", "acct.settings": "Accountinstellingen", "acct.none.title": "Je bent niet ingelogd",
       "acct.nudge": 'Je profiel en bewaarde vacatures staan in deze browser. <a href="/nl/inloggen">Log in</a> om ze op elk apparaat te hebben.',
       "acct.loggedout": "Je bent uitgelogd.",
       "acct.fail": "De link kon niet worden verstuurd. Probeer het later opnieuw.",
       "acct.expired": "Die inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.", "acct.welcome": "Je bent ingelogd.",
-      "acct.in.as": "Ingelogd als", "acct.in.sync": 'Je <a href="#profile">profiel</a> en bewaarde vacatures staan in je account.',
+      "acct.in.as": "Ingelogd als",
       "acct.synced": "Gesynchroniseerd.", "acct.sync.fail": "Niet gesynchroniseerd; wijzigingen blijven in deze browser.", "acct.logout": "Uitloggen",
       "acct.export": "Gegevens downloaden", "acct.delete": "Account verwijderen",
       "acct.delete.confirm": "Je account verwijderen? Je e-mailadres, profiel en bewaarde vacatures worden van de server verwijderd. Deze browser houdt zijn eigen kopie.",
@@ -213,24 +213,24 @@
       "fresh.text": "Er zijn nieuwe vacatures binnen.", "fresh.reload": "Vernieuwen", "fresh.later": "Later",
       "adm.title": "Beheer: vacatures verversen", "adm.token": "Beheertoken", "adm.company": "Werkgever (voor één werkgever)",
       "adm.force": "Wachttijd van 10 minuten negeren", "adm.due": "Bronnen verversen die aan de beurt zijn", "adm.one": "Deze werkgever verversen", "adm.all": "Alles verversen",
-      "adm.hint": "Alleen voor de beheerder. Vereist het token uit RADAR_ADMIN_TOKEN; het blijft alleen in dit tabblad bewaard. Crawls houden zich aan de limieten en robots.txt van elke werkgever.",
+     
       "f.exp": "Gevraagde ervaring", "p.exp": "Gevraagde ervaring", "mk.exp": "Gevraagde ervaring", "yrs": "jr",
       "f.size": "Wervingsactiviteit (open vacatures)", "f.sort.small": "Kleinere organisaties eerst", "f.sort.large": "Grotere organisaties eerst",
-      "f.emp": "Bedrijfsgrootte (medewerkers)", "f.emp.title": "Aantal medewerkers uit Wikidata en Wikipedia waar bekend; wereldwijd voor internationale bedrijven. Van kleinere bedrijven is het vaak onbekend.",
+      "f.emp": "Bedrijfsgrootte (medewerkers)",
       "emp.1-49": "minder dan 50", "emp.50-249": "50-249", "emp.250-4999": "250-4.999", "emp.5000+": "5.000+", "emp.unknown": "onbekend",
-      "f.size.title": "Hoeveel vacatures de organisatie nu open heeft, in alle vakgebieden.",
+     
       "size.small": "enkele vacatures (minder dan 10)", "size.medium": "10-99 vacatures", "size.large": "100+ vacatures",
-      "f.noenrol": "Stages die inschrijving bij een opleiding eisen verbergen", "f.noenrol.title": "Verbergt stages waarvan de tekst zegt dat je ingeschreven moet staan bij een universiteit of school; stages die daar niets over zeggen blijven staan",
+      "f.noenrol": "Stages die inschrijving bij een opleiding eisen verbergen",
       "enrol.required": "inschrijving vereist", "enrol.open": "ook voor afgestudeerden",
-      "f.degree": "Gevraagde opleiding", "f.degree.title": "De minimale opleiding die de vacature vraagt. Hbo telt als bachelor; \"hbo of wo\" telt als hbo.",
+      "f.degree": "Gevraagde opleiding",
       "deg.bachelor": "Bachelor (hbo / wo)", "deg.master": "Master", "deg.phd": "PhD", "deg.mbo": "Mbo", "deg.unstated": "niet vermeld",
       "exp.none": "geen ervaring gevraagd (starter)", "exp.1": "≤ 1 jaar", "exp.2-3": "2-3 jaar", "exp.4-5": "4-5 jaar", "exp.6+": "6+ jaar", "exp.unspecified": "niet vermeld",
       "co.back": "← Markt", "co.skills": "Gevraagde skills", "co.level": "Niveau", "co.lang": "Taal van de vacature", "co.roles": "Open techvacatures",
       "co.kpi.roles": "open techvacatures", "co.kpi.cities": "steden", "co.kpi.en": "zonder Nederlands", "co.kpi.visa": "noemen visumsponsoring", "co.kpi.new": "nieuw in 30 dagen",
       "co.none": "Op dit moment geen open techvacatures.", "co.title": "{c}: techvacatures", "co.permalink": "Vaste pagina", "co.all": "Alle werkgevers",
-      "cv.recall": "Onafhankelijke dekkingscontrole", "cv.recall.all": "van een steekproef van {n} IT-vacatures op Adzuna",
-      "cv.recall.tech": "van de {n} die techfuncties zijn", "cv.recall.emp": "van de {n} techfuncties geplaatst door werkgevers (geen bureaus)",
-      "cv.recall.note": "Gecontroleerd op {d} tegen een willekeurige steekproef uit de vacature-API van Adzuna (databron: Adzuna). Een vacature telt alleen als gedekt wanneer de radar dezelfde werkgever met een overeenkomende titel toont. Doorplaatsingen door bureaus zijn uit het laatste cijfer gelaten omdat de radar ze onder de wervende werkgever toont.",
+     
+     
+     
     },
   };
   const store = {
@@ -541,7 +541,6 @@
   // ---------- OVERVIEW ----------
   async function renderOverview() {
     const p = new URLSearchParams();
-    $("#ov-scope").textContent = t("scope.all");
     const [skills, co] = await Promise.all([api("/api/skills", withParams(p, { top: 30 })), api("/api/cooccurrence", withParams(p, { top: 28 }))]);
     const have = new Set(state.profile.skills);
     barChart("ov-skills", skills.skills.map((s) => s.skill), skills.skills.map((s) => Math.round(s.share * 100)),
@@ -551,10 +550,9 @@
     const hasProfile = [...mine.keys()].length > 0;
     if (state.profile.skills.length) {
       $("#ov-match-empty").hidden = true;
-      $("#ov-match-hint").textContent = t("match.hint", { n: state.profile.skills.length }) + (hasProfile ? t("match.hint.profile") : "");
       const m = await api("/api/postings", withParams(mine, { sort: "match", skills_have: state.profile.skills.join(","), size: 8 }));
       $("#ov-matches").innerHTML = m.items.length ? m.items.map(li).join("") : `<li class="muted">${t("match.none")}</li>`;
-    } else { $("#ov-match-empty").hidden = false; $("#ov-matches").innerHTML = ""; $("#ov-match-hint").textContent = ""; }
+    } else { $("#ov-match-empty").hidden = false; $("#ov-matches").innerHTML = ""; }
   }
   function li(i) {
     const m = i.match != null
@@ -689,7 +687,7 @@
     $("#prev").disabled = d.page <= 1; $("#next").disabled = d.page >= pages;
     $("#postings tbody").innerHTML = d.items.map((i) => `<tr>
       <td><button class="star${state.saved.includes(i.id) ? " on" : ""}" data-id="${i.id}" title="${t("save")}">${state.saved.includes(i.id) ? "★" : "☆"}</button></td>
-      <td class="muted" title="${esc(i.posted_at)}">${age(i)}${i.age_days > 90 ? `<span class="badge stale" title="${t("trust.old.title")}">${t("old")}</span>` : ""}</td>
+      <td class="muted" title="${esc(i.posted_at)}">${age(i)}${i.age_days > 90 ? `<span class="badge stale">${t("old")}</span>` : ""}</td>
       <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener" title="${esc(trustText(i))}">${esc(i.title)}</a>${trustBadge(i)}</td>
       <td>${companyLink(i.company)}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}</td>
       <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}${i.also_in && i.also_in.length ? ` <span class="more-cities" title="${esc(t("also.in", { c: i.also_in.map(cityLabel).join(", ") }))}">+${i.also_in.length}</span>` : ""}</td>
@@ -710,7 +708,6 @@
   // ---------- MARKET ----------
   async function renderMarket() {
     const p = new URLSearchParams();
-    $("#mk-scope").textContent = t("scope.label", { s: t("scope.all") });
     const [city, sen, role, comp, sal, lang, remote, exp] = await Promise.all([
       api("/api/breakdown/city", withParams(p, { top: 12 })), api("/api/breakdown/seniority", p),
       api("/api/breakdown/role_family", p), api("/api/breakdown/company", withParams(p, { top: 20 })),
@@ -898,40 +895,6 @@
     }
   }
 
-  // ---------- COVERAGE ----------
-  let coverageStatus = "covered";
-  async function renderCoverage() {
-    const [cov, src] = await Promise.all([api("/api/coverage"), api("/api/sources")]);
-    const kinds = cov.sources_by_kind, healthy = cov.healthy_by_kind;
-    // employer career sites and the two multi-employer boards (AcademicTransfer, Werken voor Nederland) as one figure
-    const sum = (o, ks) => ks.reduce((n, k) => n + (o[k] || 0), 0);
-    $("#cv-kpis").innerHTML = [[["employer", "board"], "cv.kpi.employer"], [["agency"], "cv.kpi.agency"]]
-      .map(([ks, l]) => `<div class="kpi"><b>${fmt(sum(healthy, ks))}/${fmt(sum(kinds, ks))}</b><span>${t(l)}</span></div>`).join("");
-    const rc = cov.recall;
-    $("#cv-recall").hidden = !rc;
-    if (rc) {
-      const pct = (v) => `${Math.round((v || 0) * 100)}%`;
-      $("#cv-recall-kpis").innerHTML = [[pct(rc.recall), t("cv.recall.all", { n: fmt(rc.sample) })], [pct(rc.recall_tech), t("cv.recall.tech", { n: fmt(rc.sample_tech) })],
-        [pct(rc.recall_tech_employer), t("cv.recall.emp", { n: fmt(rc.sample_tech_employer) })]]
-        .map(([v, l]) => `<div class="kpi"><b>${v}</b><span>${esc(l)}</span></div>`).join("");
-      $("#cv-recall-note").textContent = t("cv.recall.note", { d: rc.checked_at || "" });
-    }
-    const s = cov.summary;
-    $("#cv-summary").textContent = t("cv.summary", { c: s.covered, r: s.registered, m: s.missing, t: cov.tracker.length });
-    const draw = () => {
-      $("#cv-status").innerHTML = ["covered", "registered", "missing"].map((k) => `<span class="chip${coverageStatus === k ? " on" : ""}" data-v="${k}">${t("status." + k)} (${s[k]})</span>`).join("");
-      $("#cv-tracker tbody").innerHTML = cov.tracker.filter((e) => e.status === coverageStatus).sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name))
-        .map((e) => `<tr><td>${esc(e.name)}</td><td class="muted">${esc(e.group)}</td><td class="${e.status === "covered" ? "ok" : e.status === "registered" ? "warn" : "bad"}">${t("status." + e.status)}</td><td>${e.live_postings || ""}</td><td class="muted">${esc(e.platform)}</td></tr>`).join("");
-    };
-    $("#cv-status").onclick = (e) => { const c = e.target.closest(".chip"); if (c) { coverageStatus = c.dataset.v; draw(); } };
-    draw();
-    const special = src.sources.filter((x) => !x.active && ["aggregator", "test", "blocked"].includes(x.status));
-    const active = src.sources.filter((x) => x.active).sort((a, b) => (b.nl || 0) - (a.nl || 0)).slice(0, 400);
-    $("#sources tbody").innerHTML = [...active, ...special].map((x) => `<tr>
-      <td>${esc(x.company)}</td><td>${esc(x.ats)}</td><td class="muted">${t("kind." + (x.kind || "employer"))}</td>
-      <td class="${x.status === "ok" ? "ok" : x.status === "partial" || (x.note || "").startsWith("link check") ? "warn" : "bad"}" title="${esc(x.note || "")}">${esc(x.status === "blocked" ? t("status.blocked") : (x.status || (x.active ? t("status.pending") : t("status.inactive"))))}${(x.note || "").startsWith("link check") ? " ⚑" : ""}</td>
-      <td>${fmt(x.total)}</td><td>${fmt(x.nl)}</td></tr>`).join("");
-  }
 
   // ---------- freshness banner ----------
   let loadedVersion = null;
@@ -977,7 +940,7 @@
   }
 
   // ---------- routing ----------
-  const renderers = { overview: renderOverview, jobs: () => { buildJobsFilters(); return refreshJobs(); }, market: renderMarket, profile: renderProfile, account: renderAccount, coverage: renderCoverage, company: renderCompany, admin: renderAdmin };
+  const renderers = { overview: renderOverview, jobs: () => { buildJobsFilters(); return refreshJobs(); }, market: renderMarket, profile: renderProfile, account: renderAccount, company: renderCompany, admin: renderAdmin };
   let firstRoute = true;
   async function route() {
     if (!firstRoute) beacon("nav");

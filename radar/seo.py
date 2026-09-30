@@ -218,7 +218,6 @@ _T = {
         "newest": "Nieuwste vacatures",
         "related": "Ook bekijken",
         "interactive": "Open de interactieve weergave",
-        "interactive_hint": "met filters, matchscore en grafieken",
         "lang_other": "English",
         "home": "Alle tech vacatures",
         "intro": "{n} open vacatures bij {m} werkgevers, rechtstreeks gelezen van hun eigen carrièresites en elke paar "
@@ -244,7 +243,6 @@ _T = {
         "newest": "Newest openings",
         "related": "See also",
         "interactive": "Open the interactive view",
-        "interactive_hint": "with filters, match scores and charts",
         "lang_other": "Nederlands",
         "home": "All tech jobs",
         "intro": "{n} open roles at {m} employers, read directly from their own career sites and refreshed every few "
@@ -428,7 +426,6 @@ def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> s
         "{{RELATED_H}}": T["related"],
         "{{RELATED}}": rel_html,
         "{{INTERACTIVE}}": T["interactive"],
-        "{{INTERACTIVE_HINT}}": T["interactive_hint"],
         "{{HOME}}": ("/nl/" if lang == "nl" else "/"),
         "{{HOME_LABEL}}": T["home"],
         "{{UPDATED}}": f"{T['updated']} {datetime.utcnow():%Y-%m-%d}",
