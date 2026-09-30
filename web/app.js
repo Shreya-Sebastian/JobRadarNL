@@ -81,7 +81,7 @@
       "f.confirmed.title": "Keeps postings that the employer's own careers site still listed at a crawl in the last 7 days, or whose page was opened and checked in that time.",
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
       "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
-      "acct.go": "Sign in or create an account", "loading": "Loading the latest jobs…",
+      "loading": "Loading the latest jobs…",
       "pw.choose": "Choose your new password.", "pw.label": "Password", "pw.none": "No password yet. You sign in with an e-mail link or Google; add a password to sign in with it too.",
       "pw.has": "You can sign in with your password, an e-mail link or Google.", "pw.set": "Set a password", "pw.change": "Change password",
       "pw.remove": "Remove password", "pw.current": "Current password", "pw.new": "New password (10+ characters)", "pw.repeat": "Repeat the new password",
@@ -92,7 +92,7 @@
       "alerts.hint": "Uses your saved profile. Every e-mail has an unsubscribe link.", "alerts.saved": "Saved.",
       "alerts.noprofile": "Saved. Set roles, cities or skills in your profile below, or the alert matches every new job.",
       "acct.login": "Log in", "acct.settings": "Account settings", "acct.none.title": "You are not logged in",
-      "acct.nudge": "Log in to keep your profile and saved jobs on every device. Without an account, everything stays in this browser.",
+      "acct.nudge": 'Your profile and saved jobs are kept in this browser. <a href="/login">Log in</a> to have them on every device.',
       "acct.loggedout": "You are logged out.",
       "acct.email.ph": "you@example.com", "acct.send": "Send login link", "acct.sending": "Sending…",
       "acct.sent": "Check your inbox: the link works once and for 15 minutes.", "acct.bad": "That does not look like an e-mail address.",
@@ -193,7 +193,7 @@
       "f.confirmed.title": "Houdt vacatures die de eigen carrièresite van de werkgever bij een crawl in de laatste 7 dagen nog toonde, of waarvan de pagina in die tijd is geopend en gecontroleerd.",
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
       "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
-      "acct.go": "Inloggen of account maken", "loading": "De nieuwste vacatures laden…",
+      "loading": "De nieuwste vacatures laden…",
       "pw.choose": "Kies je nieuwe wachtwoord.", "pw.label": "Wachtwoord", "pw.none": "Nog geen wachtwoord. Je logt in met een e-maillink of Google; voeg een wachtwoord toe om daar ook mee in te loggen.",
       "pw.has": "Je kunt inloggen met je wachtwoord, een e-maillink of Google.", "pw.set": "Wachtwoord instellen", "pw.change": "Wachtwoord wijzigen",
       "pw.remove": "Wachtwoord verwijderen", "pw.current": "Huidig wachtwoord", "pw.new": "Nieuw wachtwoord (10+ tekens)", "pw.repeat": "Herhaal het nieuwe wachtwoord",
@@ -204,7 +204,7 @@
       "alerts.hint": "Gebruikt je opgeslagen profiel. Elke e-mail heeft een afmeldlink.", "alerts.saved": "Opgeslagen.",
       "alerts.noprofile": "Opgeslagen. Kies functies, steden of skills in je profiel hieronder, anders past elke nieuwe vacature.",
       "acct.login": "Inloggen", "acct.settings": "Accountinstellingen", "acct.none.title": "Je bent niet ingelogd",
-      "acct.nudge": "Log in om je profiel en bewaarde vacatures op elk apparaat te hebben. Zonder account blijft alles in deze browser.",
+      "acct.nudge": 'Je profiel en bewaarde vacatures staan in deze browser. <a href="/nl/inloggen">Log in</a> om ze op elk apparaat te hebben.',
       "acct.loggedout": "Je bent uitgelogd.",
       "acct.email.ph": "jij@voorbeeld.nl", "acct.send": "Stuur inloglink", "acct.sending": "Versturen…",
       "acct.sent": "Kijk in je inbox: de link werkt één keer en 15 minuten lang.", "acct.bad": "Dat lijkt geen e-mailadres.",
@@ -842,7 +842,6 @@
   function bindAccount() {
     const loginUrl = () => (LANG === "nl" ? "/nl/inloggen" : "/login");
     $("#acct-btn").addEventListener("click", () => { location.href = loginUrl(); });
-    $$(".acct-go").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); location.href = loginUrl(); }));
     $("#acct-avatar").addEventListener("click", (e) => {
       e.stopPropagation();
       const open = $("#acct-menu").hidden;
