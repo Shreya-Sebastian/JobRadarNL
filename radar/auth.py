@@ -509,10 +509,11 @@ def alerts_unsubscribe(u: int, t: str, session: Session = Depends(_db)):
           else "Deze afmeldlink is niet geldig. Je kunt alerts uitzetten onder Mijn profiel.")
     html = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" '
             f'content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>'
-            f'{escape(settings.site_name)}</title><link rel="stylesheet" href="/static/style.css?v=13"></head>'
-            f'<body style="background:var(--bg)"><main class="wrap" style="max-width:560px;padding-top:12vh">'
+            f'{escape(settings.site_name)}</title><link rel="stylesheet" href="/static/app.css?v=1"></head>'
+            f'<body><main class="wrap max-w-xl pt-[12vh]">'
             f'<div class="card"><h2>{"Unsubscribed" if ok else "Link not valid"}</h2><p>{escape(msg)}</p>'
-            f'<p class="muted">{escape(nl)}</p><p><a class="btn" href="/#profile">{escape(settings.site_name)}</a>'
+            f'<p class="muted">{escape(nl)}</p>'
+            f'<p><a class="btn primary" href="/#profile">{escape(settings.site_name)}</a>'
             f"</p></div></main></body></html>")
     return Response(html, media_type="text/html", status_code=200 if ok else 400)
 

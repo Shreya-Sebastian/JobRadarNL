@@ -15,7 +15,8 @@
 <meta property="og:type" content="website">
 {{VERIFY}}
 <script type="application/ld+json">{{SITE_JSONLD}}</script>
-<link rel="stylesheet" href="/static/style.css?v=15">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css?v=1">
 <script src="/static/vendor/chart.umd.min.js"></script>
 <script src="/static/vendor/d3.min.js"></script>
 </head>
@@ -23,17 +24,10 @@
 <div class="progress" id="progress" hidden></div>
 <header class="top">
   <div class="wrap topbar">
-    <a class="brand" href="{{HOME_PATH}}" id="brand" title="{{SITE_NAME}}"><h1>{{SITE_NAME}}</h1></a>
+    <a class="brand" href="{{HOME_PATH}}" id="brand" title="{{SITE_NAME}}"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><h1>{{SITE_NAME}}</h1></a>
     <div class="topbar-right">
       <div class="langswitch" id="langswitch"><button data-lang="nl">NL</button><button data-lang="en">EN</button></div>
       <button class="acct-btn" id="acct-btn" data-i18n="acct.login">Log in</button>
-    </div>
-  </div>
-  <div class="wrap">
-    <div class="kpis" id="kpis">
-      <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
-      <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
-      <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
     </div>
   </div>
   <nav class="wrap tabs" id="tabs">
@@ -49,7 +43,12 @@
 </header>
 
 <div class="banner" id="fresh-banner" hidden><span data-i18n="fresh.text">New listings are in.</span> <button class="primary" id="fresh-reload" data-i18n="fresh.reload">Refresh</button> <button class="link" id="fresh-dismiss" data-i18n="fresh.later">Later</button></div>
-<main class="wrap">
+<main class="wrap pt-5">
+<div class="kpis" id="kpis">
+  <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
+  <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
+  <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
+</div>
 <div class="boot" id="boot" role="status"><div class="spinner"></div><span data-i18n="loading">Loading the latest jobs…</span></div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -300,10 +299,12 @@
 
 </main>
 
-<nav class="wrap muted small seo-links">{{SEO_LINKS}}</nav>
-<footer class="wrap muted">
-  <p><b>{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.</span> <a href="/privacy" data-i18n="privacy">Privacy</a>{{SOURCE_LINK}}</p>
+<footer class="site-footer">
+ <div class="wrap py-8">
+  <nav class="seo-links mt-0">{{SEO_LINKS}}</nav>
+  <p class="mt-6 border-t border-line pt-6"><b class="text-ink">{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.</span> <a href="/privacy" data-i18n="privacy">Privacy</a>{{SOURCE_LINK}}</p>
+ </div>
 </footer>
-<script src="/static/app.js?v=39"></script>
+<script src="/static/app.js?v=40"></script>
 </body>
 </html>

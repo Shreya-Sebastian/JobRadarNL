@@ -6,29 +6,27 @@
 <title>Employers hiring for tech in the Netherlands | {{SITE_NAME}}</title>
 <meta name="description" content="{{DESCRIPTION}}">
 <link rel="canonical" href="{{SITE_URL}}/companies">
-<link rel="stylesheet" href="/static/style.css?v=8">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css?v=1">
 <script type="application/ld+json">{{JSONLD}}</script>
-<style>.cols{columns:3 220px;column-gap:24px;list-style:none;padding:0;margin:0}.cols li{padding:3px 0;break-inside:avoid}.cols a{color:var(--accent);text-decoration:none}</style>
 </head>
 <body>
 <header class="top">
-  <div class="wrap">
-    <div>
-      <h1><a href="/" style="color:inherit;text-decoration:none">{{SITE_NAME}}</a></h1>
-      <p class="tag">{{SITE_TAGLINE}}</p>
-    </div>
+  <div class="wrap topbar">
+    <a class="brand" href="/"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><b>{{SITE_NAME}}</b></a>
   </div>
   <nav class="tabs wrap">
     <a href="/">Overview</a><a href="/#jobs">Jobs</a><a href="/#market">Market</a><a href="/companies" class="on">Employers</a><a href="/#coverage">Coverage</a>
   </nav>
 </header>
-<main class="wrap">
+<main class="wrap pt-1">
+  <p class="tag mt-4 mb-0">{{SITE_TAGLINE}}</p>
   <div class="card">
     <h2>{{COUNT}} employers with open tech roles <span class="hint">number of live postings in brackets, most first</span></h2>
     <ul class="cols">{{ITEMS}}</ul>
   </div>
   <p class="muted small">Only employers with at least one open tech posting located in the Netherlands are listed. Recruitment agencies are shown under their own name.</p>
 </main>
-<footer class="wrap muted"><p><b>{{SITE_NAME}}</b> lists tech vacancies in the Netherlands read directly from employers' career sites. Every listing links to the original page.</p></footer>
+<footer class="site-footer"><div class="wrap py-8"><p><b class="text-ink">{{SITE_NAME}}</b> lists tech vacancies in the Netherlands read directly from employers' career sites. Every listing links to the original page.</p></div></footer>
 </body>
 </html>

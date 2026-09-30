@@ -1,0 +1,303 @@
+/* The site's one stylesheet, built with Tailwind CSS into web/app.css: python scripts/build_css.py (--watch while
+   editing). Pages use utility classes for layout; the small set of class names that app.js and the server-rendered
+   pages generate (card, kpi, chip, table, ...) are defined once below as components. */
+@import "tailwindcss" source(none);
+@plugin "@tailwindcss/typography";
+
+@source "../*.html";
+@source "../app.js";
+@source "../../radar/*.py";
+
+/* colours are CSS variables so that dark mode, Chart.js and D3 (which read them at runtime) share one palette */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-on-accent: var(--on-accent);
+  --color-chip: var(--chip);
+  --color-chip-ink: var(--chip-ink);
+  --color-ok: var(--ok);
+  --color-bad: var(--bad);
+  --color-warn: var(--warn);
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --bg: #f8fafc; --card: #ffffff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0;
+    --accent: #047857; --accent-2: #f97316; --on-accent: #ffffff; --chip: #f1f5f9; --chip-ink: #334155;
+    --ok: #059669; --bad: #dc2626; --warn: #d97706;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #020617; --card: #0f172a; --ink: #f1f5f9; --muted: #94a3b8; --line: #1e293b;
+      --accent: #34d399; --accent-2: #fb923c; --on-accent: #022c22; --chip: #1e293b; --chip-ink: #cbd5e1;
+      --ok: #34d399; --bad: #f87171; --warn: #fbbf24;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #020617; --card: #0f172a; --ink: #f1f5f9; --muted: #94a3b8; --line: #1e293b;
+    --accent: #34d399; --accent-2: #fb923c; --on-accent: #022c22; --chip: #1e293b; --chip-ink: #cbd5e1;
+    --ok: #34d399; --bad: #f87171; --warn: #fbbf24;
+  }
+  [hidden] { display: none !important; }
+  body { @apply bg-bg text-[15px]/relaxed text-ink antialiased; }
+  h1 { @apply text-2xl font-bold tracking-tight; }
+  h2 { @apply mb-3 text-base font-semibold tracking-tight; }
+  h3 { @apply mt-4 mb-2 text-sm font-semibold; }
+  p { @apply my-2; }
+  a { @apply text-accent; }
+  ::selection { @apply bg-accent/25; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-accent; }
+
+  /* form controls */
+  select, textarea,
+  input:is([type=search], [type=text], [type=email], [type=password]) {
+    @apply rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink shadow-xs transition
+      placeholder:text-muted/70 focus:border-accent focus:ring-3 focus:ring-accent/20 focus:outline-none;
+  }
+  select {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.2 7.2a.75.75 0 0 1 1.06.02L10 11.1l3.74-3.88a.75.75 0 1 1 1.08 1.04l-4.25 4.4a.75.75 0 0 1-1.08 0l-4.25-4.4a.75.75 0 0 1 .02-1.06Z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: right .6rem center; background-size: 1.1rem;
+  }
+  textarea { @apply mt-2 w-full resize-y; }
+  input[type=checkbox] { @apply size-4 cursor-pointer accent-accent; }
+  button { @apply cursor-pointer; }
+}
+
+@layer components {
+  .wrap { @apply mx-auto w-full max-w-7xl px-4 sm:px-6; }
+
+  /* ---------- buttons ---------- */
+  /* :where() keeps the default button at zero specificity, so any class (.acct-btn, .primary, ...) overrides it */
+  :where(button:not(.star, .link, .chip button, .seg button, .langswitch button, .active-skill button)), .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-line bg-card px-3.5 py-2
+      text-sm font-medium text-ink no-underline shadow-xs transition-colors hover:bg-chip
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn.primary, button.primary { @apply border-accent bg-accent font-semibold text-on-accent hover:bg-accent/90; }
+  button.link { @apply rounded-md border-0 bg-transparent px-1.5 py-1 text-sm font-medium text-accent hover:underline; }
+  button.link.danger, .danger { @apply text-bad; }
+  .acct-btn { @apply border-accent bg-accent font-semibold whitespace-nowrap text-on-accent hover:bg-accent/90; }
+  .acct-btn.in { @apply border-line bg-card text-ink hover:bg-chip; }
+
+  /* ---------- header ---------- */
+  .top { @apply sticky top-0 z-20 border-b border-line bg-card/85 backdrop-blur-md; }
+  .topbar { @apply flex h-16 items-center justify-between gap-3; }
+  .brand { @apply flex min-w-0 items-center gap-2.5 text-ink no-underline; }
+  .brand h1, .brand b { @apply truncate text-lg font-bold tracking-tight; }
+  .brand:hover h1, .brand:hover b { @apply text-accent; }
+  .logo { @apply size-8 shrink-0; }
+  .topbar-right { @apply flex items-center gap-2.5; }
+  .langswitch { @apply inline-flex rounded-lg border border-line bg-bg p-0.5; }
+  .langswitch > * { @apply rounded-md border-0 bg-transparent px-2.5 py-1 text-xs font-semibold text-muted no-underline shadow-none
+    hover:text-ink; }
+  .langswitch > .on { @apply bg-card text-ink shadow-xs; }
+  .tabs { @apply -mb-px flex items-center gap-1 overflow-x-auto; }
+  .tabs a { @apply border-b-2 border-transparent px-3 py-3 text-sm font-medium whitespace-nowrap text-muted no-underline
+    transition-colors hover:border-line hover:text-ink; }
+  .tabs a.on { @apply border-accent text-ink; }
+  .tab-controls { @apply ml-auto flex items-center gap-2; }
+  .tag { @apply max-w-2xl text-sm text-muted; }
+
+  /* ---------- key figures ---------- */
+  .kpis { @apply grid gap-3; grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 100%), 1fr)); }
+  .kpi { @apply rounded-xl border border-line bg-card px-4 py-3 shadow-xs; }
+  .card .kpi { @apply bg-bg shadow-none; }
+  .kpi b { @apply block text-xl leading-tight font-semibold tracking-tight tabular-nums; }
+  .kpi span { @apply mt-0.5 block text-xs text-muted; }
+  .kpi.bad b { @apply text-bad; }
+  .kpi.skel b, .kpi.skel span { @apply animate-pulse rounded bg-chip text-transparent; }
+  .kpi.skel b { @apply h-6 w-16; }
+  .kpi.skel span { @apply mt-1.5 h-3 w-24; }
+
+  /* ---------- cards and layout ---------- */
+  .tab { display: none; }
+  .tab.on { display: block; }
+  .card { @apply mt-4 min-w-0 rounded-2xl border border-line bg-card p-5 shadow-xs; }
+  .card:has(> .table) { @apply overflow-x-auto; }
+  .grid.two, .grid.three { @apply mt-4 grid gap-4; }
+  .grid.two { grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+  .grid.three { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+  .grid > .card { @apply mt-0; }
+  .hint { @apply ml-1.5 text-xs font-normal text-muted; }
+  .chart { @apply relative h-[260px]; }
+  .chart.tall { @apply h-[360px] md:h-[440px]; }
+  .chart.short { @apply h-40; }
+  .muted { @apply text-muted; }
+  .small { @apply text-[13px]; }
+  .ok { @apply text-ok; }
+  .bad { @apply text-bad; }
+  .warn { @apply text-warn; }
+  .mt { @apply mt-4; }
+  .row { @apply mt-2 flex flex-wrap items-center gap-2.5; }
+  .cols { @apply m-0 list-none p-0; columns: 3 220px; column-gap: 24px; }
+  .cols li { @apply break-inside-avoid py-0.5 text-sm; }
+  .cols a { @apply font-medium no-underline hover:underline; }
+  details summary { @apply cursor-pointer font-medium text-accent; }
+
+  /* ---------- filters ---------- */
+  .filters { @apply flex flex-col gap-4; }
+  .filter-row { @apply flex flex-wrap items-end gap-x-5 gap-y-3; }
+  .field { @apply flex flex-col gap-1.5; }
+  .field > label { @apply text-xs font-medium text-muted; }
+  .field.grow, .grow { flex: 1 1 220px; }
+  label.check { @apply flex cursor-pointer items-center gap-2 pb-1.5 text-sm text-ink; }
+  .count { @apply ml-auto text-sm text-muted; }
+  .active-skill { @apply flex items-center gap-1.5 rounded-full bg-accent py-1 pr-1.5 pl-3 text-sm text-on-accent; }
+  .active-skill button { @apply rounded-full border-0 bg-transparent px-1.5 text-base leading-none text-on-accent hover:bg-black/10; }
+
+  /* ---------- chips ---------- */
+  .chips { @apply flex flex-wrap gap-1.5; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full bg-chip px-2 py-0.5 text-xs font-medium whitespace-nowrap text-chip-ink; }
+  .chip.more { @apply bg-transparent text-muted ring-1 ring-line ring-inset; }
+  .chip.have { @apply bg-accent/15 text-accent ring-1 ring-accent/30 ring-inset; }
+  .toggles .chip { @apply cursor-pointer bg-card px-3 py-1 text-[13px] ring-1 ring-line ring-inset transition-colors select-none
+    hover:ring-accent/60; }
+  .toggles .chip.on { @apply bg-accent text-on-accent ring-accent; }
+  .chipinput { @apply relative flex min-h-10 flex-wrap items-center gap-1.5 rounded-lg border border-line bg-card px-2 py-1
+    shadow-xs transition focus-within:border-accent focus-within:ring-3 focus-within:ring-accent/20; }
+  .chipinput .chip { @apply py-1 pr-1 pl-2.5 text-[13px]; }
+  .chipinput .chip button { @apply rounded-full border-0 bg-transparent px-1 text-sm leading-none text-inherit hover:bg-black/10; }
+  .chipinput input { @apply min-w-[100px] flex-[1_1_120px] border-0 bg-transparent p-1 shadow-none focus:ring-0; }
+  .chipinput .suggest { @apply absolute inset-x-0 top-full z-30 mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-line
+    bg-card py-1 shadow-lg; }
+  .chipinput .opt { @apply cursor-pointer px-3 py-1.5 text-sm; }
+  .chipinput .opt:hover, .chipinput .opt.on { @apply bg-chip; }
+
+  /* ---------- tables and lists ---------- */
+  .table { @apply w-full border-collapse text-sm; }
+  .table th { @apply border-b border-line px-3 py-2.5 text-left text-xs font-semibold tracking-wide whitespace-nowrap text-muted uppercase; }
+  .table td { @apply border-b border-line px-3 py-2.5 align-top; }
+  .table tbody tr { @apply transition-colors hover:bg-chip/50; }
+  .table tbody tr:last-child td { @apply border-b-0; }
+  .table a { @apply font-medium no-underline hover:underline; }
+  a.co { @apply border-b border-dotted border-muted font-normal text-inherit no-underline hover:text-accent hover:no-underline; }
+  .matches { @apply m-0 list-decimal space-y-2.5 pl-5 text-sm marker:text-xs marker:text-muted; }
+  .matches a { @apply font-medium no-underline hover:underline; }
+  .matches .m { @apply mt-0.5 text-xs text-muted; }
+  .matches li.muted { @apply -ml-5 list-none; }
+  .star { @apply cursor-pointer border-0 bg-transparent px-1 text-base leading-none text-muted transition-colors hover:text-accent-2; }
+  .star.on { @apply text-accent-2; }
+  .badge { @apply ml-1.5 inline-flex rounded-full bg-accent-2 px-1.5 text-[10.5px] leading-4 font-semibold text-white align-middle; }
+  .badge.stale { @apply bg-chip text-muted; }
+  .match-bar { @apply inline-block h-2 w-16 overflow-hidden rounded-full bg-chip align-middle; }
+  .match-bar i { @apply block h-full rounded-full bg-accent; }
+  .more-cities { @apply cursor-help border-b border-dotted border-muted text-xs text-muted; }
+  .lang-nl, .lang-en, .lang-both { @apply text-xs text-muted; }
+  .pager { @apply mt-4 flex items-center justify-center gap-3 text-sm text-muted; }
+  .salary { @apply grid gap-3; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); }
+
+  /* ---------- overview graph ---------- */
+  #ov-graph svg { @apply size-full; }
+  #ov-graph text { @apply pointer-events-none fill-ink text-[11px]; }
+
+  /* ---------- account ---------- */
+  .card.account #acct-email { @apply max-w-sm min-w-60 flex-[1_1_240px]; }
+  .pw-form { @apply my-2 grid max-w-sm gap-2; }
+  .pw-form input { @apply w-full; }
+
+  /* ---------- banner, footer, loading ---------- */
+  .banner { @apply sticky top-0 z-30 flex items-center justify-center gap-3 bg-accent px-4 py-2 text-sm text-on-accent; }
+  .banner button.link { @apply text-on-accent; }
+  .banner button.primary { @apply border-card bg-card text-accent hover:bg-card/90; }
+  #adm-status { @apply min-h-8 rounded-lg bg-bg p-2 whitespace-pre-wrap; }
+  .seo-links { @apply mt-12 text-xs leading-7 text-muted; }
+  .seo-links a { @apply no-underline hover:underline; }
+  .site-footer { @apply mt-10 border-t border-line bg-card; }
+  .site-footer p { @apply text-xs leading-relaxed text-muted; }
+  .boot { @apply flex items-center justify-center gap-3 py-12 text-muted; }
+  .spinner { @apply size-6 animate-spin rounded-full border-3 border-line border-t-accent; }
+  .progress { @apply fixed inset-x-0 top-0 z-40 h-0.5 overflow-hidden; }
+  .progress::after { @apply absolute inset-y-0 left-0 w-2/5 bg-accent; content: ""; animation: slide 1s ease-in-out infinite; }
+
+  /* ---------- sign-in page ---------- */
+  .seg { @apply mb-6 grid grid-cols-2 rounded-xl border border-line bg-bg p-1; }
+  .seg button { @apply rounded-lg border-0 bg-transparent px-2.5 py-2 text-sm font-semibold text-muted transition hover:text-ink; }
+  .seg button.on { @apply bg-card text-ink shadow-sm; }
+  .msg { @apply mb-4 rounded-lg px-3 py-2.5 text-sm; }
+  .msg.err { @apply bg-bad/10 text-bad ring-1 ring-bad/20 ring-inset; }
+  .msg.info { @apply bg-accent/10 text-ink ring-1 ring-accent/20 ring-inset; }
+  .or { @apply my-4 flex items-center gap-3 text-xs text-muted before:h-px before:flex-1 before:bg-line after:h-px after:flex-1
+    after:bg-line; }
+
+  /* ---------- privacy page: typography plugin, coloured from the site's palette ---------- */
+  .prose {
+    --tw-prose-body: var(--ink); --tw-prose-headings: var(--ink); --tw-prose-links: var(--accent);
+    --tw-prose-bold: var(--ink); --tw-prose-counters: var(--muted); --tw-prose-bullets: var(--muted);
+    --tw-prose-hr: var(--line); --tw-prose-th-borders: var(--line); --tw-prose-td-borders: var(--line);
+    --tw-prose-quotes: var(--ink); --tw-prose-code: var(--ink); --tw-prose-captions: var(--muted);
+  }
+
+  /* ---------- analytics page (generated by its script) ---------- */
+  .an .tiles { @apply mb-4 grid gap-3; grid-template-columns: repeat(auto-fill, minmax(min(150px, 46%), 1fr)); }
+  .an .tile { @apply rounded-xl border border-line bg-card px-4 py-3 shadow-xs; }
+  .an .tile b { @apply block text-2xl leading-tight font-semibold tabular-nums; }
+  .an .tile span { @apply block text-[11px] tracking-wide text-muted uppercase; }
+  .an .tile small { @apply mt-0.5 block text-xs text-muted; }
+  .an .card { @apply mt-0; }
+  .an .card h2 { @apply mb-2.5 text-xs font-semibold tracking-wider text-muted uppercase; }
+  .an .chart { @apply h-44; }
+  .an table { @apply w-full border-collapse text-[13px]; }
+  .an th { @apply px-1.5 py-1 text-left text-[11px] font-semibold tracking-wide text-muted uppercase; }
+  .an td { @apply border-t border-line px-1.5 py-1.5 wrap-anywhere; }
+  .an td.n { @apply text-right font-semibold whitespace-nowrap text-accent-2 tabular-nums; }
+  .an .bars .row { @apply mt-0 grid items-center gap-2 py-0.5 text-[13px]; grid-template-columns: minmax(80px, 34%) 1fr 56px; }
+  .an .bars .row span:first-child { @apply truncate text-right; }
+  .an .bars .track { @apply h-2 overflow-hidden rounded-full bg-chip; }
+  .an .bars .fill { @apply h-full rounded-full bg-accent; }
+  .an .bars .row b { @apply text-right tabular-nums; }
+  .an .empty { @apply py-2 text-[13px] text-muted; }
+  .an .controls button.on { @apply border-accent bg-accent text-on-accent; }
+}
+
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+@media (prefers-reduced-motion: reduce) {
+  .spinner, .progress::after, .kpi.skel b, .kpi.skel span { animation: none; }
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 720px) {
+  /* the header scrolls away instead of covering half the screen, the "Personalised" switch gets its own row above
+     the tabs, and the five tabs fit without sideways scrolling */
+  .top { position: static; }
+  .topbar { height: 3.5rem; }
+  .brand h1 { font-size: 1rem; }
+  .tabs { flex-wrap: wrap; overflow: visible; gap: 0; }
+  .tabs a { flex: 1 1 auto; text-align: center; padding: .6rem .35rem; font-size: 13.5px; }
+  .tab-controls { order: -1; width: 100%; margin: 0; padding-top: .25rem; }
+  .kpis { grid-template-columns: 1fr 1fr; }
+  .kpi { padding: .5rem .75rem; }
+  .kpi b { font-size: 1.05rem; overflow-wrap: anywhere; }
+  .acct-btn { padding: .4rem .75rem; }
+
+  /* each job becomes a card instead of a 10-column table row.
+     cells: 1 star, 2 age, 3 title, 4 employer, 5 city, 6 level, 7 skills, 8 match, 9 language, 10 visa */
+  .table.postings, .table.postings tbody { display: block; width: 100%; }
+  .table.postings thead { display: none; }
+  .table.postings tr { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; position: relative;
+    padding: 12px 0 12px 32px; border-bottom: 1px solid var(--line); }
+  .table.postings tr:hover { background: transparent; }
+  .table.postings td { display: block; padding: 0; border: 0; }
+  .table.postings td:nth-child(1) { position: absolute; left: 0; top: 10px; }
+  .table.postings td:nth-child(3) { order: 1; flex-basis: 100%; font-weight: 600; line-height: 1.3; }
+  .table.postings td:nth-child(4), .table.postings td:nth-child(5) { order: 2; font-size: 13px; }
+  .table.postings td:nth-child(5):not(:empty)::before { content: "· "; color: var(--muted); }
+  .table.postings td:nth-child(6), .table.postings td:nth-child(9), .table.postings td:nth-child(10),
+  .table.postings td:nth-child(2) { order: 3; font-size: 12px; color: var(--muted); }
+  .table.postings td:nth-child(6):empty, .table.postings td:nth-child(10):has(> .muted) { display: none; }
+  .table.postings td:nth-child(2) { margin-left: auto; }
+  .table.postings td:nth-child(7) { display: block; order: 4; flex-basis: 100%; margin-top: 4px; }
+  .table.postings td:nth-child(7) .chip:nth-child(n+5):not(.more) { display: none; }
+  .table.postings td:nth-child(8) { display: none; }
+}
+@media (max-width: 360px) {
+  .tabs a { padding: .6rem .2rem; font-size: 12.5px; }
+}

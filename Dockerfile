@@ -6,6 +6,15 @@ COPY pyproject.toml ./
 COPY radar ./radar
 RUN pip install --prefix=/install . "uvicorn[standard]"
 
+# The stylesheet: Tailwind's standalone CLI (pinned, checksum-verified) scans the templates and writes web/app.css.
+# It runs on the build machine's own architecture; the CSS it produces is the same for every image.
+FROM --platform=$BUILDPLATFORM python:3.12-slim AS css
+WORKDIR /app
+COPY scripts/build_css.py ./scripts/
+COPY radar ./radar
+COPY web ./web
+RUN python scripts/build_css.py
+
 FROM python:3.12-slim
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 RADAR_LOG_JSON=1
@@ -13,6 +22,7 @@ RUN useradd --create-home --uid 10001 radar
 COPY --from=build /install /usr/local
 COPY radar ./radar
 COPY web ./web
+COPY --from=css /app/web/app.css ./web/app.css
 COPY data/golden ./data/golden
 COPY data/seeds ./data/seeds
 COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml data/company_sizes.tsv ./data/

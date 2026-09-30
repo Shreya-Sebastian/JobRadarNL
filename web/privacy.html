@@ -5,20 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy · {{SITE_NAME}}</title>
 <meta name="robots" content="noindex">
-<link rel="stylesheet" href="/static/style.css?v=10">
-<style>
-  html[lang="nl"] .en, html[lang="en"] .nl { display: none; }
-  main.privacy a { color: var(--accent); }
-  main.privacy { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
-  main.privacy h1 { font-size: 26px; margin: 0 0 4px; }
-  main.privacy h2 { font-size: 18px; margin: 28px 0 6px; }
-  main.privacy table { border-collapse: collapse; width: 100%; font-size: 14px; }
-  main.privacy th, main.privacy td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--line); }
-</style>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css?v=1">
+<style>html[lang="nl"] .en, html[lang="en"] .nl { display: none !important; }</style>
 </head>
 <body>
-<main class="privacy">
-<p class="small"><a href="/" class="en">← {{SITE_NAME}}</a><a href="/nl/" class="nl">← {{SITE_NAME}}</a> · <a href="/privacy">English</a> · <a href="/nl/privacy">Nederlands</a></p>
+<header class="top"><div class="wrap topbar max-w-3xl">
+  <a class="brand en" href="/"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><b>{{SITE_NAME}}</b></a><a class="brand nl" href="/nl/"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><b>{{SITE_NAME}}</b></a>
+  <div class="langswitch"><a href="/nl/privacy" data-l="nl">NL</a><a href="/privacy" data-l="en">EN</a></div>
+</div></header>
+<main class="privacy prose wrap max-w-3xl pt-6 pb-12">
 
 <section class="en">
   <h1>Privacy</h1>
@@ -95,5 +91,6 @@
   <p>Mail naar <a href="mailto:contact@techjobsradar.nl">contact@techjobsradar.nl</a>, voor vragen over je gegevens, een verzoek om ze in te zien, te corrigeren of te verwijderen, of iets anders over de site.{{SOURCE_NL}}</p>
 </section>
 </main>
+<script>document.querySelectorAll(".langswitch a").forEach((a) => a.classList.toggle("on", a.dataset.l === document.documentElement.lang));</script>
 </body>
 </html>

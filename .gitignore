@@ -42,3 +42,7 @@ deploy/aws/.terraform.lock.hcl
 deploy/aws/tfplan
 data/company_sizes.tsv.partial
 data/company_sizes.tsv.checked
+
+# front-end build output and tools (python scripts/build_css.py)
+web/app.css
+.tools/

@@ -1,0 +1,9 @@
+.git/
+.venv/
+.tools/
+**/__pycache__/
+*.db
+*.db-*
+web/app.css
+data/raw/
+data/enumerated/

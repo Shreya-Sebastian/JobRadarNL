@@ -1,0 +1,34 @@
+"""Every page loads the one Tailwind-built stylesheet, and the build script's pins stay consistent."""
+
+import importlib.util
+import re
+from pathlib import Path
+
+WEB = Path(__file__).resolve().parent.parent / "web"
+
+
+def test_every_page_uses_the_built_stylesheet():
+    pages = sorted(WEB.glob("*.html"))
+    assert pages
+    for page in pages:
+        html = page.read_text(encoding="utf-8")
+        assert '/static/app.css?v=' in html, page.name
+        assert "style.css" not in html, page.name
+    assert not (WEB / "style.css").exists()
+
+
+def test_tailwind_source_scans_the_templates_and_the_server_rendered_html():
+    src = (WEB / "src" / "app.css").read_text(encoding="utf-8")
+    assert 'source(none)' in src  # no automatic scanning of the whole repository (data files, vendor bundles)
+    for glob in ('"../*.html"', '"../app.js"', '"../../radar/*.py"'):
+        assert f"@source {glob}" in src
+
+
+def test_build_script_pins_a_checksum_for_every_platform_it_runs_on():
+    spec = importlib.util.spec_from_file_location("build_css", WEB.parent / "scripts" / "build_css.py")
+    build_css = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(build_css)
+
+    assert re.fullmatch(r"v\d+\.\d+\.\d+", build_css.VERSION)
+    for name in ("tailwindcss-linux-x64", "tailwindcss-linux-arm64", "tailwindcss-windows-x64.exe"):
+        assert re.fullmatch(r"[0-9a-f]{64}", build_css.SHA256[name])

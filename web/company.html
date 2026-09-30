@@ -10,23 +10,22 @@
 <link rel="alternate" hreflang="nl" href="{{SITE_URL}}{{NL_PATH}}">
 <link rel="alternate" hreflang="x-default" href="{{SITE_URL}}{{EN_PATH}}">
 {{ROBOTS}}
-<link rel="stylesheet" href="/static/style.css?v=13">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css?v=1">
 <script type="application/ld+json">{{JSONLD}}</script>
 </head>
 <body>
 <header class="top">
-  <div class="wrap">
-    <div>
-      <h1><a href="{{HOME}}" style="color:inherit;text-decoration:none">{{SITE_NAME}}</a></h1>
-      <p class="tag">{{TAGLINE}}</p>
-    </div>
+  <div class="wrap topbar">
+    <a class="brand" href="{{HOME}}"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><b>{{SITE_NAME}}</b></a>
+    <div class="langswitch"><a class="btn{{NL_ON}}" href="{{NL_PATH}}">NL</a><a class="btn{{EN_ON}}" href="{{EN_PATH}}">EN</a></div>
   </div>
   <nav class="tabs wrap">
     <a href="{{HOME}}">{{L_OVERVIEW}}</a><a href="{{HOME}}#jobs">{{L_JOBS}}</a><a href="{{HOME}}#market">{{L_MARKET}}</a><a href="{{COMPANIES}}" class="on">{{L_EMPLOYERS}}</a><a href="{{HOME}}#coverage">{{L_COVERAGE}}</a>
-    <div class="tab-controls"><div class="langswitch"><a class="btn{{NL_ON}}" href="{{NL_PATH}}">NL</a><a class="btn{{EN_ON}}" href="{{EN_PATH}}">EN</a></div></div>
   </nav>
 </header>
-<main class="wrap">
+<main class="wrap pt-1">
+  <p class="tag mt-4 mb-0">{{TAGLINE}}</p>
   <div class="card">
     <h2>{{COMPANY}} <span class="hint">{{L_SUBTITLE}}</span></h2>
     <div class="kpis">
@@ -38,7 +37,7 @@
     <p class="small"><b>{{L_CITIES}}:</b> {{CITIES}}</p>
     <p class="small"><b>{{L_SKILLS}}:</b></p>
     <div class="chips">{{SKILLS}}</div>
-    <p class="small"><a class="btn" href="{{HOME}}#company={{COMPANY_URLENC}}">{{L_INTERACTIVE}}</a> <span class="muted">{{L_INTERACTIVE_HINT}}</span></p>
+    <p class="small"><a class="btn primary" href="{{HOME}}#company={{COMPANY_URLENC}}">{{L_INTERACTIVE}}</a> <span class="muted">{{L_INTERACTIVE_HINT}}</span></p>
   </div>
   <div class="card">
     <h2>{{L_ROLES}} <span class="hint">{{L_ROLES_HINT}}</span></h2>
@@ -47,6 +46,6 @@
   </div>
   <p class="muted small">{{L_FOOTNOTE}} <a href="{{COMPANIES}}">{{L_ALL}}</a>.</p>
 </main>
-<footer class="wrap muted"><p><b>{{SITE_NAME}}</b> {{L_FOOTER}}</p></footer>
+<footer class="site-footer"><div class="wrap py-8"><p><b class="text-ink">{{SITE_NAME}}</b> {{L_FOOTER}}</p></div></footer>
 </body>
 </html>

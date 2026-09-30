@@ -3,7 +3,8 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
   const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-  const palette = ["#0b6e4f", "#ff7b1c", "#2a6f97", "#8e44ad", "#c0392b", "#16a085", "#f39c12", "#34495e",
+  // the first two follow the stylesheet's accent colours (they differ in dark mode)
+  const palette = [css("--accent") || "#047857", css("--accent-2") || "#f97316", "#2a6f97", "#8e44ad", "#c0392b", "#16a085", "#f39c12", "#34495e",
     "#7f8c8d", "#27ae60", "#d35400", "#2980b9"];
   const LEVELS = ["intern", "trainee", "junior", "medior", "senior", "lead", "staff", "manager"];
   const REMOTE = ["remote", "hybrid", "onsite"];

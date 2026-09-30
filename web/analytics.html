@@ -5,62 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Analytics · {{SITE_NAME}}</title>
-<link rel="stylesheet" href="/static/style.css?v=10">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css?v=1">
 <script src="/static/vendor/chart.umd.min.js"></script>
-<style>
-  body { background: var(--bg); }
-  .an { max-width: 1320px; margin: 0 auto; padding: 18px 16px 48px; }
-  .an header { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; margin-bottom: 14px; }
-  .an h1 { font-size: 22px; margin: 0; color: var(--accent); }
-  .an .sub { color: var(--muted); font-size: 13px; }
-  .an .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: 13px; }
-  .an .controls button { padding: 4px 10px; border-radius: 6px; font-size: 12px; }
-  .an .controls button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .an .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); display: inline-block; margin-right: 4px; }
-  .an .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 46%), 1fr)); gap: 10px; margin-bottom: 14px; }
-  .an .tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
-  .an .tile b { display: block; font-size: 26px; line-height: 1.15; font-variant-numeric: tabular-nums; }
-  .an .tile span { display: block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
-  .an .tile small { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .an .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 14px; margin-bottom: 14px; }
-  .an .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
-  .an .card h2 { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
-  .an .chart { position: relative; height: 180px; }
-  .an table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .an th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; padding: 4px 6px; }
-  .an td { padding: 5px 6px; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
-  .an td.n { text-align: right; font-variant-numeric: tabular-nums; color: var(--accent-2); font-weight: 600; white-space: nowrap; }
-  .an .bars .row { display: grid; grid-template-columns: minmax(80px, 34%) 1fr 56px; gap: 8px; align-items: center; font-size: 13px; padding: 3px 0; }
-  .an .bars .row span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
-  .an .bars .track { height: 8px; background: var(--chip); border-radius: 4px; overflow: hidden; }
-  .an .bars .fill { height: 100%; background: var(--accent); border-radius: 4px; }
-  .an .bars .row b { text-align: right; font-variant-numeric: tabular-nums; }
-  .an .empty { color: var(--muted); font-size: 13px; padding: 8px 0; }
-  .an .wide { overflow-x: auto; }
-  .an .section { font-size: 15px; margin: 26px 0 10px; }
-  .an .gate { max-width: 420px; margin: 12vh auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; }
-  .an .gate input { width: 100%; margin: 10px 0; }
-  .an .bot { color: var(--muted); }
-  .an .err { color: var(--bad); font-size: 13px; }
-</style>
 </head>
 <body>
-<main class="an">
-  <form class="gate" id="gate" hidden autocomplete="off">
-    <h1>Analytics</h1>
-    <p class="sub">Enter the admin token. It is kept in this browser tab only.</p>
+<main class="an wrap max-w-[1320px] pt-5 pb-12">
+  <form class="card mx-auto mt-[12vh] max-w-md" id="gate" hidden autocomplete="off">
+    <h1 class="text-xl">Analytics</h1>
+    <p class="small muted">Enter the admin token. It is kept in this browser tab only.</p>
     <!-- not a login password: keep browsers from saving it and filling it into the sign-in page -->
     <input type="password" id="token" name="admin-token" autocomplete="off" data-lpignore="true" data-1p-ignore
-           data-form-type="other" placeholder="admin token" required>
+           data-form-type="other" placeholder="admin token" required class="my-3 w-full">
     <button class="primary" type="submit">Open</button>
-    <p class="err" id="gate-err"></p>
+    <p class="small bad" id="gate-err"></p>
   </form>
 
   <div id="app" hidden>
-    <header>
-      <h1>Analytics</h1><span class="sub">{{SITE_NAME}}</span>
-      <span class="sub"><span class="dot"></span><span id="stamp"></span> · auto-refreshes every 60 s</span>
-      <div class="controls">
+    <header class="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+      <a class="brand" href="/"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><b>Analytics</b></a><span class="small muted">{{SITE_NAME}}</span>
+      <span class="small muted"><span class="mr-1 inline-block size-2 rounded-full bg-ok"></span><span id="stamp"></span> · auto-refreshes every 60 s</span>
+      <div class="controls ml-auto flex flex-wrap items-center gap-2">
         <button id="me" title="Sets a cookie in this browser only, so your own visits are not counted">Exclude this browser</button>
         <button id="bots">Include bots</button>
         <button id="refresh">Refresh</button>
@@ -70,9 +35,9 @@
 
     <div class="tiles" id="tiles"></div>
 
-    <div class="card" style="margin-bottom:14px"><h2>Traffic timeline (24 h)</h2><div class="chart"><canvas id="timeline"></canvas></div></div>
+    <div class="card mb-4"><h2>Traffic timeline (24 h)</h2><div class="chart"><canvas id="timeline"></canvas></div></div>
 
-    <div class="grid">
+    <div class="mb-4 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr))]">
       <div class="card"><h2>Top pages (24 h)</h2><div id="top_pages"></div></div>
       <div class="card"><h2>Top referrers</h2><div id="referrers"></div></div>
       <div class="card"><h2>Clicks through to employers</h2><div id="job_clicks_by_employer"></div></div>
@@ -90,17 +55,17 @@
       <div class="card"><h2>Top bandwidth (24 h)</h2><div id="consumers"></div></div>
     </div>
 
-    <h2 class="section">All time</h2>
+    <h2 class="mt-8 mb-3 text-base">All time</h2>
     <div class="tiles" id="alltime"></div>
-    <div class="card" style="margin-bottom:14px"><h2>Daily traffic (14 days)</h2><div class="chart"><canvas id="daily"></canvas></div></div>
-    <div class="grid">
+    <div class="card mb-4"><h2>Daily traffic (14 days)</h2><div class="chart"><canvas id="daily"></canvas></div></div>
+    <div class="mb-4 grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr))]">
       <div class="card"><h2>Top countries</h2><div id="at_countries" class="bars"></div></div>
       <div class="card"><h2>Top referrers</h2><div id="at_referrers"></div></div>
       <div class="card"><h2>Top pages</h2><div id="at_pages"></div></div>
     </div>
 
-    <div class="card wide"><h2>Recent visits (20)</h2><div id="recent"></div></div>
-    <p class="sub" style="margin-top:14px">Anonymous by design: no IP addresses and no cookies. A visitor is a daily-changing hash, so people are counted once per day but cannot be followed across days.</p>
+    <div class="card overflow-x-auto"><h2>Recent visits (20)</h2><div id="recent"></div></div>
+    <p class="small muted mt-4">Anonymous by design: no IP addresses and no cookies. A visitor is a daily-changing hash, so people are counted once per day but cannot be followed across days.</p>
   </div>
 </main>
 <script>
@@ -183,7 +148,7 @@
     bars("#statuses", d.statuses, (s) => ({ 200: "200 OK", 204: "204 No content", 301: "301 Moved", 303: "303 Redirect", 304: "304 Not modified", 401: "401 Unauthorised", 404: "404 Not found", 405: "405 Method", 422: "422 Invalid", 429: "429 Too many", 500: "500 Error", 502: "502 Bad gateway" }[s] || s));
     table("#top_api", d.top_api, "Endpoint");
     $("#consumers").innerHTML = d.consumers.length
-      ? `<table><tr><th>Who</th><th>Country</th><th style="text-align:right">Requests</th><th style="text-align:right">Data</th></tr>${d.consumers.map((c) => `<tr><td class="${c.bot ? "bot" : ""}">${esc(c.who)}</td><td>${esc(country(c.country))}</td><td class="n">${fmt(c.requests)}</td><td class="n">${mb(c.bytes)}</td></tr>`).join("")}</table>`
+      ? `<table><tr><th>Who</th><th>Country</th><th style="text-align:right">Requests</th><th style="text-align:right">Data</th></tr>${d.consumers.map((c) => `<tr><td class="${c.bot ? "muted" : ""}">${esc(c.who)}</td><td>${esc(country(c.country))}</td><td class="n">${fmt(c.requests)}</td><td class="n">${mb(c.bytes)}</td></tr>`).join("")}</table>`
       : `<div class="empty">No data yet</div>`;
 
     tiles("#alltime", [
