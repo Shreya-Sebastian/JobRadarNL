@@ -14,7 +14,6 @@ Live at **https://techjobsradar.nl**, in Dutch and English.
 | Sources | 2,811 career sites and job boards, 2,679 healthy on the last crawl |
 | Large Dutch employers tracked | 275 of 542 covered |
 | Extraction eval (46 postings) | 0.976 overall, skills F1 0.96 |
-| Tests | 154 |
 
 ## What it does
 
