@@ -118,9 +118,10 @@ def finalize() -> dict:
     init_db()
     with session_scope() as s:
         dups = mark_duplicates(s)
-        from radar import auth
+        from radar import auth, feedback
 
         auth.cleanup(s)
+        feedback.cleanup(s)
         live = s.scalar(select(func.count()).select_from(Posting).where(Posting.closed_at.is_(None),
                                                                         Posting.duplicate_of.is_(None)))
         tech = s.scalar(select(func.count()).select_from(Posting).where(

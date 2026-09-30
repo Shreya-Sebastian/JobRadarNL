@@ -37,6 +37,7 @@ from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
 
 from radar import mailer, passwords
+from radar.analytics import client_ip
 from radar.config import settings
 from radar.models import LoginToken, User, UserData, UserSession
 
@@ -153,7 +154,7 @@ def _issue_link(session: Session, request: Request, email: str, purpose: str, re
     email = email.strip().lower()
     if not _EMAIL.match(email):
         raise HTTPException(422, "that does not look like an e-mail address")
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request) or "unknown"  # the visitor, not the proxy in front of the app
     if not _ip_allowed(ip):
         raise HTTPException(429, "too many requests; try again later")
     hour_ago = datetime.utcnow() - timedelta(hours=1)
@@ -363,7 +364,7 @@ class PasswordLogin(BaseModel):
 def password_login(body: PasswordLogin, request: Request, session: Session = Depends(_db)):
     _require_json_header(request)
     email = body.email.strip().lower()
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request) or "unknown"  # the visitor, not the proxy in front of the app
     if not _ip_allowed(ip) or _locked(email):
         raise HTTPException(429, "too many attempts; try again in 15 minutes or use an e-mail link")
     user = session.scalar(select(User).where(User.email == email)) if _EMAIL.match(email) else None

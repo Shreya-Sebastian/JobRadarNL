@@ -211,3 +211,17 @@ class DiscoveryCandidate(Base):
     status: Mapped[str] = mapped_column(String(20))  # ok / not_found / error, or board / no_board / no_domain
     nl: Mapped[int] = mapped_column(Integer, default=0)  # postings in the Netherlands when last checked
     checked_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+
+
+class Feedback(Base):
+    """A message sent from the feedback page: a bug, an idea or a wrong or missing listing."""
+
+    __tablename__ = "feedback"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, index=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    message: Mapped[str] = mapped_column(Text)
+    email: Mapped[str | None] = mapped_column(String(200), nullable=True)  # only when the sender wants a reply
+    page: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    lang: Mapped[str] = mapped_column(String(2), default="en")

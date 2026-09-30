@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from radar import auth, stats
+from radar import auth, feedback, stats
 from radar.cache import cached
 from radar.config import settings
 from radar.db import get_engine, init_db, new_session
@@ -34,6 +34,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title=settings.site_name, version="0.2.0", lifespan=lifespan, description=settings.site_tagline)
 app.include_router(auth.router)
+app.include_router(feedback.router)
 _origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()] or ["*"]
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET", "POST"], allow_headers=["*"])
 
@@ -529,6 +530,8 @@ def _render_index(session: Session | None = None, lang: str = "en") -> str:
                 .replace("{{META_DESCRIPTION}}", desc)
                 .replace("{{VERIFY}}", seo.verification_meta())
                 .replace("{{SOURCE_LINK}}", _source_link(lang))
+                .replace("{{PRIVACY_PATH}}", "/nl/privacy" if lang == "nl" else "/privacy")
+                .replace("{{FEEDBACK_PATH}}", "/nl/feedback" if lang == "nl" else "/feedback")
                 .replace("{{SEO_LINKS}}", links))
 
 
@@ -549,6 +552,14 @@ if WEB_DIR.exists():
     def login_page(request: Request):
         lang = "nl" if request.url.path.startswith("/nl") else "en"
         html = (WEB_DIR / "login.html").read_text(encoding="utf-8")
+        return Response(html.replace("{{HTML_LANG}}", lang).replace("{{SITE_NAME}}", settings.site_name),
+                        media_type="text/html", headers={"X-Robots-Tag": "noindex"})
+
+    @app.get("/feedback", include_in_schema=False)
+    @app.get("/nl/feedback", include_in_schema=False)
+    def feedback_page(request: Request):
+        lang = "nl" if request.url.path.startswith("/nl") else "en"
+        html = (WEB_DIR / "feedback.html").read_text(encoding="utf-8")
         return Response(html.replace("{{HTML_LANG}}", lang).replace("{{SITE_NAME}}", settings.site_name),
                         media_type="text/html", headers={"X-Robots-Tag": "noindex"})
 

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="{{HTML_LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Feedback · {{SITE_NAME}}</title>
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css?v=1">
+<style>html[lang="nl"] .en, html[lang="en"] .nl { display: none !important; }</style>
+</head>
+<body class="flex min-h-screen flex-col">
+<header class="wrap flex h-16 max-w-3xl items-center justify-between">
+  <a class="brand" href="/" data-home><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><b>{{SITE_NAME}}</b></a>
+  <div class="flex items-center gap-4">
+    <a class="text-sm text-muted no-underline hover:text-accent" href="/" data-home><span class="en">← Back to the jobs</span><span class="nl">← Terug naar de vacatures</span></a>
+    <div class="langswitch lang"><a href="/nl/feedback" data-l="nl">NL</a><a href="/feedback" data-l="en">EN</a></div>
+  </div>
+</header>
+
+<main class="wrap max-w-3xl flex-1 pt-4 pb-12">
+  <section class="rounded-2xl border border-line bg-card p-6 shadow-xs sm:p-8" aria-live="polite">
+    <div id="form-view">
+      <h1 class="mb-1 text-2xl"><span class="en">Feedback</span><span class="nl">Feedback</span></h1>
+      <p class="mt-0 mb-6 text-sm text-muted"><span class="en">Found a bug, a listing that is wrong or missing, or have an idea? Every message is read.</span><span class="nl">Een fout gevonden, een vacature die niet klopt of ontbreekt, of een idee? Elk bericht wordt gelezen.</span></p>
+      <div class="msg err" id="err" hidden></div>
+      <form id="form" class="grid gap-4" novalidate>
+        <div class="field">
+          <label for="kind"><span class="en">What is it about?</span><span class="nl">Waar gaat het over?</span></label>
+          <select id="kind" class="max-w-sm">
+            <option value="bug" class="en">Something does not work</option><option value="bug" class="nl">Iets werkt niet</option>
+            <option value="listing" class="en">A wrong or missing listing</option><option value="listing" class="nl">Een vacature die niet klopt of ontbreekt</option>
+            <option value="idea" class="en">An idea</option><option value="idea" class="nl">Een idee</option>
+            <option value="other" class="en">Something else</option><option value="other" class="nl">Iets anders</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="message"><span class="en">Message</span><span class="nl">Bericht</span></label>
+          <textarea id="message" rows="7" maxlength="4000" class="mt-0" required></textarea>
+        </div>
+        <div class="field">
+          <label for="email"><span class="en">E-mail address, only if you would like a reply</span><span class="nl">E-mailadres, alleen als je een antwoord wilt</span></label>
+          <input type="email" id="email" class="max-w-sm" autocomplete="email" placeholder="you@example.com">
+        </div>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+        <div><button class="primary" type="submit" id="go"><span class="en">Send</span><span class="nl">Versturen</span></button></div>
+      </form>
+      <p class="mt-6 mb-0 text-xs text-muted"><span class="en">Your message and, if given, your e-mail address are kept for up to a year to reply and to fix what you report. See the</span><span class="nl">Je bericht en, als je het invult, je e-mailadres worden hooguit een jaar bewaard om te antwoorden en op te lossen wat je meldt. Zie de</span> <a class="text-muted" href="/privacy" data-privacy><span class="en">privacy statement</span><span class="nl">privacyverklaring</span></a>.</p>
+    </div>
+    <div id="sent-view" class="text-center" hidden>
+      <div class="mx-auto mt-1 mb-4 grid size-14 place-items-center rounded-full bg-accent/15 text-2xl text-accent">✓</div>
+      <h2 class="text-xl"><span class="en">Thank you</span><span class="nl">Bedankt</span></h2>
+      <p class="text-sm text-muted"><span class="en">Your message has been sent.</span><span class="nl">Je bericht is verstuurd.</span></p>
+      <p><a class="btn" href="/" data-home><span class="en">Back to the jobs</span><span class="nl">Terug naar de vacatures</span></a></p>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const lang = document.documentElement.lang === "nl" ? "nl" : "en";
+  const T = {
+    en: { short: "Please write a few words.", bad: "That does not look like an e-mail address.",
+          slow: "Too many messages. Please try again in an hour.", fail: "The message could not be sent. Please try again.",
+          net: "No connection. Check your internet and try again." },
+    nl: { short: "Schrijf een paar woorden.", bad: "Dat lijkt geen e-mailadres.",
+          slow: "Te veel berichten. Probeer het over een uur opnieuw.", fail: "Het bericht kon niet worden verstuurd. Probeer het opnieuw.",
+          net: "Geen verbinding. Controleer je internet en probeer het opnieuw." },
+  }[lang];
+  const home = lang === "nl" ? "/nl/" : "/";
+  document.querySelectorAll("[data-home]").forEach((a) => { a.href = home; });
+  document.querySelectorAll("[data-privacy]").forEach((a) => { a.href = lang === "nl" ? "/nl/privacy" : "/privacy"; });
+  document.querySelectorAll(".lang a").forEach((a) => a.classList.toggle("on", a.dataset.l === lang));
+  document.querySelectorAll(`#kind option.${lang === "nl" ? "en" : "nl"}`).forEach((o) => o.remove());
+  const qs = new URLSearchParams(location.search);
+  if (["bug", "listing", "idea", "other"].includes(qs.get("kind"))) $("#kind").value = qs.get("kind");
+  // the page the visitor came from, as context for a bug report (path only, never query strings)
+  let from = qs.get("from") || "";
+  try { if (!from && document.referrer && new URL(document.referrer).origin === location.origin) from = new URL(document.referrer).pathname + new URL(document.referrer).hash; } catch { /* ignore */ }
+  function error(msg) { $("#err").textContent = msg || ""; $("#err").hidden = !msg; }
+  $("#form").addEventListener("submit", async (e) => {
+    e.preventDefault(); error("");
+    const message = $("#message").value.trim(), email = $("#email").value.trim();
+    if (message.length < 5) { error(T.short); $("#message").focus(); return; }
+    if (email && !/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) { error(T.bad); $("#email").focus(); return; }
+    const btn = $("#go"); btn.disabled = true;
+    try {
+      const r = await fetch("/api/feedback", { method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "radar" },
+        body: JSON.stringify({ kind: $("#kind").value, message, email: email || null, page: from.slice(0, 300) || null, lang, website: $("#website").value }) });
+      if (r.ok) { $("#form-view").hidden = true; $("#sent-view").hidden = false; return; }
+      const d = await r.json().catch(() => ({}));
+      error(r.status === 429 ? T.slow : r.status === 422 ? (/e-mail/.test(d.detail || "") ? T.bad : T.short) : T.fail);
+    } catch { error(T.net); } finally { btn.disabled = false; }
+  });
+  $("#message").focus();
+})();
+</script>
+</body>
+</html>
