@@ -177,7 +177,7 @@ _SENIORITY = [
     ("trainee", r"\btrainee(ship)?s?\b|traineeprogramma|graduate (programme|program|scheme)|young professional|"
                 r"talent ?programm?a?\b|development program(me)?\b|starters?functie|starters?programma|"
                 r"\bstarter\b(?! kit)"),
-    ("junior", r"\bjunior\b|\bgraduate\b|entry[- ]level|\bstarter\b|early career|\bassociate\b(?!\s*director)"),
+    ("junior", r"\bjunior\b|\bgraduate\b|entry[- ]level|\bstarter\b|early career"),
     ("staff", r"\bstaff\b|\bprincipal\b|\bdistinguished\b|\b(?:technical|engineering) fellow\b"),
     (
         "manager",
@@ -187,6 +187,8 @@ _SENIORITY = [
     ("lead", r"\blead\b|\btech ?lead\b|\bteam ?lead\b|\bteamleider\b|\barchitect\b"),
     ("senior", r"\bsenior\b|\bsr\.?\b"),
     ("medior", r"\bmedior\b|\bmid[- ]level\b|\bintermediate\b"),
+    # checked last, so "Senior Associate" and "Associate Manager" keep their level
+    ("junior", r"\bassociate\b(?!\s*director)"),
 ]
 _ROLE = [
     ("product", r"product (owner|manager)|scrum master|agile coach|project manager|delivery manager"),
