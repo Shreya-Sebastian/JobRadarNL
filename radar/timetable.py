@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import threading
+import time
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -74,7 +75,10 @@ def start(redis, interval_seconds: int = 20) -> threading.Thread:
     """Check the timetable a few times a minute in a daemon thread."""
 
     def loop():
+        from radar import health
+
         stop = threading.Event()
+        next_health = 0.0
         while not stop.wait(interval_seconds):
             try:
                 names = tick(redis)
@@ -82,6 +86,13 @@ def start(redis, interval_seconds: int = 20) -> threading.Thread:
                     log.info("timetable enqueued %s", ", ".join(names))
             except Exception:  # Redis briefly away: try again on the next tick
                 log.exception("timetable tick failed")
+            # crawl freshness is checked here, in the worker itself, so it still reports when queued jobs fail
+            if time.monotonic() >= next_health:
+                next_health = time.monotonic() + 15 * 60
+                try:
+                    health.check_freshness(redis)
+                except Exception:
+                    log.exception("freshness check failed")
 
     t = threading.Thread(target=loop, name="timetable", daemon=True)
     t.start()

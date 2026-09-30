@@ -56,6 +56,8 @@ class Settings(BaseSettings):
     # "smtp" sends through RADAR_SMTP_HOST, e.g. Amazon SES's SMTP endpoint
     mail_backend: str = "console"
     mail_from: str = "Tech Jobs Radar <login@techjobsradar.nl>"
+    # where alerts go (crawling stalled, nightly quality check failed); empty = only logged
+    alert_email: str | None = "contact@techjobsradar.nl"
     smtp_host: str = "localhost"
     smtp_port: int = 587
     smtp_user: str | None = None

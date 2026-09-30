@@ -359,3 +359,16 @@ def test_rust_and_scala_are_not_read_from_dutch_words():
     for text in ("rust en ruimte om te groeien", "in alle rust werken", "met rust laten",
                  "een breed scala aan projecten", "een scala van mogelijkheden"):
         assert not {"Rust", "Scala"} & set(find_skills(text)), text
+
+
+def test_it_operations_skills_are_recognised():
+    from radar.taxonomy import find_skills
+
+    text = ("Je werkt in de servicedesk (1e lijns) en beheert Microsoft 365, Active Directory en Intune. "
+            "Ervaring met ITIL, TOPdesk, VMware en Cisco firewalls is een pre. Kennis van AFAS en PLC-programmering.")
+    found = set(find_skills(text))
+    for skill in ("IT Support", "Microsoft 365", "Windows Server/AD", "Endpoint Management", "ITIL/ITSM",
+                  "Virtualization", "Networking", "ERP", "PLC/Industrial Automation"):
+        assert skill in found, skill
+    assert "Application Management" in find_skills("Als functioneel beheerder ben je verantwoordelijk voor ...")
+    assert "Application Management" not in find_skills("Je werkt samen met functioneel beheer en de gebruikers.")

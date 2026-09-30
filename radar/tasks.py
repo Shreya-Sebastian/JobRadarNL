@@ -169,6 +169,9 @@ def qualitycheck() -> dict:
     bad = violations(report)
     for v in bad:
         log.error("quality violation: %s", v)
+    from radar import health
+
+    health.report_quality(bad)
     return {"violations": bad}
 
 
