@@ -102,7 +102,7 @@
       "acct.delete.confirm": "Delete your account? Your e-mail address, profile and saved jobs are removed from the server. This browser keeps its own copy.",
       "acct.deleted": "Your account is deleted.", "privacy": "Privacy", "feedback": "Feedback",
       "also.in": "Also advertised in {c}",
-      "fresh.text": "New listings are in.", "fresh.reload": "Refresh", "fresh.later": "Later",
+      "fresh.text": "New listings are in", "fresh.none": "No new listings yet", "fresh.reload": "Refresh",
       "adm.title": "Admin: refresh listings", "adm.token": "Admin token", "adm.company": "Employer (for a single-employer crawl)",
       "adm.force": "Ignore the 10-minute cool-down", "adm.due": "Crawl sources that are due", "adm.one": "Crawl this employer", "adm.all": "Crawl everything",
      
@@ -210,7 +210,7 @@
       "acct.delete.confirm": "Je account verwijderen? Je e-mailadres, profiel en bewaarde vacatures worden van de server verwijderd. Deze browser houdt zijn eigen kopie.",
       "acct.deleted": "Je account is verwijderd.", "privacy": "Privacy", "feedback": "Feedback",
       "also.in": "Ook geadverteerd in {c}",
-      "fresh.text": "Er zijn nieuwe vacatures binnen.", "fresh.reload": "Vernieuwen", "fresh.later": "Later",
+      "fresh.text": "Er zijn nieuwe vacatures", "fresh.none": "Nog geen nieuwe vacatures", "fresh.reload": "Vernieuwen",
       "adm.title": "Beheer: vacatures verversen", "adm.token": "Beheertoken", "adm.company": "Werkgever (voor één werkgever)",
       "adm.force": "Wachttijd van 10 minuten negeren", "adm.due": "Bronnen verversen die aan de beurt zijn", "adm.one": "Deze werkgever verversen", "adm.all": "Alles verversen",
      
@@ -602,8 +602,10 @@
     const p = state.profile;
     return { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", savedOnly: false, exclude: [...p.exclude] };
   }
+  const emptyJobFilters = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false, exclude: [] });
+  // the Jobs tab opens with the saved profile's filters; "Reset filters" clears them, "Use my profile" brings them back
   function currentJobFilters() {
-    if (!jobFilters) jobFilters = { roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false, exclude: [] };
+    if (!jobFilters) jobFilters = hasProfileFilters() ? profileJobFilters() : emptyJobFilters();
     return jobFilters;
   }
   function jobParams() {
@@ -652,7 +654,7 @@
       $("#f-sort").addEventListener("change", (e) => { state.sort = e.target.value; refreshJobs(true); });
       let tm; $("#f-q").addEventListener("input", (e) => { clearTimeout(tm); tm = setTimeout(() => { currentJobFilters().q = e.target.value.trim(); refreshJobs(true); }, 350); });
       $("#clear-skill").addEventListener("click", () => { state.skill = null; refreshJobs(true); });
-      $("#f-reset").addEventListener("click", () => { jobFilters = null; state.skill = null; state.sort = "newest"; buildJobsFilters(); refreshJobs(true); });
+      $("#f-reset").addEventListener("click", () => { jobFilters = emptyJobFilters(); state.skill = null; state.sort = "newest"; buildJobsFilters(); refreshJobs(true); });
       $("#f-profile").addEventListener("click", () => { jobFilters = profileJobFilters(); state.skill = null; buildJobsFilters(); refreshJobs(true); });
       $("#prev").addEventListener("click", () => { state.page--; refreshJobs(); });
       $("#next").addEventListener("click", () => { state.page++; refreshJobs(); });
@@ -896,18 +898,20 @@
   }
 
 
-  // ---------- freshness banner ----------
+  // ---------- refresh button: enabled once newer listings exist ----------
   let loadedVersion = null;
   async function checkFresh() {
     if (document.hidden) return;
     try {
       const v = await api("/api/version");
       if (loadedVersion === null) loadedVersion = v.version;
-      else if (v.version !== loadedVersion) $("#fresh-banner").hidden = false;
+      else if (v.version !== loadedVersion) {
+        const b = $("#fresh-btn");
+        b.disabled = false; b.dataset.i18nTitle = "fresh.text"; b.title = t("fresh.text");
+      }
     } catch { /* offline: try again next minute */ }
   }
-  $("#fresh-reload").addEventListener("click", () => location.reload());
-  $("#fresh-dismiss").addEventListener("click", async () => { $("#fresh-banner").hidden = true; try { loadedVersion = (await api("/api/version")).version; } catch { /* ignore */ } });
+  $("#fresh-btn").addEventListener("click", () => location.reload());
   checkFresh();
   setInterval(checkFresh, 60000);
 

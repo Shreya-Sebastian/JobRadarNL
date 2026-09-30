@@ -211,10 +211,11 @@
   .pw-form { @apply my-2 grid max-w-sm gap-2; }
   .pw-form input { @apply w-full; }
 
-  /* ---------- banner, footer, loading ---------- */
-  .banner { @apply sticky top-0 z-30 flex items-center justify-center gap-3 bg-accent px-4 py-2 text-sm text-on-accent; }
-  .banner button.link { @apply text-on-accent; }
-  .banner button.primary { @apply border-card bg-card text-accent hover:bg-card/90; }
+  /* ---------- refresh button, footer, loading ---------- */
+  .refresh-btn { @apply px-2.5 py-1.5 text-xs font-semibold; }
+  .refresh-btn:not(:disabled) { @apply border-accent text-accent; }
+  .refresh-btn:disabled { @apply cursor-default opacity-40 hover:bg-card; }
+  .refresh-btn span { @apply max-sm:hidden; }
   #adm-status { @apply min-h-8 rounded-lg bg-bg p-2 whitespace-pre-wrap; }
   .seo-links { @apply mt-12 text-xs leading-7 text-muted; }
   .seo-links a { @apply no-underline hover:underline; }

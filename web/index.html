@@ -16,7 +16,7 @@
 {{VERIFY}}
 <script type="application/ld+json">{{SITE_JSONLD}}</script>
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/static/app.css?v=2">
+<link rel="stylesheet" href="/static/app.css?v=3">
 <script src="/static/vendor/chart.umd.min.js"></script>
 <script src="/static/vendor/d3.min.js"></script>
 </head>
@@ -26,6 +26,7 @@
   <div class="wrap topbar">
     <a class="brand" href="{{HOME_PATH}}" id="brand" title="{{SITE_NAME}}"><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--accent)"/><g fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="10" opacity=".35"/><circle cx="16" cy="16" r="5.5" opacity=".6"/><path d="M16 16l7-7"/></g><circle cx="16" cy="16" r="1.8" fill="var(--on-accent)"/><circle cx="10.5" cy="20" r="1.8" fill="var(--on-accent)"/></svg><h1>{{SITE_NAME}}</h1></a>
     <div class="topbar-right">
+      <button class="refresh-btn" id="fresh-btn" disabled data-i18n-title="fresh.none" title="No new listings yet"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span data-i18n="fresh.reload">Refresh</span></button>
       <div class="langswitch" id="langswitch"><button data-lang="nl">NL</button><button data-lang="en">EN</button></div>
       <button class="acct-btn" id="acct-btn" data-i18n="acct.login">Log in</button>
       <div class="relative" id="acct" hidden>
@@ -48,7 +49,6 @@
 </header>
 
 <div class="toast" id="toast" role="status" hidden></div>
-<div class="banner" id="fresh-banner" hidden><span data-i18n="fresh.text">New listings are in.</span> <button class="primary" id="fresh-reload" data-i18n="fresh.reload">Refresh</button> <button class="link" id="fresh-dismiss" data-i18n="fresh.later">Later</button></div>
 <main class="wrap pt-5">
 <div class="kpis sm:grid-cols-4" id="kpis">
   <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
@@ -269,6 +269,6 @@
   <p class="mt-6 border-t border-line pt-6"><b class="text-ink">{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites. Built by Shreya Sebastian.</span> <a href="{{PRIVACY_PATH}}" data-i18n="privacy">Privacy</a> · <a href="{{FEEDBACK_PATH}}" data-i18n="feedback">Feedback</a>{{SOURCE_LINK}}</p>
  </div>
 </footer>
-<script src="/static/app.js?v=62"></script>
+<script src="/static/app.js?v=65"></script>
 </body>
 </html>
