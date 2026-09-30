@@ -33,7 +33,7 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session
 
 from radar import mailer, passwords
@@ -114,7 +114,43 @@ class LinkRequest(BaseModel):
 @router.post("/api/auth/request")
 def request_link(body: LinkRequest, request: Request, session: Session = Depends(_db)):
     _require_json_header(request)
-    email = body.email.strip().lower()
+    return _issue_link(session, request, body.email, "login", body.remember, body.lang)
+
+
+class SignupRequest(BaseModel):
+    email: str = Field(max_length=254)
+    password: str = Field(max_length=passwords.MAX_LENGTH)
+    lang: str = "en"
+    remember: bool = True
+
+
+@router.post("/api/auth/signup")
+def signup(body: SignupRequest, request: Request, session: Session = Depends(_db)):
+    """Create an account with a password. Nothing is created until the address is confirmed with the e-mailed
+    link, so nobody can register (or set a password on) an address they cannot read."""
+    _require_json_header(request)
+    why = passwords.problem(body.password)
+    if why:
+        raise HTTPException(422, why)
+    return _issue_link(session, request, body.email, "signup", body.remember, body.lang,
+                       password_hash=passwords.hash_password(body.password))
+
+
+class ForgotRequest(BaseModel):
+    email: str = Field(max_length=254)
+    lang: str = "en"
+
+
+@router.post("/api/auth/forgot")
+def forgot_password(body: ForgotRequest, request: Request, session: Session = Depends(_db)):
+    """A reset link: opening it signs in and allows choosing a new password without the old one for 15 minutes."""
+    _require_json_header(request)
+    return _issue_link(session, request, body.email, "reset", True, body.lang)
+
+
+def _issue_link(session: Session, request: Request, email: str, purpose: str, remember: bool, lang: str,
+                password_hash: str | None = None) -> dict:
+    email = email.strip().lower()
     if not _EMAIL.match(email):
         raise HTTPException(422, "that does not look like an e-mail address")
     ip = request.client.host if request.client else "unknown"
@@ -128,14 +164,15 @@ def request_link(body: LinkRequest, request: Request, session: Session = Depends
         out["delivery"] = "console"  # no mail service configured: say so instead of pretending a mail is on its way
     if recent < MAX_PER_EMAIL_PER_HOUR:
         token = secrets.token_urlsafe(32)
-        session.add(LoginToken(token_hash=_hash(token), email=email, ip=ip, remember=body.remember,
+        session.add(LoginToken(token_hash=_hash(token), email=email, ip=ip, remember=remember, purpose=purpose,
+                               password_hash=password_hash,
                                expires_at=datetime.utcnow() + timedelta(minutes=TOKEN_MINUTES)))
         session.commit()
         # The link always points at the configured public site, never at the Host header of this request (which
         # a caller controls). Only the console backend, which sends nothing, uses the local address.
         base = str(request.base_url) if settings.mail_backend == "console" else settings.site_url
         try:
-            link = _send_link(email, token, "nl" if body.lang == "nl" else "en", base)
+            link = _send_link(email, token, "nl" if lang == "nl" else "en", base, purpose)
         except (smtplib.SMTPException, OSError) as e:
             # the mail service refused or could not be reached: say so, and log one line instead of a trace
             log.error("login mail to %s not sent: %s", mailer._mask(email), e)
@@ -146,17 +183,32 @@ def request_link(body: LinkRequest, request: Request, session: Session = Depends
     return out
 
 
-def _send_link(email: str, token: str, lang: str, base: str) -> str:
+_MAIL = {
+    "en": {
+        "login": ("Sign in to {name}", "Click this link to sign in to {name}:"),
+        "signup": ("Confirm your e-mail address for {name}",
+                   "Click this link to confirm your e-mail address and finish creating your {name} account:"),
+        "reset": ("Reset your {name} password", "Click this link to choose a new password for {name}:"),
+        "tail": "The link works once and is valid for {m} minutes. If you did not ask for it, you can ignore this "
+                "e-mail.",
+    },
+    "nl": {
+        "login": ("Inloggen bij {name}", "Klik op deze link om in te loggen bij {name}:"),
+        "signup": ("Bevestig je e-mailadres voor {name}",
+                   "Klik op deze link om je e-mailadres te bevestigen en je {name}-account af te maken:"),
+        "reset": ("Nieuw wachtwoord voor {name}", "Klik op deze link om een nieuw wachtwoord te kiezen voor {name}:"),
+        "tail": "De link werkt één keer en is {m} minuten geldig. Heb je dit niet aangevraagd? Dan kun je deze "
+                "e-mail negeren.",
+    },
+}
+
+
+def _send_link(email: str, token: str, lang: str, base: str, purpose: str = "login") -> str:
     link = f"{base.rstrip('/')}/auth/verify?token={quote(token)}"
     name = settings.site_name
-    if lang == "nl":
-        subject = f"Inloggen bij {name}"
-        text = (f"Klik op deze link om in te loggen bij {name}:\n\n{link}\n\nDe link werkt één keer en is "
-                f"{TOKEN_MINUTES} minuten geldig. Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren.")
-    else:
-        subject = f"Sign in to {name}"
-        text = (f"Click this link to sign in to {name}:\n\n{link}\n\nThe link works once and is valid for "
-                f"{TOKEN_MINUTES} minutes. If you did not ask for it, you can ignore this e-mail.")
+    t = _MAIL["nl" if lang == "nl" else "en"]
+    subject, intro = (x.format(name=name) for x in t.get(purpose, t["login"]))
+    text = f"{intro}\n\n{link}\n\n{t['tail'].format(m=TOKEN_MINUTES)}"
     html = "<p>" + escape(text.split("\n\n")[0]) + f'</p><p><a href="{escape(link)}">{escape(link)}</a></p><p>' + \
         escape(text.split("\n\n")[2]) + "</p>"
     mailer.send(email, subject, text, html)
@@ -170,15 +222,25 @@ def verify(token: str, request: Request, session: Session = Depends(_db)):
     if row is None or row.used_at is not None or row.expires_at <= now:
         return RedirectResponse("/login?expired=1", status_code=303)
     row.used_at = now
-    return _sign_in(session, request, row.email, row.remember is not False,
-                    RedirectResponse("/?login=ok#profile", status_code=303))
+    purpose = row.purpose or "login"
+    target = "/?login=ok&reset=1#profile" if purpose == "reset" else "/?login=ok#profile"
+    resp = _sign_in(session, request, row.email, row.remember is not False, RedirectResponse(target, status_code=303),
+                    reset=purpose == "reset")
+    if purpose == "signup" and row.password_hash:
+        # the address is confirmed now, so the password chosen at sign-up takes effect
+        user = session.scalar(select(User).where(User.email == row.email))
+        user.password_hash, user.password_set_at = row.password_hash, now
+        row.password_hash = None
+        session.commit()
+    return resp
 
 
 def _local(request: Request) -> bool:
     return request.url.hostname in {"localhost", "127.0.0.1", "::1", "testserver"}
 
 
-def _sign_in(session: Session, request: Request, email: str, remember: bool, resp: Response) -> Response:
+def _sign_in(session: Session, request: Request, email: str, remember: bool, resp: Response,
+             reset: bool = False) -> Response:
     """Create the account on first sign-in, open a session and set its cookie on `resp` (every method ends here)."""
     now = datetime.utcnow()
     user = session.scalar(select(User).where(User.email == email))
@@ -191,7 +253,8 @@ def _sign_in(session: Session, request: Request, email: str, remember: bool, res
     # "keep me signed in": a cookie that lasts session_days; otherwise a browser-session cookie that ends when the
     # browser closes, and a server-side session that ends after short_session_hours at the latest
     lifetime = timedelta(days=settings.session_days) if remember else timedelta(hours=settings.short_session_hours)
-    session.add(UserSession(token_hash=_hash(raw), user_id=user.id, expires_at=now + lifetime))
+    session.add(UserSession(token_hash=_hash(raw), user_id=user.id, expires_at=now + lifetime,
+                            reset_until=now + timedelta(minutes=TOKEN_MINUTES) if reset else None))
     session.commit()
     # Secure behind a TLS-terminating proxy too (the app then sees http); only a local run gets a plain cookie
     resp.set_cookie(COOKIE, raw, max_age=int(lifetime.total_seconds()) if remember else None, httponly=True,
@@ -325,15 +388,25 @@ def set_password(body: PasswordChange, request: Request, user: User = Depends(re
                  session: Session = Depends(_db)):
     _require_json_header(request)
     u = session.get(User, user.id)
-    if u.password_hash and not passwords.verify_password(body.current, u.password_hash):
+    resetting = _reset_allowed(request, session)
+    if u.password_hash and not resetting and not passwords.verify_password(body.current, u.password_hash):
         raise HTTPException(403, "the current password is not right")
     why = passwords.problem(body.password)
     if why:
         raise HTTPException(422, why)
     u.password_hash = passwords.hash_password(body.password)
     u.password_set_at = datetime.utcnow()
+    if resetting:  # the reset allowance is used up
+        session.execute(update(UserSession).where(UserSession.token_hash == _hash(request.cookies.get(COOKIE, "")))
+                        .values(reset_until=None))
     session.commit()
     return {"has_password": True}
+
+
+def _reset_allowed(request: Request, session: Session) -> bool:
+    token = request.cookies.get(COOKIE)
+    row = session.scalar(select(UserSession).where(UserSession.token_hash == _hash(token))) if token else None
+    return bool(row and row.reset_until and row.reset_until > datetime.utcnow())
 
 
 @router.delete("/api/me/password")
@@ -365,11 +438,11 @@ def logout(request: Request, response: Response, session: Session = Depends(_db)
 
 
 @router.get("/api/me")
-def me(user: User | None = Depends(current_user)):
+def me(request: Request, user: User | None = Depends(current_user), session: Session = Depends(_db)):
     if user is None:
         return {"signed_in": False}
     return {"signed_in": True, "email": user.email, "since": user.created_at.date().isoformat(),
-            "has_password": bool(user.password_hash)}
+            "has_password": bool(user.password_hash), "can_reset_password": _reset_allowed(request, session)}
 
 
 class DataBody(BaseModel):

@@ -122,3 +122,49 @@ def test_google_unverified_email_is_refused(client, monkeypatch):
 def test_google_button_hidden_when_not_configured(client):
     assert client.get("/api/auth/methods").json()["google"] is False
     assert client.get("/auth/google", follow_redirects=False).headers["location"] == "/login?google=off"
+
+
+def _open_last_link(client):
+    body = mailer.OUTBOX[-1].get_body(("plain",)).get_content()
+    token = parse_qs(urlparse(next(w for w in body.split() if "token=" in w)).query)["token"][0]
+    return client.get(f"/auth/verify?token={token}", follow_redirects=False)
+
+
+def test_sign_up_with_a_password_needs_the_confirmation_link(client):
+    assert client.post("/api/auth/signup", json={"email": "new@example.org", "password": "short"},
+                       headers=H).status_code == 422
+    assert client.post("/api/auth/signup", json={"email": "new@example.org", "password": "a fine pass 42"},
+                       headers=H).json()["ok"] is True
+    assert mailer.OUTBOX[-1]["Subject"].startswith("Confirm your e-mail address")
+    with session_scope() as s:
+        assert s.query(User).count() == 0  # nothing exists until the address is confirmed
+    assert client.post("/api/auth/password", json={"email": "new@example.org", "password": "a fine pass 42"},
+                       headers=H).status_code == 401
+    assert _open_last_link(client).headers["location"] == "/?login=ok#profile"
+    assert client.get("/api/me").json()["has_password"] is True
+    client.post("/api/auth/logout", headers=H)
+    assert client.post("/api/auth/password", json={"email": "new@example.org", "password": "a fine pass 42"},
+                       headers=H).status_code == 200
+
+
+def test_forgot_password_link_allows_one_new_password_without_the_old(client):
+    _link_login(client)
+    client.put("/api/me/password", json={"password": "the old pass 1"}, headers=H)
+    client.post("/api/auth/logout", headers=H)
+    assert client.post("/api/auth/forgot", json={"email": "ada@example.org"}, headers=H).json()["ok"] is True
+    assert mailer.OUTBOX[-1]["Subject"].startswith("Reset your")
+    assert _open_last_link(client).headers["location"] == "/?login=ok&reset=1#profile"
+    assert client.get("/api/me").json()["can_reset_password"] is True
+    assert client.put("/api/me/password", json={"password": "the new pass 2"}, headers=H).status_code == 200
+    # used up: a second change needs the current password again
+    assert client.get("/api/me").json()["can_reset_password"] is False
+    assert client.put("/api/me/password", json={"password": "a third pass 3"}, headers=H).status_code == 403
+    client.post("/api/auth/logout", headers=H)
+    assert client.post("/api/auth/password", json={"email": "ada@example.org", "password": "the new pass 2"},
+                       headers=H).status_code == 200
+
+
+def test_forgot_and_signup_do_not_reveal_whether_an_address_exists(client):
+    for path, body in (("/api/auth/forgot", {"email": "nobody@example.org"}),
+                       ("/api/auth/signup", {"email": "nobody@example.org", "password": "a fine pass 42"})):
+        assert client.post(path, json=body, headers=H).json()["ok"] is True

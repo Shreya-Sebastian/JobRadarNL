@@ -81,7 +81,7 @@
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
       "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
       "acct.go": "Sign in or create an account",
-      "pw.label": "Password", "pw.none": "No password yet. You sign in with an e-mail link or Google; add a password to sign in with it too.",
+      "pw.choose": "Choose your new password.", "pw.label": "Password", "pw.none": "No password yet. You sign in with an e-mail link or Google; add a password to sign in with it too.",
       "pw.has": "You can sign in with your password, an e-mail link or Google.", "pw.set": "Set a password", "pw.change": "Change password",
       "pw.remove": "Remove password", "pw.current": "Current password", "pw.new": "New password (10+ characters)", "pw.repeat": "Repeat the new password",
       "pw.save": "Save password", "pw.cancel": "Cancel", "pw.mismatch": "The two passwords are not the same.", "pw.saved": "Password saved.",
@@ -192,7 +192,7 @@
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
       "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
       "acct.go": "Inloggen of account maken",
-      "pw.label": "Wachtwoord", "pw.none": "Nog geen wachtwoord. Je logt in met een e-maillink of Google; voeg een wachtwoord toe om daar ook mee in te loggen.",
+      "pw.choose": "Kies je nieuwe wachtwoord.", "pw.label": "Wachtwoord", "pw.none": "Nog geen wachtwoord. Je logt in met een e-maillink of Google; voeg een wachtwoord toe om daar ook mee in te loggen.",
       "pw.has": "Je kunt inloggen met je wachtwoord, een e-maillink of Google.", "pw.set": "Wachtwoord instellen", "pw.change": "Wachtwoord wijzigen",
       "pw.remove": "Wachtwoord verwijderen", "pw.current": "Huidig wachtwoord", "pw.new": "Nieuw wachtwoord (10+ tekens)", "pw.repeat": "Herhaal het nieuwe wachtwoord",
       "pw.save": "Wachtwoord opslaan", "pw.cancel": "Annuleren", "pw.mismatch": "De twee wachtwoorden zijn niet gelijk.", "pw.saved": "Wachtwoord opgeslagen.",
@@ -821,7 +821,7 @@
       $("#pw-state").textContent = t(me.has_password ? "pw.has" : "pw.none");
       $("#pw-set").textContent = t(me.has_password ? "pw.change" : "pw.set");
       $("#pw-remove").hidden = !me.has_password;
-      $("#pw-current").hidden = !me.has_password;
+      $("#pw-current").hidden = !me.has_password || !!me.can_reset_password;
       $("#pw-user").value = me.email;
       fetch("/api/me/alerts", { credentials: "same-origin" }).then((r) => r.ok ? r.json() : null)
         .then((a) => { if (a) $("#acct-alerts").value = a.frequency; }).catch(() => {});
@@ -874,6 +874,17 @@
     });
     // back from the e-mailed link: /?login=ok#profile or /?login=expired#profile
     const q = new URLSearchParams(location.search);
+    if (q.get("reset") === "1") {
+      // opened from a "forgot password" link: go straight to choosing a new one
+      let tries = 0;
+      const open = () => {
+        if (!account.me) { if (++tries < 40) setTimeout(open, 150); return; }  // wait for the account to load
+        $("#acct-card").scrollIntoView({ block: "start" });
+        $("#pw-set").click();
+        $("#pw-msg").textContent = t("pw.choose");
+      };
+      open();
+    }
     if (q.has("login")) {
       const msg = q.get("login") === "ok" ? "acct.welcome" : "acct.expired";
       history.replaceState(null, "", location.pathname + location.hash);

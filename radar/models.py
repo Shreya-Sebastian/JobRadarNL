@@ -129,6 +129,9 @@ class LoginToken(Base):
     used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
     remember: Mapped[bool] = mapped_column(Boolean, default=True)  # "keep me signed in" on the sign-in page
+    purpose: Mapped[str] = mapped_column(String(10), default="login")  # login | signup | reset
+    # sign-up with a password: its hash waits here until the address is confirmed by opening the link
+    password_hash: Mapped[str | None] = mapped_column(String(200), nullable=True)
 
 
 class UserSession(Base):
@@ -142,6 +145,8 @@ class UserSession(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     expires_at: Mapped[datetime] = mapped_column(DateTime)
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # opened from a password-reset link: a new password may be set without the old one until this time
+    reset_until: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class UserData(Base):
