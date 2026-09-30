@@ -68,7 +68,7 @@
       "p.considered": "{n} postings considered", "p.coverage": "Your skills cover {p}% of all skill mentions in these postings. The most demanded skills you do not list:",
       "skill.tracked": "“{v}” is tracked as “{c}”.", "skill.unknown": "“{v}” is not one of the tracked skills, so it will not affect matches.",
       "ph.city": "city…", "ph.employer": "employer name…", "ph.skill": "skill…",
-      "cv.kpi.employer": "employer boards healthy", "cv.kpi.board": "multi-employer boards healthy", "cv.kpi.agency": "agency boards healthy", "cv.kpi.aggregator": "aggregators (off)",
+      "cv.kpi.employer": "employer boards healthy", "cv.kpi.board": "multi-employer boards healthy", "cv.kpi.agency": "agency boards healthy",
       "cv.summary": "{c} covered, {r} registered without live postings, {m} missing of {t}",
       "status.covered": "covered", "status.registered": "registered", "status.missing": "missing", "status.pending": "pending", "status.inactive": "inactive", "status.blocked": "blocked",
       "kind.employer": "employer", "kind.board": "board", "kind.agency": "agency", "kind.aggregator": "aggregator", "kind.test": "test",
@@ -175,7 +175,7 @@
       "p.considered": "{n} vacatures bekeken", "p.coverage": "Je skills dekken {p}% van alle skillvermeldingen in deze vacatures. De meest gevraagde skills die je niet noemt:",
       "skill.tracked": "“{v}” wordt bijgehouden als “{c}”.", "skill.unknown": "“{v}” is geen bijgehouden skill en telt niet mee voor matches.",
       "ph.city": "stad…", "ph.employer": "naam werkgever…", "ph.skill": "skill…",
-      "cv.kpi.employer": "werkgeversborden gezond", "cv.kpi.board": "verzamelborden gezond", "cv.kpi.agency": "bureauborden gezond", "cv.kpi.aggregator": "doorplaatsers (uit)",
+      "cv.kpi.employer": "werkgeversborden gezond", "cv.kpi.board": "verzamelborden gezond", "cv.kpi.agency": "bureauborden gezond",
       "cv.summary": "{c} gedekt, {r} geregistreerd zonder open vacatures, {m} ontbreekt van {t}",
       "status.covered": "gedekt", "status.registered": "geregistreerd", "status.missing": "ontbreekt", "status.pending": "wacht", "status.inactive": "inactief", "status.blocked": "geblokkeerd",
       "kind.employer": "werkgever", "kind.board": "verzamelbord", "kind.agency": "bureau", "kind.aggregator": "doorplaatser", "kind.test": "test",
@@ -903,7 +903,7 @@
   async function renderCoverage() {
     const [cov, src] = await Promise.all([api("/api/coverage"), api("/api/sources")]);
     const kinds = cov.sources_by_kind, healthy = cov.healthy_by_kind;
-    $("#cv-kpis").innerHTML = [["employer", "cv.kpi.employer"], ["board", "cv.kpi.board"], ["agency", "cv.kpi.agency"], ["aggregator", "cv.kpi.aggregator"]]
+    $("#cv-kpis").innerHTML = [["employer", "cv.kpi.employer"], ["board", "cv.kpi.board"], ["agency", "cv.kpi.agency"]]
       .map(([k, l]) => `<div class="kpi"><b>${fmt(healthy[k] || 0)}/${fmt(kinds[k] || 0)}</b><span>${t(l)}</span></div>`).join("");
     const rc = cov.recall;
     $("#cv-recall").hidden = !rc;
