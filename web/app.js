@@ -47,7 +47,6 @@
      
      
      
-      "footer": "lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites. Built by Shreya Sebastian.",
       // dynamic strings
       "kpi.live": "live tech postings", "kpi.employers": "employers", "kpi.sources": "sources healthy", "kpi.crawl": "last crawl",
       "title": "{n} tech jobs in the Netherlands",
@@ -156,7 +155,6 @@
      
      
      
-      "footer": "toont tech-, software-, data- en IT-vacatures in Nederland van de eigen carrièresites van werkgevers. Gemaakt door Shreya Sebastian.",
       "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.sources": "bronnen gezond", "kpi.crawl": "laatste crawl",
       "title": "{n} ICT en tech vacatures in Nederland",
      
