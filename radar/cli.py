@@ -97,34 +97,6 @@ def cmd_reclassify(_: argparse.Namespace) -> None:
     print(f"reclassified; {flipped} postings changed class")
 
 
-def cmd_fix_cities(_: argparse.Namespace) -> None:
-    """Fill in missing cities from the title and text of live postings (normalize.city_from_text)."""
-    from sqlalchemy import select
-
-    from radar.db import init_db, session_scope
-    from radar.models import Posting
-    from radar.normalize import city_from_text, detect_city, is_generic_location, plausible_place
-
-    init_db()
-    from_place = from_text = 0
-    with session_scope() as s:
-        for p in s.scalars(
-            select(Posting).where(Posting.remote.is_(False), Posting.closed_at.is_(None), Posting.city.is_(None))
-        ):
-            if detect_city(p.location_raw):
-                continue
-            city = plausible_place(p.location_raw)
-            if city:
-                p.city = city
-                from_place += 1
-            elif is_generic_location(p.location_raw):
-                city = city_from_text(p.title, p.description)
-                if city:
-                    p.city = city
-                    from_text += 1
-    print(f"cities filled: {from_place} from the board's location text, {from_text} from the posting text")
-
-
 def cmd_linkcheck(args: argparse.Namespace) -> None:
     """Re-fetch original URLs of the oldest live postings; close the ones that are gone."""
     from radar.db import init_db, session_scope
@@ -173,30 +145,6 @@ def cmd_recall(args: argparse.Namespace) -> None:
     if not args.publish:
         print("not published to the site (Adzuna terms: aggregate use needs written consent; "
               "use --publish once granted)")
-
-
-def cmd_scrub(_: argparse.Namespace) -> None:
-    """One-off: remove e-mail addresses and phone numbers from descriptions stored before scrubbing existed."""
-    from sqlalchemy import select
-
-    from radar.db import init_db, session_scope
-    from radar.models import Posting
-    from radar.normalize import content_hash, scrub_contact
-
-    init_db()
-    changed = 0
-    with session_scope() as s:
-        for p in s.scalars(select(Posting).execution_options(yield_per=500)):
-            clean = scrub_contact(p.description or "")
-            if clean == p.description:
-                continue
-            old_hash = p.content_hash
-            p.description = clean
-            p.content_hash = content_hash(p.title, clean)
-            if p.extracted_hash == old_hash:
-                p.extracted_hash = p.content_hash  # the facts did not change, no re-extraction needed
-            changed += 1
-    print(f"scrubbed {changed} postings")
 
 
 def cmd_verify_sources(args: argparse.Namespace) -> None:
@@ -488,31 +436,6 @@ def cmd_worker(args: argparse.Namespace) -> None:
     worker.work(burst=args.burst, with_scheduler=False)
 
 
-def cmd_run_forever(args: argparse.Namespace) -> None:
-    """Crawl on a fixed interval. The prototype scheduler; production uses EventBridge + queue workers."""
-    import time
-
-    from radar.crawler import crawl
-    from radar.db import init_db
-    from radar.stats import CACHE
-
-    init_db()
-    while True:
-        run = crawl()
-        CACHE.invalidate()
-        from radar import auth
-        from radar.db import session_scope
-
-        with session_scope() as s:
-            auth.cleanup(s)
-        print(
-            f"run {run.id}: ok={run.sources_ok} failed={run.sources_failed} new={run.postings_new} "
-            f"closed={run.postings_closed}; sleeping {args.interval_minutes} min",
-            flush=True,
-        )
-        time.sleep(args.interval_minutes * 60)
-
-
 def cmd_serve(args: argparse.Namespace) -> None:
     import uvicorn
 
@@ -559,8 +482,6 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--discovered-by", default="discovery-guess", help="comma list of discovery methods to check")
     p.set_defaults(fn=cmd_verify_sources)
-    sub.add_parser("scrub", help="remove e-mails and phone numbers from stored descriptions").set_defaults(fn=cmd_scrub)
-    sub.add_parser("fix-cities", help="fill missing cities from posting text").set_defaults(fn=cmd_fix_cities)
     p = sub.add_parser("linkcheck", help="re-fetch original URLs of old live postings and close gone ones")
     p.add_argument("--sample", type=int, default=None, help="default: enough to cover every posting every 14 days")
     p.add_argument("--older-than-days", type=int, default=21)
@@ -634,9 +555,6 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--metrics-port", type=int, default=settings.metrics_port)
     p.set_defaults(fn=cmd_worker)
 
-    p = sub.add_parser("run-forever", help="crawl every N minutes")
-    p.add_argument("--interval-minutes", type=int, default=360)
-    p.set_defaults(fn=cmd_run_forever)
 
     p = sub.add_parser("serve")
     p.add_argument("--host", default="127.0.0.1")

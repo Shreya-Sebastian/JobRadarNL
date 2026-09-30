@@ -9,9 +9,6 @@ data/copytest.db
 radar.db
 radar.db-*
 tmp_*.db
-deploy/terraform/.terraform/
-deploy/terraform/*.tfstate*
-deploy/terraform/.terraform.lock.hcl
 data/raw/
 data/llm_cache.json
 data/probe_results.json
@@ -19,9 +16,6 @@ data/probe_results_2.json
 data/enumerated/raw_*.txt
 data/enumerated/*.tmp
 .env
-deploy/terraform/**/.terraform/
-deploy/terraform/**/*.tfstate*
-deploy/terraform/**/.terraform.lock.hcl
 *.tfvars
 !*.tfvars.example
 kubeconfig*

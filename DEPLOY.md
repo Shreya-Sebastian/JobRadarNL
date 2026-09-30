@@ -60,20 +60,9 @@ mail goes through Resend, see step 8).
 
 The image is built by `.github/workflows/image.yml` on every push to main.
 
-## 2b. Alternative: one Hetzner server with k3s (about 5 to 8 euros a month)
-
-1. `cd deploy/terraform && terraform init && terraform apply -var ssh_public_key="$(cat ~/.ssh/id_ed25519.pub)" -var postgres_password=...`
-   Creates the server, firewall, k3s, cert-manager, Postgres on the host, and a nightly `pg_dump` cron.
-2. Fetch the kubeconfig as printed by `terraform output next_steps`, point a DNS A record at the IP.
-3. `kubectl apply -f deploy/k8s/cluster-issuer.yaml`.
-4. `kubectl -n radar create secret generic radar-db --from-literal=RADAR_DATABASE_URL="$(terraform output -raw database_url)"`
-5. `helm upgrade --install radar deploy/helm/radar -n radar --create-namespace --set ingress.host=YOUR_DOMAIN --set database.existingSecret=radar-db --set config.corsOrigins=https://YOUR_DOMAIN`
-6. Seed once: `kubectl -n radar create job --from=cronjob/radar-radar-scheduler seed-1`, then load sources
-   with `kubectl -n radar exec deploy/radar-radar-api -- python -m radar.cli register-probed` after copying
-   `data/enumerated/probed_*.json` into the pod, or run `radar enumerate` and `radar probe-boards` from a Job.
-7. Continuous deployment: add `KUBECONFIG_B64` (base64 of the kubeconfig) as a repository secret and
-   `RADAR_HOST` as a repository variable; `.github/workflows/deploy.yml` builds the image to GHCR and runs
-   `helm upgrade` on every push to main.
+To deploy from GitHub instead of a laptop, add `KUBECONFIG_B64` (base64 of the kubeconfig) as a repository
+secret and `RADAR_HOST` as a repository variable, then run `.github/workflows/deploy.yml`, which runs
+`helm upgrade` with the new image.
 
 ## 3. Scaling knobs
 
