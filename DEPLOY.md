@@ -34,11 +34,12 @@ kubectl -n radar port-forward svc/radar-radar-api 8000:80
 
 A Postgres on the host (or `docker run postgres:16-alpine`) is enough for this.
 
-## 2. Production: one AWS server with k3s (techjobsradar.nl, about USD 40 a month)
+## 2. Production: one AWS server with k3s (techjobsradar.nl, about USD 25 a month)
 
-`deploy/aws` creates one EC2 t3.medium in eu-west-1 with an Elastic IP, a security group (web open, SSH and the
-Kubernetes API only from the admin's IP), Postgres on the host with a nightly `pg_dump`, k3s with Traefik and
-cert-manager, and Amazon SES for login e-mails with a send-only SMTP user.
+`deploy/aws` creates one EC2 t3.small (2 GB) in eu-west-1 with an Elastic IP, a security group (web open, SSH and
+the Kubernetes API only from the admin's IP), Postgres on the host with a nightly `pg_dump` copied to S3, k3s with
+Traefik and cert-manager, and an Amazon SES identity with a send-only SMTP user (kept as a fallback; production
+mail goes through Resend, see step 8).
 
 1. `aws login`, then `cd deploy/aws && terraform init && terraform apply`.
 2. Add the records from `terraform output dns_records` at the registrar: the A record for the site, three DKIM
