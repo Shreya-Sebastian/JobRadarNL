@@ -29,7 +29,7 @@
       <li class="flex gap-3"><span class="grid size-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">◎</span><div><b class="en block">Your profile, kept</b><b class="nl block">Je profiel, bewaard</b>
         <span class="muted small en">Roles, cities, skills and filters follow you, with match scores and gap analysis.</span><span class="muted small nl">Functies, steden, skills en filters gaan mee, met matchscores en gap-analyse.</span></div></li>
       <li class="flex gap-3"><span class="grid size-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">✉</span><div><b class="en block">Sign in your way</b><b class="nl block">Inloggen zoals jij wilt</b>
-        <span class="muted small en">With Google, a password, or a one-time link by e-mail. Passwords are stored as salted scrypt hashes.</span><span class="muted small nl">Met Google, een wachtwoord of een eenmalige link per e-mail. Wachtwoorden bewaren we als gezouten scrypt-hash.</span></div></li>
+        <span class="muted small en">With Google, a password, or a one-time link by e-mail. Passwords are stored as salted scrypt hashes.</span><span class="muted small nl">Met Google, een wachtwoord of een eenmalige link per e-mail. Wachtwoorden worden bewaard als gezouten scrypt-hash.</span></div></li>
       <li class="flex gap-3"><span class="grid size-9 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">✕</span><div><b class="en block">Leave any time</b><b class="nl block">Altijd weg te halen</b>
         <span class="muted small en">Download your data or delete your account from your profile.</span><span class="muted small nl">Download je gegevens of verwijder je account vanuit je profiel.</span></div></li>
     </ul>
@@ -59,13 +59,13 @@
           <p class="mt-1 mb-0 text-xs text-muted" id="pw-rule" hidden><span class="en">At least 10 characters.</span><span class="nl">Minstens 10 tekens.</span></p>
         </div>
         <div id="keep-box">
-          <label class="check mt-4 pb-0"><input type="checkbox" id="remember" checked> <span class="en">Keep me signed in on this device</span><span class="nl">Ingelogd blijven op dit apparaat</span></label>
+          <label class="check mt-4 pb-0"><input type="checkbox" id="remember" checked> <span class="en">Stay signed in on this device</span><span class="nl">Ingelogd blijven op dit apparaat</span></label>
           <p class="mt-1 mb-0 ml-6 text-xs text-muted"><span class="en">Untick on a shared computer: you are then signed out when the browser closes.</span><span class="nl">Vink uit op een gedeelde computer: je wordt dan uitgelogd als de browser sluit.</span></p>
         </div>
         <button class="primary mt-5 w-full py-2.5 text-[15px]" type="submit" id="go"></button>
       </form>
       <p class="mt-3 mb-0 text-center"><button type="button" class="link" id="alt"></button></p>
-      <p class="mt-5 mb-0 text-xs leading-relaxed text-muted"><span class="en">By continuing you agree that we store your e-mail address, profile and saved jobs for your account, as described in the</span><span class="nl">Door verder te gaan ga je ermee akkoord dat we je e-mailadres, profiel en bewaarde vacatures voor je account opslaan, zoals beschreven in de</span>
+      <p class="mt-5 mb-0 text-xs leading-relaxed text-muted"><span class="en">By continuing you agree that your e-mail address, profile and saved jobs are stored for your account, as described in the</span><span class="nl">Door verder te gaan ga je ermee akkoord dat je e-mailadres, profiel en bewaarde vacatures voor je account worden opgeslagen, zoals beschreven in de</span>
         <a class="text-muted" href="/privacy" data-privacy><span class="en">privacy statement</span><span class="nl">privacyverklaring</span></a>.</p>
     </div>
 
@@ -89,15 +89,15 @@
   const T = {
     en: {
       h: { password: "Welcome back", link: "Welcome back", reset: "Reset your password", up: "Create your free account" },
-      lead: { password: "Sign in with your e-mail address and password.", link: "Enter your e-mail address and we'll send you a sign-in link.",
-              reset: "Enter your e-mail address and we'll send you a link to choose a new password.",
-              up: "Choose a password. We'll send a link to confirm your e-mail address; your account is ready once you open it." },
+      lead: { password: "Sign in with your e-mail address and password.", link: "Enter your e-mail address to get a sign-in link by e-mail.",
+              reset: "Enter your e-mail address to get a link for choosing a new password.",
+              up: "Choose a password. A link to confirm your e-mail address follows by e-mail; the account is ready once you open it." },
       go: { password: "Sign in", link: "Send sign-in link", reset: "Send reset link", up: "Create account" },
-      alt: { password: "E-mail me a sign-in link instead", link: "Sign in with a password instead", reset: "Back to sign in", up: "Already have an account? Sign in" },
+      alt: { password: "Get a sign-in link by e-mail instead", link: "Sign in with a password instead", reset: "Back to sign in", up: "Already have an account? Sign in" },
       sentH: { link: "Check your inbox", reset: "Check your inbox", up: "Confirm your e-mail address" },
-      sentP: { link: "We sent a sign-in link to", reset: "We sent a link to choose a new password to", up: "To finish creating your account, open the link we sent to" },
+      sentP: { link: "A sign-in link was sent to", reset: "A link to choose a new password was sent to", up: "To finish creating your account, open the link sent to" },
       bad: "That doesn't look like an e-mail address.", slow: "Too many requests. Please try again in an hour.",
-      fail: "We couldn't send the e-mail right now. Please try again in a few minutes.",
+      fail: "The e-mail could not be sent right now. Please try again in a few minutes.",
       net: "No connection. Check your internet and try again.", expired: "That link has expired or was already used. Request a new one.",
       sending: "Sending…", nomail: "E-mail isn't set up on this server, so no e-mail was sent.",
       pwWrong: "Wrong e-mail address or password.", pwLocked: "Too many attempts. Wait 15 minutes, or e-mail yourself a sign-in link.",
@@ -109,11 +109,11 @@
       h: { password: "Welkom terug", link: "Welkom terug", reset: "Nieuw wachtwoord kiezen", up: "Maak je gratis account" },
       lead: { password: "Log in met je e-mailadres en wachtwoord.", link: "Vul je e-mailadres in en je krijgt een link om in te loggen.",
               reset: "Vul je e-mailadres in en je krijgt een link om een nieuw wachtwoord te kiezen.",
-              up: "Kies een wachtwoord. We sturen een link om je e-mailadres te bevestigen; je account is klaar zodra je hem opent." },
+              up: "Kies een wachtwoord. Je krijgt een link om je e-mailadres te bevestigen; je account is klaar zodra je hem opent." },
       go: { password: "Inloggen", link: "Stuur inloglink", reset: "Stuur herstellink", up: "Account maken" },
-      alt: { password: "Mail me liever een inloglink", link: "Liever inloggen met een wachtwoord", reset: "Terug naar inloggen", up: "Heb je al een account? Log in" },
+      alt: { password: "Liever een inloglink per e-mail", link: "Liever inloggen met een wachtwoord", reset: "Terug naar inloggen", up: "Heb je al een account? Log in" },
       sentH: { link: "Kijk in je inbox", reset: "Kijk in je inbox", up: "Bevestig je e-mailadres" },
-      sentP: { link: "We hebben een inloglink gestuurd naar", reset: "We hebben een link voor een nieuw wachtwoord gestuurd naar", up: "Open de link die we stuurden naar dit adres om je account af te maken:" },
+      sentP: { link: "Er is een inloglink gestuurd naar", reset: "Er is een link voor een nieuw wachtwoord gestuurd naar", up: "Open de link die naar dit adres is gestuurd om je account af te maken:" },
       bad: "Dat lijkt geen e-mailadres.", slow: "Te veel verzoeken. Probeer het over een uur opnieuw.",
       fail: "De e-mail kon nu niet worden verstuurd. Probeer het over een paar minuten opnieuw.",
       net: "Geen verbinding. Controleer je internet en probeer het opnieuw.", expired: "Die link is verlopen of al gebruikt. Vraag een nieuwe aan.",

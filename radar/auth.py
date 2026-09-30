@@ -527,7 +527,7 @@ def export(user: User = Depends(require_user), session: Session = Depends(_db)):
             "profile": row.profile if row else {}, "saved_job_ids": row.saved if row else [],
             "job_alerts": user.alerts or "off"}
     return Response(content=json.dumps(body, indent=2), media_type="application/json",
-                    headers={"Content-Disposition": 'attachment; filename="my-tech-jobs-radar-data.json"'})
+                    headers={"Content-Disposition": 'attachment; filename="tech-jobs-radar-data.json"'})
 
 
 @router.delete("/api/me")
