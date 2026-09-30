@@ -997,9 +997,10 @@
     state.tab = renderers[tab] ? tab : "overview";
     $$("#tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === state.tab));
     $$(".tab").forEach((s) => s.classList.toggle("on", s.dataset.tab === state.tab));
+    $("#kpis").hidden = state.tab !== "overview";  // the market figures belong to the overview
     window.scrollTo(0, 0);
     const bar = $("#progress"), slow = setTimeout(() => { bar.hidden = false; }, 150);  // only when it takes a moment
-    try { await renderers[state.tab](); } catch (e) { console.error(e); $("#kpis").insertAdjacentHTML("beforeend", `<div class="kpi bad"><b>!</b><span>${esc(e.message)}</span></div>`); }
+    try { await renderers[state.tab](); } catch (e) { console.error(e); $("#kpis").hidden = false; $("#kpis").insertAdjacentHTML("beforeend", `<div class="kpi bad"><b>!</b><span>${esc(e.message)}</span></div>`); }
     finally { clearTimeout(slow); bar.hidden = true; $("#boot").hidden = true; }
   }
   window.addEventListener("hashchange", route);
@@ -1015,6 +1016,7 @@
   });
   window.addEventListener("beforeunload", () => store.set("lastVisit", state.visitStart));
   applyI18n();
+  $("#kpis").hidden = !["", "#overview"].includes(location.hash);  // no placeholder flash on other tabs
   bindAccount();
-  account.load().then(() => { renderAccount(); jobFilters = null; }).then(loadHeader).then(route).catch((e) => { $("#kpis").innerHTML = `<div class="kpi bad"><b>!</b><span>${esc(t("fail", { e: e.message }))}</span></div>`; });
+  account.load().then(() => { renderAccount(); jobFilters = null; }).then(loadHeader).then(route).catch((e) => { $("#kpis").hidden = false; $("#kpis").innerHTML = `<div class="kpi bad"><b>!</b><span>${esc(t("fail", { e: e.message }))}</span></div>`; });
 })();
