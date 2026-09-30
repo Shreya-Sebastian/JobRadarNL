@@ -182,7 +182,7 @@
       "status.covered": "gedekt", "status.registered": "geregistreerd", "status.missing": "ontbreekt", "status.pending": "wacht", "status.inactive": "inactief", "status.blocked": "geblokkeerd",
       "kind.employer": "werkgever", "kind.board": "verzamelbord", "kind.agency": "bureau", "kind.aggregator": "doorplaatser", "kind.test": "test",
       "role.ml": "ML / AI", "role.data": "Data", "role.backend": "Backend", "role.frontend": "Frontend", "role.fullstack": "Full-stack", "role.platform": "Platform / DevOps",
-      "role.mobile": "Mobiel", "role.embedded": "Embedded / hardware", "role.simulation": "Simulatie / rekenkundig modelleren", "role.security": "Security", "role.qa": "QA / Test", "role.product": "Product", "role.design": "Design", "role.it_support": "IT-support", "role.other": "Overig",
+      "role.mobile": "Mobiel", "role.embedded": "Embedded / hardware", "role.simulation": "Simulatie / modellering", "role.security": "Security", "role.qa": "QA / Test", "role.product": "Product", "role.design": "Design", "role.it_support": "IT-support", "role.other": "Overig",
       "level.intern": "stage", "level.trainee": "traineeship / starterprogramma", "level.junior": "junior", "level.medior": "medior", "level.senior": "senior", "level.lead": "lead", "level.staff": "staff / principal", "level.manager": "manager", "level.unknown": "onbekend",
       "fail": "Laden mislukt: {e}",
       "f.confirmed": "Alleen bevestigd op de site van de werkgever in de laatste 7 dagen",
@@ -371,6 +371,18 @@
   function fmtDate(iso) { return new Date(iso).toLocaleString(LANG === "nl" ? "nl-NL" : "en-GB", { dateStyle: "medium", timeStyle: "short" }); }
 
   // ---------- charts ----------
+  // long axis labels ("Simulation / computational") on two lines, so Chart.js does not cut them off
+  function wrapLabel(label, max = 26) {
+    const s = String(label);
+    if (s.length <= max) return s;
+    const lines = [""];
+    for (const w of s.split(" ")) {
+      const cur = lines[lines.length - 1];
+      if (cur && (cur + " " + w).length > max) lines.push(w);
+      else lines[lines.length - 1] = cur ? cur + " " + w : w;
+    }
+    return lines;
+  }
   function barChart(id, labels, values, { horizontal = true, color = palette[0], onClick, pct = false } = {}) {
     const ctx = document.getElementById(id);
     if (!ctx) return;
@@ -385,7 +397,8 @@
         onHover: onClick ? (e, els) => { e.native.target.style.cursor = els.length ? "pointer" : "default"; } : undefined,
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => pct ? `${c.raw}%` : `${c.raw}` } } },
         scales: { x: { grid: { color: css("--line") }, ticks: { color: css("--muted") } },
-                  y: { grid: { display: false }, ticks: { color: css("--ink"), autoSkip: false, font: { size: 11 } } } },
+                  y: { grid: { display: false }, ticks: { color: css("--ink"), autoSkip: false, font: { size: 11 },
+                       callback(v) { return horizontal ? wrapLabel(this.getLabelForValue(v)) : this.getLabelForValue(v); } } } },
       },
     });
   }
@@ -395,7 +408,7 @@
     if (state.charts[id]) state.charts[id].destroy();
     state.charts[id] = new Chart(ctx, { type: "doughnut",
       data: { labels, datasets: [{ data: values, backgroundColor: palette, borderWidth: 0 }] },
-      options: { maintainAspectRatio: false, plugins: { legend: { position: "right", labels: { color: css("--ink"), boxWidth: 12 } } } } });
+      options: { maintainAspectRatio: false, plugins: { legend: { position: "right", labels: { color: css("--ink"), boxWidth: 10, font: { size: 11 } } } } } });
   }
   function lineChart(id, labels, series) {
     const ctx = document.getElementById(id);
