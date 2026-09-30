@@ -84,17 +84,21 @@ def cmd_reclassify(_: argparse.Namespace) -> None:
     extract, version = get_extractor(settings.extractor)
     flipped = 0
     with session_scope() as s:
-        for p in s.scalars(select(Posting)):
-            new = is_tech(p.title, p.description)
-            p.tech_score = tech_score(p.title, p.description)
-            if new != bool(p.is_tech):
-                flipped += 1
-            p.is_tech = new
-            if new and (p.extraction is None or p.extractor_version != version):
-                p.extraction = extract(p.title, p.description).model_dump()
-                p.extractor_version = version
-                p.extracted_hash = p.content_hash
-    print(f"reclassified; {flipped} postings changed class")
+        ids = list(s.scalars(select(Posting.id).order_by(Posting.id)))
+    # in batches, each committed on its own: loading every posting at once does not fit on a small server
+    for i in range(0, len(ids), 500):
+        with session_scope() as s:
+            for p in s.scalars(select(Posting).where(Posting.id.in_(ids[i:i + 500]))):
+                new = is_tech(p.title, p.description)
+                p.tech_score = tech_score(p.title, p.description)
+                if new != bool(p.is_tech):
+                    flipped += 1
+                p.is_tech = new
+                if new and (p.extraction is None or p.extractor_version != version):
+                    p.extraction = extract(p.title, p.description).model_dump()
+                    p.extractor_version = version
+                    p.extracted_hash = p.content_hash
+    print(f"reclassified {len(ids)} postings; {flipped} changed class")
 
 
 def cmd_fix_cities(_: argparse.Namespace) -> None:

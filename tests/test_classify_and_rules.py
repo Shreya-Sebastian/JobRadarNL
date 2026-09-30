@@ -315,3 +315,16 @@ def test_degree_filter_groups_hbo_with_bachelors(fresh_db):
     assert [r.id for r in Filters(degree="bachelor").apply(rows)] == [1, 2]
     assert [r.id for r in Filters(degree="master,phd").apply(rows)] == [3, 4]
     assert [r.id for r in Filters(degree="unstated").apply(rows)] == [5, 6]
+
+
+def test_short_teaser_text_does_not_make_a_generic_title_tech():
+    from radar.classify import is_tech
+
+    teaser = ("Onze opdrachtgever is een toonaangevende speler in het ontwerp en de bouw van "
+              "afvalverwerkingsinstallaties wereldwijd. De organisatie biedt daarnaast diverse services voor "
+              "onderhoud en verbetering van deze installaties.")
+    assert not is_tech("Sales Engineer", teaser)
+    assert not is_tech("Project Engineer", teaser)
+    # a specific tech title stands on its own, even next to a teaser
+    for title in ("OutSystems consultant", "Senior Detection Engineer", "Technical Data Steward", "Software Engineer"):
+        assert is_tech(title, teaser), title

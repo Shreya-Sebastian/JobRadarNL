@@ -112,6 +112,9 @@ _RESCUE_FRAGMENTS = [
     r"\bsap\b (?:developer|consultant|architect|abap|specialist)",
     r"low-?code",
     r"mendix",
+    r"outsystems",
+    r"detection engineer",
+    r"data ?steward",
     r"power ?platform",
     r"cloud",
     r"informatica",
@@ -230,11 +233,12 @@ _SOFTWARE_TEXT = re.compile(
 def tech_score(title: str, description: str = "") -> float:
     """Return a score in [0, 1]; >= 0.5 counts as tech."""
     score = _title_score(title, description)
-    if score >= 0.5 and _generic_title(title) and len(description or "") >= 300 and \
+    if score >= 0.5 and _generic_title(title) and len((description or "").strip()) >= 100 and \
             len(software_signals(description)) < 2:
         # "Starter Scientist Military CFD", "Cost Engineer", "Electrical Project Engineer": the title only says
         # "professional", and the text shows at most one software word (often boilerplate such as "our ERP" or
-        # "ICT allowance"), so this is another field's engineering or science
+        # "ICT allowance"), so this is another field's engineering or science. A short teaser ("Sales Engineer"
+        # with two lines about the client) counts the same way; only a missing text is no evidence either way.
         return 0.3
     return score
 
