@@ -522,18 +522,15 @@
     const [o, f] = await Promise.all([api("/api/overview"), api("/api/filters")]);
     state.overview = o;
     state.options.roles = f.roles; state.options.cities = f.cities.filter((c) => c !== "Unknown"); state.options.skills = f.skills;
-    let newCount = "–";
-    if (state.lastVisit) { const d = await api("/api/postings", withParams(scopeParams(), { since: state.lastVisit, size: 1 })); newCount = fmt(d.total); }
-    renderHeader(newCount);
+    renderHeader();
     $("#personalised").checked = state.personalised;
   }
-  function renderHeader(newCount = "–") {
+  function renderHeader() {
     const o = state.overview; if (!o) return;
     const last = o.last_crawl_at ? fmtDate(o.last_crawl_at + "Z") : "–";
     $("#kpis").innerHTML = [
       [fmt(o.live_tech_postings), t("kpi.live")], [fmt(o.companies), t("kpi.employers")],
-      [`${fmt(o.sources_ok)}/${fmt(o.sources_total)}`, t("kpi.sources")], [fmt(o.new_last_7d), t("kpi.new7")],
-      [newCount, t("kpi.newvisit")], [last, t("kpi.crawl")],
+      [`${fmt(o.sources_ok)}/${fmt(o.sources_total)}`, t("kpi.sources")], [last, t("kpi.crawl")],
     ].map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
     document.title = `${document.title.split(":")[0]}: ${t("title", { n: fmt(o.live_tech_postings) })}`;
   }
