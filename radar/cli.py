@@ -360,7 +360,7 @@ def cmd_discover_weekly(args: argparse.Namespace) -> None:
 def cmd_discovery_import(args: argparse.Namespace) -> None:
     """Load earlier discovery results (data/enumerated/probed_*.json, sponsors_state.json) into the database."""
     import json
-    from datetime import datetime
+    from datetime import UTC, datetime
     from pathlib import Path
 
     from radar import weekly
@@ -373,7 +373,7 @@ def cmd_discovery_import(args: argparse.Namespace) -> None:
     sponsor_file = folder / "sponsors_state.json"
     sponsors = json.loads(sponsor_file.read_text(encoding="utf-8")) if sponsor_file.exists() else {}
     files = list(folder.glob("probed_*.json")) + ([sponsor_file] if sponsor_file.exists() else [])
-    checked_at = datetime.utcfromtimestamp(max((f.stat().st_mtime for f in files), default=0))
+    checked_at = datetime.fromtimestamp(max((f.stat().st_mtime for f in files), default=0), UTC).replace(tzinfo=None)
     with session_scope() as s:
         added = weekly.import_state(s, probed, sponsors, checked_at)
     print(f"imported {added} checked boards and employers from {len(files)} files")

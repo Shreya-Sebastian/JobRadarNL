@@ -96,7 +96,8 @@ def test_import_state_seeds_earlier_results(fresh_db):
     from radar.db import session_scope
 
     probed = {"recruitee": {"a": {"status": "ok", "nl": 2}, "b": {"status": "not_found"},
-                            "c": {"status": "error", "error": "429"}}}  # rate-limited: not really checked
+                            "c": {"status": "error", "error": "429"},  # rate-limited: not really checked
+                            "x" * 400: {"status": "not_found"}}}  # junk from the archive index
     sponsors = {"33333333": {"name": "X", "domain": "x.nl"}, "44444444": {"name": "Y", "domain": None}}
     with session_scope() as s:
         assert weekly.import_state(s, probed, sponsors, datetime(2026, 9, 29)) == 4

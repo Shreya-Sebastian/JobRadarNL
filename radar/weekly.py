@@ -34,6 +34,7 @@ PLATFORMS_PER_WEEK = 3
 RECHECK_AFTER_DAYS = 90
 RETRY_FAILED_AFTER_DAYS = 7
 _FAILED = ("error", "exception")
+MAX_KEY = 300  # the archive index also holds junk "slugs" (long tokens); no real board name is this long
 _ROW = re.compile(r'<th scope="row">(.*?)</th>\s*<td>\s*(\d{8})\s*</td>', re.S)
 
 
@@ -104,7 +105,8 @@ def run(session: Session, *, boards: int = 300, rechecks: int = 100, sponsors: i
         except Exception as e:  # the archive is slow or down: try the next platform
             log.warning("weekly discovery: index lookup for %s failed: %s", ats, e)
             continue
-        todo += [(ats, s) for s in slugs if (ats, s) not in seen and (ats, s.lower()) not in have]
+        todo += [(ats, s) for s in slugs
+                 if len(s) <= MAX_KEY and (ats, s) not in seen and (ats, s.lower()) not in have]
     for ats, slug in todo[:boards]:
         if time.monotonic() > deadline:
             break
@@ -167,7 +169,7 @@ def import_state(session: Session, probed: dict[str, dict[str, dict]], sponsor_s
     for ats, state in probed.items():
         for slug, res in state.items():
             # failed checks (mostly rate limits) were never really checked: leave them for the weekly job
-            if (ats, slug) not in seen and res.get("status") not in _FAILED:
+            if (ats, slug) not in seen and res.get("status") not in _FAILED and len(slug) <= MAX_KEY:
                 session.add(DiscoveryCandidate(kind=ats, key=slug, status=res.get("status", "error"),
                                                nl=int(res.get("nl") or 0), checked_at=checked_at))
                 added += 1
