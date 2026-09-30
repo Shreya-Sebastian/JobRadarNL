@@ -32,3 +32,15 @@ def test_build_script_pins_a_checksum_for_every_platform_it_runs_on():
     assert re.fullmatch(r"v\d+\.\d+\.\d+", build_css.VERSION)
     for name in ("tailwindcss-linux-x64", "tailwindcss-linux-arm64", "tailwindcss-windows-x64.exe"):
         assert re.fullmatch(r"[0-9a-f]{64}", build_css.SHA256[name])
+
+
+def test_cached_pages_are_keyed_by_the_code_version(monkeypatch):
+    from radar import cache
+
+    monkeypatch.setattr(cache.settings, "redis_url", None)
+    monkeypatch.setattr(cache, "_local", {})
+    calls = []
+    cache.cached("page:x", lambda: calls.append(1) or "old")
+    assert cache.cached("page:x", lambda: "unused") == "old"
+    monkeypatch.setattr(cache, "CODE_VERSION", "next-release")
+    assert cache.cached("page:x", lambda: "new") == "new"

@@ -3,14 +3,17 @@
 API processes keep the live rows in memory. When a finalize job changes the data, it bumps a version key in
 Redis; every API process notices on its next request and reloads. Heavy responses are cached in Redis under
 the current version, so a new version simply starts a fresh namespace. Without Redis everything falls back
-to process-local behaviour with a short TTL.
+to process-local behaviour with a short TTL. Keys also carry a fingerprint of the code and templates, so a deploy
+never serves pages rendered by the previous release (which could point at files the new image no longer has).
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import threading
 import time
+from pathlib import Path
 from typing import Any
 
 from radar.config import settings
@@ -19,6 +22,19 @@ _VERSION_KEY = "radar:data_version"
 _local: dict[str, tuple[float, Any]] = {}
 _local_lock = threading.Lock()
 _local_version = str(int(time.time()))
+
+
+def _code_fingerprint() -> str:
+    root = Path(__file__).resolve().parent.parent
+    h = hashlib.sha1(usedforsecurity=False)
+    for pattern in ("radar/**/*.py", "web/*.html", "web/*.js", "web/*.css"):
+        for f in sorted(root.glob(pattern)):
+            h.update(f.name.encode())
+            h.update(f.read_bytes())
+    return h.hexdigest()[:10]
+
+
+CODE_VERSION = _code_fingerprint()
 
 
 def _redis():
@@ -101,7 +117,7 @@ def bump_data_version() -> str:
 def cached(key: str, fn, ttl: int | None = None) -> Any:
     """Return fn() cached under key for the current data version."""
     ttl = ttl or settings.cache_ttl_seconds
-    full = f"api:{data_version()}:{key}"
+    full = f"api:{CODE_VERSION}:{data_version()}:{key}"
     r = _redis()
     if r is not None:
         hit = r.get(full)
