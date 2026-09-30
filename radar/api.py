@@ -472,6 +472,21 @@ def _pages_objects(session: Session):
     return rows, [seo.Page(**d) for d in dicts]
 
 
+def _source_link(lang: str = "en", sentence: bool = False) -> str:
+    """A link to the public source repository, or nothing while RADAR_SOURCE_URL is unset (a private repository
+    would only give visitors a 404)."""
+    if not settings.source_url:
+        return ""
+    from html import escape
+
+    url = escape(settings.source_url)
+    if sentence:
+        return (f' De broncode staat openbaar op <a href="{url}" rel="noopener">GitHub</a>.' if lang == "nl"
+                else f' The source code is public on <a href="{url}" rel="noopener">GitHub</a>.')
+    label = "Broncode op GitHub" if lang == "nl" else "Source code on GitHub"
+    return f' · <a href="{url}" rel="noopener">{label}</a>'
+
+
 def _render_index(session: Session | None = None, lang: str = "en") -> str:
     """index.html with branding, a localised title and description carrying the live count, hreflang, and a
     footer of popular search pages. Renaming the site is one env var."""
@@ -513,6 +528,7 @@ def _render_index(session: Session | None = None, lang: str = "en") -> str:
                 .replace("{{PAGE_TITLE}}", title)
                 .replace("{{META_DESCRIPTION}}", desc)
                 .replace("{{VERIFY}}", seo.verification_meta())
+                .replace("{{SOURCE_LINK}}", _source_link(lang))
                 .replace("{{SEO_LINKS}}", links))
 
 
@@ -547,8 +563,9 @@ if WEB_DIR.exists():
     def privacy(request: Request):
         lang = "nl" if request.url.path.startswith("/nl") else "en"
         html = (WEB_DIR / "privacy.html").read_text(encoding="utf-8")
-        return Response(html.replace("{{HTML_LANG}}", lang).replace("{{SITE_NAME}}", settings.site_name),
-                        media_type="text/html")
+        return Response(html.replace("{{HTML_LANG}}", lang).replace("{{SITE_NAME}}", settings.site_name)
+                        .replace("{{SOURCE_EN}}", _source_link("en", sentence=True))
+                        .replace("{{SOURCE_NL}}", _source_link("nl", sentence=True)), media_type="text/html")
 
     @app.get("/vacatures/{slug}", include_in_schema=False)
     @app.get("/jobs/{slug}", include_in_schema=False)

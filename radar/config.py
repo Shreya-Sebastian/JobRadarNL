@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     only_netherlands: bool = True
     # run the periodic jobs (schedule, finalize, linkcheck, qualitycheck) from the queue worker instead of CronJobs
     worker_timetable: bool = False
+    # public source repository; when set, the footer and privacy statement link to it (unset = no link)
+    source_url: str | None = None
     # anonymous page-view statistics for /admin/analytics (radar/analytics.py)
     analytics_enabled: bool = True
     # secret for the admin-only "crawl now" endpoints; unset = the endpoints do not exist

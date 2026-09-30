@@ -467,3 +467,15 @@ def test_city_in_the_title_does_not_split_one_vacancy(fresh_db):
         mark_duplicates(s)
         shown = s.query(Posting).filter(Posting.duplicate_of.is_(None)).all()
         assert len(shown) == 1 and len(shown[0].also_in) == 1
+
+
+
+def test_source_link_only_when_the_repository_is_public(fresh_db, monkeypatch):
+    from radar.api import app
+    from radar.config import settings
+
+    client = TestClient(app)
+    assert "GitHub" not in client.get("/privacy").text and "{{SOURCE" not in client.get("/privacy").text
+    monkeypatch.setattr(settings, "source_url", "https://github.com/example/repo")
+    assert 'href="https://github.com/example/repo"' in client.get("/privacy").text
+    assert "Broncode op GitHub" in __import__("radar.api", fromlist=["_render_index"])._render_index(None, "nl")

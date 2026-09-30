@@ -30,6 +30,8 @@ config:
   siteName: "Tech Jobs Radar"
   siteAliases: "TechJobsRadar, TechJobsNL, Tech Jobs NL, ICT vacatures, IT vacatures, tech jobs Netherlands"
   siteUrl: "https://techjobsradar.nl"
+  extraEnv: {}
+  # when the repository is public: extraEnv: {RADAR_SOURCE_URL: "https://github.com/Shreya-Sebastian/JobRadarNL"}
 
 # sized for one 2 GB node (t3.small): k3s, Postgres, Traefik and cert-manager use about 1 GB, so the app gets
 # the rest, with a hard cap per pod so one process cannot push the node into swap
