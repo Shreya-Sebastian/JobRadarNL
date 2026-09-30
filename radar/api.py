@@ -46,6 +46,10 @@ async def _metrics_middleware(request: Request, call_next):
     path = request.url.path
     if path.startswith("/api/"):
         response.headers["X-Robots-Tag"] = "noindex"  # fetched to render pages, never a search result itself
+    if response.headers.get("content-type", "").startswith("text/html") and "cache-control" not in response.headers:
+        # pages name the current app.js/app.css versions: a browser must check for a new page, or it keeps running
+        # the previous release's script after a deploy
+        response.headers["Cache-Control"] = "no-cache"
     try:
         from radar import analytics
 

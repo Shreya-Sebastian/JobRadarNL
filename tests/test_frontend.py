@@ -44,3 +44,13 @@ def test_cached_pages_are_keyed_by_the_code_version(monkeypatch):
     assert cache.cached("page:x", lambda: "unused") == "old"
     monkeypatch.setattr(cache, "CODE_VERSION", "next-release")
     assert cache.cached("page:x", lambda: "new") == "new"
+
+
+def test_pages_are_revalidated_so_a_deploy_reaches_open_browsers(fresh_db):
+    from fastapi.testclient import TestClient
+
+    from radar.api import app
+
+    client = TestClient(app)
+    for path in ("/", "/nl/", "/login", "/feedback", "/privacy"):
+        assert client.get(path).headers.get("cache-control") == "no-cache", path
