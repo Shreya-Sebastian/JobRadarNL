@@ -81,6 +81,12 @@
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
       "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
       "acct.go": "Sign in or create an account",
+      "pw.label": "Password", "pw.none": "No password yet. You sign in with an e-mail link or Google; add a password to sign in with it too.",
+      "pw.has": "You can sign in with your password, an e-mail link or Google.", "pw.set": "Set a password", "pw.change": "Change password",
+      "pw.remove": "Remove password", "pw.current": "Current password", "pw.new": "New password (10+ characters)", "pw.repeat": "Repeat the new password",
+      "pw.save": "Save password", "pw.cancel": "Cancel", "pw.mismatch": "The two passwords are not the same.", "pw.saved": "Password saved.",
+      "pw.removed": "Password removed.", "pw.wrong": "The current password is not right.", "pw.short": "Use at least 10 characters.",
+      "pw.confirm": "Remove your password? You can still sign in with an e-mail link or Google.",
       "alerts.label": "E-mail me new jobs that match my profile", "alerts.off": "Off", "alerts.daily": "Daily", "alerts.weekly": "Weekly",
       "alerts.hint": "Uses your saved profile. Every e-mail has an unsubscribe link.", "alerts.saved": "Saved.",
       "alerts.noprofile": "Saved. Set roles, cities or skills in your profile below, or the alert matches every new job.",
@@ -186,6 +192,12 @@
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
       "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
       "acct.go": "Inloggen of account maken",
+      "pw.label": "Wachtwoord", "pw.none": "Nog geen wachtwoord. Je logt in met een e-maillink of Google; voeg een wachtwoord toe om daar ook mee in te loggen.",
+      "pw.has": "Je kunt inloggen met je wachtwoord, een e-maillink of Google.", "pw.set": "Wachtwoord instellen", "pw.change": "Wachtwoord wijzigen",
+      "pw.remove": "Wachtwoord verwijderen", "pw.current": "Huidig wachtwoord", "pw.new": "Nieuw wachtwoord (10+ tekens)", "pw.repeat": "Herhaal het nieuwe wachtwoord",
+      "pw.save": "Wachtwoord opslaan", "pw.cancel": "Annuleren", "pw.mismatch": "De twee wachtwoorden zijn niet gelijk.", "pw.saved": "Wachtwoord opgeslagen.",
+      "pw.removed": "Wachtwoord verwijderd.", "pw.wrong": "Het huidige wachtwoord klopt niet.", "pw.short": "Gebruik minstens 10 tekens.",
+      "pw.confirm": "Je wachtwoord verwijderen? Je kunt nog steeds inloggen met een e-maillink of Google.",
       "alerts.label": "Mail me nieuwe vacatures die bij mijn profiel passen", "alerts.off": "Uit", "alerts.daily": "Dagelijks", "alerts.weekly": "Wekelijks",
       "alerts.hint": "Gebruikt je opgeslagen profiel. Elke e-mail heeft een afmeldlink.", "alerts.saved": "Opgeslagen.",
       "alerts.noprofile": "Opgeslagen. Kies functies, steden of skills in je profiel hieronder, anders past elke nieuwe vacature.",
@@ -806,6 +818,11 @@
     $("#acct-out").hidden = !!me; $("#acct-in").hidden = !me;
     if (me) {
       $("#acct-who").textContent = me.email;
+      $("#pw-state").textContent = t(me.has_password ? "pw.has" : "pw.none");
+      $("#pw-set").textContent = t(me.has_password ? "pw.change" : "pw.set");
+      $("#pw-remove").hidden = !me.has_password;
+      $("#pw-current").hidden = !me.has_password;
+      $("#pw-user").value = me.email;
       fetch("/api/me/alerts", { credentials: "same-origin" }).then((r) => r.ok ? r.json() : null)
         .then((a) => { if (a) $("#acct-alerts").value = a.frequency; }).catch(() => {});
     }
@@ -818,6 +835,29 @@
       setTimeout(() => $("#acct-card").scrollIntoView({ block: "start" }), 50);
     });
     $("#acct-go").addEventListener("click", (e) => { e.preventDefault(); location.href = loginUrl(); });
+    $("#pw-set").addEventListener("click", () => { $("#pw-form").hidden = false; $("#pw-actions").hidden = true; $("#pw-msg").textContent = ""; ($("#pw-current").hidden ? $("#pw-new") : $("#pw-current")).focus(); });
+    $("#pw-cancel").addEventListener("click", () => { $("#pw-form").reset(); $("#pw-form").hidden = true; $("#pw-actions").hidden = false; });
+    $("#pw-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pw = $("#pw-new").value;
+      if (pw.length < 10) { $("#pw-msg").textContent = t("pw.short"); return; }
+      if (pw !== $("#pw-repeat").value) { $("#pw-msg").textContent = t("pw.mismatch"); return; }
+      const r = await account.post("/api/me/password", "PUT", { password: pw, current: $("#pw-current").value });
+      if (r.ok) {
+        account.me.has_password = true; $("#pw-form").reset(); $("#pw-form").hidden = true; $("#pw-actions").hidden = false;
+        renderAccount(); $("#pw-state").textContent = t("pw.saved") + " " + t("pw.has");
+      } else {
+        const d = await r.json().catch(() => ({}));
+        $("#pw-msg").textContent = r.status === 403 ? t("pw.wrong") : (d.detail || t("acct.fail"));
+      }
+    });
+    $("#pw-remove").addEventListener("click", async () => {
+      if (!confirm(t("pw.confirm"))) return;
+      const current = prompt(t("pw.current")) || "";
+      const r = await account.post("/api/me/password", "DELETE", { current });
+      if (r.ok) { account.me.has_password = false; renderAccount(); $("#pw-state").textContent = t("pw.removed") + " " + t("pw.none"); }
+      else $("#pw-state").textContent = r.status === 403 ? t("pw.wrong") : t("acct.fail");
+    });
     $("#acct-alerts").addEventListener("change", async (e) => {
       const r = await account.post("/api/me/alerts", "PUT", { frequency: e.target.value, lang: LANG });
       const p = state.profile;

@@ -15,7 +15,7 @@ COPY radar ./radar
 COPY web ./web
 COPY data/golden ./data/golden
 COPY data/seeds ./data/seeds
-COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml ./data/
+COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml data/company_sizes.tsv ./data/
 RUN mkdir -p /app/data/enumerated /app/data/raw && chown -R radar:radar /app
 USER radar
 EXPOSE 8000 9100

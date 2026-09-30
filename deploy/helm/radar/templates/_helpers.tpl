@@ -63,6 +63,20 @@ redis://{{ include "radar.fullname" . }}-redis:6379/0
       name: {{ .Values.mail.existingSecret }}
       key: RADAR_SMTP_PASSWORD
 {{- end }}
+{{- if .Values.google.existingSecret }}
+- name: RADAR_GOOGLE_CLIENT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.google.existingSecret }}
+      key: RADAR_GOOGLE_CLIENT_ID
+      optional: true
+- name: RADAR_GOOGLE_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Values.google.existingSecret }}
+      key: RADAR_GOOGLE_CLIENT_SECRET
+      optional: true
+{{- end }}
 - name: RADAR_COUNTRIES
   value: {{ .Values.config.countries | quote }}
 - name: RADAR_EXTRACTOR

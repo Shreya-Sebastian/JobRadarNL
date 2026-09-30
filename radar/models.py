@@ -111,6 +111,9 @@ class User(Base):
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     alerts: Mapped[str] = mapped_column(String(10), default="off")  # off | daily | weekly (radar/alerts.py)
     alerts_sent_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    # optional, set from the account card after signing in once by link or Google (radar/passwords.py)
+    password_hash: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    password_set_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class LoginToken(Base):

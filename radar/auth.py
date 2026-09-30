@@ -14,7 +14,9 @@ Why this design:
 
 from __future__ import annotations
 
+import base64
 import hashlib
+import hmac
 import json
 import logging
 import re
@@ -25,15 +27,16 @@ import time
 from collections import deque
 from datetime import datetime, timedelta
 from html import escape
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
-from radar import mailer
+from radar import mailer, passwords
 from radar.config import settings
 from radar.models import LoginToken, User, UserData, UserSession
 
@@ -167,25 +170,187 @@ def verify(token: str, request: Request, session: Session = Depends(_db)):
     if row is None or row.used_at is not None or row.expires_at <= now:
         return RedirectResponse("/login?expired=1", status_code=303)
     row.used_at = now
-    user = session.scalar(select(User).where(User.email == row.email))
+    return _sign_in(session, request, row.email, row.remember is not False,
+                    RedirectResponse("/?login=ok#profile", status_code=303))
+
+
+def _local(request: Request) -> bool:
+    return request.url.hostname in {"localhost", "127.0.0.1", "::1", "testserver"}
+
+
+def _sign_in(session: Session, request: Request, email: str, remember: bool, resp: Response) -> Response:
+    """Create the account on first sign-in, open a session and set its cookie on `resp` (every method ends here)."""
+    now = datetime.utcnow()
+    user = session.scalar(select(User).where(User.email == email))
     if user is None:
-        user = User(email=row.email)
+        user = User(email=email)
         session.add(user)
         session.flush()
     user.last_login_at = now
     raw = secrets.token_urlsafe(32)
-    remember = row.remember is not False
     # "keep me signed in": a cookie that lasts session_days; otherwise a browser-session cookie that ends when the
     # browser closes, and a server-side session that ends after short_session_hours at the latest
     lifetime = timedelta(days=settings.session_days) if remember else timedelta(hours=settings.short_session_hours)
     session.add(UserSession(token_hash=_hash(raw), user_id=user.id, expires_at=now + lifetime))
     session.commit()
-    resp = RedirectResponse("/?login=ok#profile", status_code=303)
     # Secure behind a TLS-terminating proxy too (the app then sees http); only a local run gets a plain cookie
-    local = request.url.hostname in {"localhost", "127.0.0.1", "::1", "testserver"}
     resp.set_cookie(COOKIE, raw, max_age=int(lifetime.total_seconds()) if remember else None, httponly=True,
-                    samesite="lax", secure=request.url.scheme == "https" or not local, path="/")
+                    samesite="lax", secure=request.url.scheme == "https" or not _local(request), path="/")
     return resp
+
+
+# ---------- Continue with Google (OpenID Connect, authorization code flow) ----------
+_GOOGLE_AUTH = "https://accounts.google.com/o/oauth2/v2/auth"
+_GOOGLE_TOKEN = "https://oauth2.googleapis.com/token"
+_OAUTH_COOKIE = "radar_oauth"
+
+
+def google_enabled() -> bool:
+    return bool(settings.google_client_id and settings.google_client_secret)
+
+
+def _google_redirect_uri(request: Request) -> str:
+    # the address Google sends people back to; it must also be registered in the Google Cloud client
+    base = str(request.base_url) if _local(request) else settings.site_url
+    return base.rstrip("/") + "/auth/google/callback"
+
+
+@router.get("/auth/google", include_in_schema=False)
+def google_start(request: Request, remember: int = 1, lang: str = "en"):
+    if not google_enabled():
+        return RedirectResponse("/login?google=off", status_code=303)
+    state, nonce = secrets.token_urlsafe(24), secrets.token_urlsafe(24)
+    params = {"client_id": settings.google_client_id, "redirect_uri": _google_redirect_uri(request),
+              "response_type": "code", "scope": "openid email", "state": state, "nonce": nonce,
+              "prompt": "select_account"}
+    resp = RedirectResponse(f"{_GOOGLE_AUTH}?{urlencode(params)}", status_code=303)
+    # state and nonce tie Google's answer to this browser and this attempt (no login CSRF, no replayed token)
+    resp.set_cookie(_OAUTH_COOKIE, f"{state}.{nonce}.{1 if remember else 0}.{'nl' if lang == 'nl' else 'en'}",
+                    max_age=600, httponly=True, samesite="lax", secure=not _local(request), path="/auth/google")
+    return resp
+
+
+def _id_token_claims(id_token: str) -> dict:
+    """The claims of an ID token received directly from Google's token endpoint over TLS with our client secret;
+    OpenID Connect Core 3.1.3.7 allows skipping the signature check in exactly this case. Issuer, audience,
+    expiry and nonce are still checked by the caller."""
+    payload = id_token.split(".")[1]
+    return json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+
+
+@router.get("/auth/google/callback", include_in_schema=False)
+def google_callback(request: Request, code: str = "", state: str = "", session: Session = Depends(_db)):
+    fail = RedirectResponse("/login?google=failed", status_code=303)
+    fail.delete_cookie(_OAUTH_COOKIE, path="/auth/google")
+    try:
+        want_state, nonce, remember, _lang = (request.cookies.get(_OAUTH_COOKIE) or "").split(".")
+    except ValueError:
+        return fail
+    if not code or not google_enabled() or not hmac.compare_digest(state, want_state):
+        return fail
+    try:
+        r = httpx.post(_GOOGLE_TOKEN, timeout=15, data={
+            "code": code, "client_id": settings.google_client_id, "client_secret": settings.google_client_secret,
+            "redirect_uri": _google_redirect_uri(request), "grant_type": "authorization_code"})
+        r.raise_for_status()
+        claims = _id_token_claims(r.json()["id_token"])
+    except (httpx.HTTPError, KeyError, ValueError, IndexError):
+        log.warning("google sign-in: token exchange failed")
+        return fail
+    ok = (claims.get("iss") in ("accounts.google.com", "https://accounts.google.com")
+          and claims.get("aud") == settings.google_client_id and claims.get("exp", 0) > time.time()
+          and hmac.compare_digest(str(claims.get("nonce", "")), nonce) and claims.get("email_verified") is True
+          and _EMAIL.match(str(claims.get("email", ""))))
+    if not ok:
+        log.warning("google sign-in: rejected ID token claims")
+        return fail
+    resp = RedirectResponse("/?login=ok#profile", status_code=303)
+    resp.delete_cookie(_OAUTH_COOKIE, path="/auth/google")
+    return _sign_in(session, request, claims["email"].lower(), remember == "1", resp)
+
+
+# ---------- passwords (optional, set after signing in once) ----------
+_FAILS_PER_EMAIL = 5
+_LOCK = timedelta(minutes=15)
+_fails: dict[str, deque] = {}
+_fails_lock = threading.Lock()
+
+
+def _locked(email: str) -> bool:
+    now = time.monotonic()
+    with _fails_lock:
+        q = _fails.setdefault(email, deque())
+        while q and now - q[0] > _LOCK.total_seconds():
+            q.popleft()
+        return len(q) >= _FAILS_PER_EMAIL
+
+
+def _failed(email: str) -> None:
+    with _fails_lock:
+        _fails.setdefault(email, deque()).append(time.monotonic())
+
+
+class PasswordLogin(BaseModel):
+    email: str = Field(max_length=254)
+    password: str = Field(max_length=passwords.MAX_LENGTH)
+    remember: bool = True
+
+
+@router.post("/api/auth/password")
+def password_login(body: PasswordLogin, request: Request, session: Session = Depends(_db)):
+    _require_json_header(request)
+    email = body.email.strip().lower()
+    ip = request.client.host if request.client else "unknown"
+    if not _ip_allowed(ip) or _locked(email):
+        raise HTTPException(429, "too many attempts; try again in 15 minutes or use an e-mail link")
+    user = session.scalar(select(User).where(User.email == email)) if _EMAIL.match(email) else None
+    stored = user.password_hash if user and user.password_hash else passwords.DUMMY_HASH
+    if not passwords.verify_password(body.password, stored) or user is None or not user.password_hash:
+        _failed(email)
+        # the same answer whether the address is unknown, has no password or the password is wrong
+        raise HTTPException(401, "wrong e-mail address or password")
+    with _fails_lock:
+        _fails.pop(email, None)
+    return _sign_in(session, request, email, body.remember,
+                    Response(content='{"ok": true}', media_type="application/json"))
+
+
+class PasswordChange(BaseModel):
+    password: str = Field(default="", max_length=passwords.MAX_LENGTH)
+    current: str = Field(default="", max_length=passwords.MAX_LENGTH)
+
+
+@router.put("/api/me/password")
+def set_password(body: PasswordChange, request: Request, user: User = Depends(require_user),
+                 session: Session = Depends(_db)):
+    _require_json_header(request)
+    u = session.get(User, user.id)
+    if u.password_hash and not passwords.verify_password(body.current, u.password_hash):
+        raise HTTPException(403, "the current password is not right")
+    why = passwords.problem(body.password)
+    if why:
+        raise HTTPException(422, why)
+    u.password_hash = passwords.hash_password(body.password)
+    u.password_set_at = datetime.utcnow()
+    session.commit()
+    return {"has_password": True}
+
+
+@router.delete("/api/me/password")
+def remove_password(body: PasswordChange, request: Request, user: User = Depends(require_user),
+                    session: Session = Depends(_db)):
+    _require_json_header(request)
+    u = session.get(User, user.id)
+    if u.password_hash and not passwords.verify_password(body.current, u.password_hash):
+        raise HTTPException(403, "the current password is not right")
+    u.password_hash = u.password_set_at = None
+    session.commit()
+    return {"has_password": False}
+
+
+@router.get("/api/auth/methods")
+def methods():
+    return {"google": google_enabled(), "password": True, "link": True}
 
 
 @router.post("/api/auth/logout")
@@ -203,7 +368,8 @@ def logout(request: Request, response: Response, session: Session = Depends(_db)
 def me(user: User | None = Depends(current_user)):
     if user is None:
         return {"signed_in": False}
-    return {"signed_in": True, "email": user.email, "since": user.created_at.date().isoformat()}
+    return {"signed_in": True, "email": user.email, "since": user.created_at.date().isoformat(),
+            "has_password": bool(user.password_hash)}
 
 
 class DataBody(BaseModel):

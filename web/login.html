@@ -42,6 +42,16 @@
     cursor: pointer; }
   .panel label.keep input { width: 16px; height: 16px; accent-color: var(--accent); }
   .panel .keep-hint { color: var(--muted); font-size: 12.5px; margin: 4px 0 0 24px; }
+  a.google { display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; padding: 11px;
+    border-radius: 9px; border: 1px solid var(--line); background: #fff; color: #1f1f1f; font-weight: 600;
+    font-size: 15px; text-decoration: none; }
+  a.google:hover { background: #f2f2f2; }
+  .or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12.5px; margin: 16px 0 12px; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .panel input[type=password] { width: 100%; padding: 11px 12px; font-size: 16px; border-radius: 9px;
+    background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+  .panel input[type=password]:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .alt { margin: 12px 0 0; font-size: 13.5px; text-align: center; }
   .panel button.go { width: 100%; margin-top: 14px; padding: 12px; font-size: 15px; font-weight: 600; border-radius: 9px; }
   .panel .fine { color: var(--muted); font-size: 12.5px; margin: 16px 0 0; line-height: 1.5; }
   .panel .fine a { color: var(--muted); }
@@ -103,13 +113,23 @@
       <p class="lead" id="l-up" hidden><span class="en">Enter your e-mail address. Your account is created when you open the link we send.</span><span class="nl">Vul je e-mailadres in. Je account wordt gemaakt zodra je de link opent die we sturen.</span></p>
       <div class="msg err" id="err" hidden></div>
       <div class="msg info" id="info" hidden></div>
+      <div id="google-box" hidden>
+        <a class="google" id="google" href="/auth/google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span class="en">Continue with Google</span><span class="nl">Doorgaan met Google</span></a>
+        <div class="or"><span class="en">or with e-mail</span><span class="nl">of met e-mail</span></div>
+      </div>
       <form id="form" novalidate>
         <label for="email"><span class="en">E-mail address</span><span class="nl">E-mailadres</span></label>
         <input type="email" id="email" name="email" autocomplete="email" inputmode="email" required placeholder="you@example.com">
+        <div id="pw-box" hidden>
+          <label for="password" style="margin-top:12px"><span class="en">Password</span><span class="nl">Wachtwoord</span></label>
+          <input type="password" id="password" name="password" autocomplete="current-password" maxlength="128">
+        </div>
         <label class="keep"><input type="checkbox" id="remember" checked> <span class="en">Keep me signed in on this device</span><span class="nl">Ingelogd blijven op dit apparaat</span></label>
         <p class="keep-hint"><span class="en">Untick on a shared computer: you are then signed out when the browser closes.</span><span class="nl">Vink uit op een gedeelde computer: je wordt dan uitgelogd als de browser sluit.</span></p>
         <button class="primary go" type="submit" id="go"><span class="en" id="go-en">Send sign-in link</span><span class="nl" id="go-nl">Stuur inloglink</span></button>
       </form>
+      <p class="alt" id="alt-in"><button type="button" class="link" id="use-pw"><span class="en">Sign in with a password instead</span><span class="nl">Liever inloggen met een wachtwoord</span></button><button type="button" class="link" id="use-link" hidden><span class="en">Forgot it? Send me a sign-in link instead</span><span class="nl">Vergeten? Stuur me liever een inloglink</span></button></p>
+      <p class="alt muted" id="alt-up" hidden><span class="en">You can add a password to your account after signing in.</span><span class="nl">Na het inloggen kun je een wachtwoord aan je account toevoegen.</span></p>
       <p class="fine"><span class="en">By continuing you agree that we store your e-mail address, profile and saved jobs for your account, as described in the</span><span class="nl">Door verder te gaan ga je ermee akkoord dat we je e-mailadres, profiel en bewaarde vacatures voor je account opslaan, zoals beschreven in de</span>
         <a href="/privacy" data-privacy><span class="en">privacy statement</span><span class="nl">privacyverklaring</span></a>.</p>
     </div>
@@ -136,12 +156,18 @@
           fail: "We couldn't send the e-mail right now. Please try again in a few minutes.",
           net: "No connection. Check your internet and try again.", expired: "That sign-in link has expired or was already used. Send yourself a new one.",
           signed: "You're already signed in.", sending: "Sending…", upBtn: "Send link to create account", inBtn: "Send sign-in link",
-          nomail: "E-mail isn't set up on this server, so no e-mail was sent." },
+          nomail: "E-mail isn't set up on this server, so no e-mail was sent.",
+          pwBtn: "Sign in", pwWrong: "Wrong e-mail address or password.", pwLocked: "Too many attempts. Wait 15 minutes, or send yourself a sign-in link.",
+          pwEmpty: "Enter your password.", gFailed: "Signing in with Google didn't work. Please try again, or use your e-mail address.",
+          gOff: "Google sign-in isn't available right now. Use your e-mail address." },
     nl: { bad: "Dat lijkt geen e-mailadres.", slow: "Te veel verzoeken. Probeer het over een uur opnieuw.",
           fail: "De e-mail kon nu niet worden verstuurd. Probeer het over een paar minuten opnieuw.",
           net: "Geen verbinding. Controleer je internet en probeer het opnieuw.", expired: "Die inloglink is verlopen of al gebruikt. Stuur jezelf een nieuwe.",
           signed: "Je bent al ingelogd.", sending: "Versturen…", upBtn: "Stuur link om account te maken", inBtn: "Stuur inloglink",
-          nomail: "E-mail is op deze server niet ingesteld, dus er is geen e-mail verstuurd." },
+          nomail: "E-mail is op deze server niet ingesteld, dus er is geen e-mail verstuurd.",
+          pwBtn: "Inloggen", pwWrong: "Onjuist e-mailadres of wachtwoord.", pwLocked: "Te veel pogingen. Wacht 15 minuten, of stuur jezelf een inloglink.",
+          pwEmpty: "Vul je wachtwoord in.", gFailed: "Inloggen met Google lukte niet. Probeer het opnieuw, of gebruik je e-mailadres.",
+          gOff: "Inloggen met Google is nu niet beschikbaar. Gebruik je e-mailadres." },
   }[lang];
   const home = lang === "nl" ? "/nl/" : "/";
   document.querySelectorAll("[data-home]").forEach((a) => { a.href = home; });
@@ -150,14 +176,36 @@
   document.title = (lang === "nl" ? "Inloggen · " : "Sign in · ") + "{{SITE_NAME}}";
 
   let mode = new URLSearchParams(location.search).get("mode") === "signup" ? "up" : "in";
-  let lastEmail = "", timer = null;
+  let lastEmail = "", timer = null, usePw = false;
   const show = (el, on) => { el.hidden = !on; };
   function setMode(m) {
     mode = m;
     $("#t-in").classList.toggle("on", m === "in"); $("#t-up").classList.toggle("on", m === "up");
     show($("#h-in"), m === "in"); show($("#h-up"), m === "up"); show($("#l-in"), m === "in"); show($("#l-up"), m === "up");
-    $("#go-en").textContent = m === "up" ? T.upBtn : T.inBtn;
-    if (lang === "nl") $("#go-nl").textContent = m === "up" ? T.upBtn : T.inBtn;
+    if (m === "up") usePw = false;
+    show($("#pw-box"), usePw); show($("#alt-in"), m === "in"); show($("#alt-up"), m === "up");
+    show($("#use-pw"), !usePw); show($("#use-link"), usePw);
+    const label = usePw ? T.pwBtn : m === "up" ? T.upBtn : T.inBtn;
+    $("#go-en").textContent = label;
+    if (lang === "nl") $("#go-nl").textContent = label;
+  }
+  $("#use-pw").addEventListener("click", () => { usePw = true; setMode("in"); $("#password").focus(); });
+  $("#use-link").addEventListener("click", () => { usePw = false; setMode("in"); $("#email").focus(); });
+  $("#google").addEventListener("click", (e) => {
+    e.preventDefault();
+    location.href = `/auth/google?remember=${$("#remember").checked ? 1 : 0}&lang=${lang}`;
+  });
+  async function passwordLogin(email) {
+    const pw = $("#password").value;
+    if (!pw) { error(T.pwEmpty); $("#password").focus(); return; }
+    const btn = $("#go"); btn.disabled = true; error("");
+    try {
+      const r = await fetch("/api/auth/password", { method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-Requested-With": "radar" },
+        body: JSON.stringify({ email, password: pw, remember: $("#remember").checked }) });
+      if (r.ok) { location.replace(home + "#profile"); return; }
+      error(r.status === 429 ? T.pwLocked : T.pwWrong); $("#password").value = ""; $("#password").focus();
+    } catch { error(T.net); } finally { btn.disabled = false; }
   }
   function error(msg) { $("#err").textContent = msg || ""; show($("#err"), !!msg); }
   $("#t-in").addEventListener("click", () => setMode("in"));
@@ -185,13 +233,17 @@
     e.preventDefault();
     const email = $("#email").value.trim();
     if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(email)) { error(T.bad); $("#email").focus(); return; }
-    send(email);
+    if (usePw) passwordLogin(email); else send(email);
   });
   $("#resend").addEventListener("click", () => send(lastEmail));
   $("#other").addEventListener("click", () => { show($("#sent-view"), false); show($("#form-view"), true); $("#email").focus(); });
 
   setMode(mode);
-  if (new URLSearchParams(location.search).get("expired")) error(T.expired);
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("expired")) error(T.expired);
+  if (qs.get("google") === "failed") error(T.gFailed);
+  if (qs.get("google") === "off") error(T.gOff);
+  fetch("/api/auth/methods").then((r) => r.json()).then((m) => show($("#google-box"), !!m.google)).catch(() => {});
   fetch("/api/me", { credentials: "same-origin" }).then((r) => r.json()).then((me) => {
     if (me.signed_in) { location.replace(home + "#profile"); }
   }).catch(() => {});

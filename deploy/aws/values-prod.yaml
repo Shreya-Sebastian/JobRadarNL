@@ -22,6 +22,9 @@ mail:
   smtpPort: 587
   existingSecret: radar-smtp
 
+google:
+  existingSecret: radar-google   # created by hand; optional, the Google button stays hidden until it exists
+
 config:
   corsOrigins: "https://techjobsradar.nl"
   siteName: "Tech Jobs Radar"

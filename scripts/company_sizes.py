@@ -28,6 +28,10 @@ sys.path.insert(0, str(ROOT))
 
 from radar.normalize import norm_company  # noqa: E402
 
+# Matches checked by hand and found wrong: the source counts something else than the employer's own staff
+WRONG = {
+    "Port of Rotterdam": "Wikidata counts all jobs in the port economy (~385,000); the port authority has ~1,300",
+}
 UA = {"User-Agent": "JobRadarNL/0.2 (+https://github.com/Shreya-Sebastian/JobRadarNL) company-size lookup"}
 WD = "https://www.wikidata.org/w/api.php"
 NL = "Q55"
@@ -204,6 +208,8 @@ def main() -> None:
             except (httpx.HTTPError, ValueError) as e:
                 print(f"  {name}: {e}", file=sys.stderr)
                 continue  # not marked as checked: a rerun tries it again
+            if hit and name in WRONG:
+                hit = None
             if hit:
                 w.writerow([name, *hit])
                 hits.flush()
@@ -212,7 +218,7 @@ def main() -> None:
             seen.flush()
             time.sleep(0.2)
     with open(partial, encoding="utf-8") as f:
-        found = {row[0]: row for row in csv.reader(f, delimiter="\t") if len(row) >= 4}
+        found = {row[0]: row for row in csv.reader(f, delimiter="\t") if len(row) >= 4 and row[0] not in WRONG}
     with open(args.out, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f, delimiter="\t", lineterminator="\n")
         w.writerow(["# company", "employees", "as_of", "source"])

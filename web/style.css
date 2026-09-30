@@ -156,4 +156,6 @@ footer { padding: 24px 16px 40px; font-size: 12px; }
 .card.account form.row { flex-wrap: wrap; }
 button.link.danger { color: var(--bad); }
 
+.pw-form { display: grid; gap: 8px; max-width: 360px; margin: 6px 0 10px; }
+.pw-form input { width: 100%; }
 .more-cities { color: var(--muted); font-size: 12px; cursor: help; border-bottom: 1px dotted var(--muted); }
