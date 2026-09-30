@@ -21,7 +21,7 @@ import time
 from datetime import datetime, timedelta
 
 import httpx
-from sqlalchemy import select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from radar.config import settings
@@ -32,6 +32,8 @@ log = logging.getLogger(__name__)
 IND_REGISTER_URL = "https://ind.nl/en/public-register-recognised-sponsors/public-register-work"
 PLATFORMS_PER_WEEK = 3
 RECHECK_AFTER_DAYS = 90
+RETRY_FAILED_AFTER_DAYS = 7
+_FAILED = ("error", "exception")
 _ROW = re.compile(r'<th scope="row">(.*?)</th>\s*<td>\s*(\d{8})\s*</td>', re.S)
 
 
@@ -109,13 +111,14 @@ def run(session: Session, *, boards: int = 300, rechecks: int = 100, sponsors: i
         probe(ats, slug)
         stats["boards_probed"] += 1
 
-    # 2. boards that had no Dutch postings a while ago
-    before = today - timedelta(days=RECHECK_AFTER_DAYS)
+    # 2. boards that had no Dutch postings a while ago, and checks that failed (rate limits, timeouts) last week
+    c = DiscoveryCandidate
     stale = session.execute(
-        select(DiscoveryCandidate.kind, DiscoveryCandidate.key)
-        .where(DiscoveryCandidate.kind != "sponsor", DiscoveryCandidate.status == "ok", DiscoveryCandidate.nl == 0,
-               DiscoveryCandidate.checked_at < before)
-        .order_by(DiscoveryCandidate.checked_at).limit(rechecks)).all()
+        select(c.kind, c.key)
+        .where(c.kind != "sponsor", or_(
+            and_(c.status == "ok", c.nl == 0, c.checked_at < today - timedelta(days=RECHECK_AFTER_DAYS)),
+            and_(c.status.in_(_FAILED), c.checked_at < today - timedelta(days=RETRY_FAILED_AFTER_DAYS))))
+        .order_by(c.checked_at).limit(rechecks)).all()
     for ats, slug in stale:
         if time.monotonic() > deadline:
             break
@@ -163,7 +166,8 @@ def import_state(session: Session, probed: dict[str, dict[str, dict]], sponsor_s
     added = 0
     for ats, state in probed.items():
         for slug, res in state.items():
-            if (ats, slug) not in seen:
+            # failed checks (mostly rate limits) were never really checked: leave them for the weekly job
+            if (ats, slug) not in seen and res.get("status") not in _FAILED:
                 session.add(DiscoveryCandidate(kind=ats, key=slug, status=res.get("status", "error"),
                                                nl=int(res.get("nl") or 0), checked_at=checked_at))
                 added += 1

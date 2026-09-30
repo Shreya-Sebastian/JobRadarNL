@@ -80,6 +80,8 @@ def test_boards_without_dutch_postings_are_checked_again_after_three_months(fres
     with session_scope() as s:
         s.add(DiscoveryCandidate(kind="lever", key="grew", status="ok", nl=0, checked_at=old))
         s.add(DiscoveryCandidate(kind="lever", key="recent", status="ok", nl=0, checked_at=datetime.utcnow()))
+        s.add(DiscoveryCandidate(kind="lever", key="limited", status="error", nl=0,
+                                 checked_at=datetime.utcnow() - timedelta(days=8)))
     probed = []
     monkeypatch.setattr(weekly, "platforms_this_week", lambda today: [])
     monkeypatch.setattr(weekly, "fetch_register", lambda: [])
@@ -87,13 +89,14 @@ def test_boards_without_dutch_postings_are_checked_again_after_three_months(fres
                         {"slug": slug, "status": "ok", "total": 9, "nl": 4})
     with session_scope() as s:
         out = weekly.run(s)
-    assert probed == ["grew"] and out["rechecked"] == 1 and out["sources_added"] == 1
+    assert probed == ["grew", "limited"] and out["rechecked"] == 2 and out["sources_added"] == 2
 
 
 def test_import_state_seeds_earlier_results(fresh_db):
     from radar.db import session_scope
 
-    probed = {"recruitee": {"a": {"status": "ok", "nl": 2}, "b": {"status": "not_found"}}}
+    probed = {"recruitee": {"a": {"status": "ok", "nl": 2}, "b": {"status": "not_found"},
+                            "c": {"status": "error", "error": "429"}}}  # rate-limited: not really checked
     sponsors = {"33333333": {"name": "X", "domain": "x.nl"}, "44444444": {"name": "Y", "domain": None}}
     with session_scope() as s:
         assert weekly.import_state(s, probed, sponsors, datetime(2026, 9, 29)) == 4
