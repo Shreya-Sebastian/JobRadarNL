@@ -9,7 +9,7 @@ from radar.extract.schema import Extraction
 from radar.extract.sections import job_text
 from radar.taxonomy import find_skills
 
-RULES_VERSION = "rules-v14"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
+RULES_VERSION = "rules-v15"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
 
 # words only one of the languages uses: "in", "is", "we", "team", "over" and "of" are both Dutch and English,
 # "die" and "er" are also German
@@ -443,8 +443,11 @@ _NO_LEVEL_WORD = r"^(?!.*\b(?:junior|jr|medior|senior|sr|lead|staff|principal|ma
 _LADDER_END = r"(?=\s*(?:$|[,(\-–|/:\[]))"
 _SENIORITY = [
     ("intern", r"\binterns?(?:hips?)?\b|\w*(?<!back)(?<!early-)(?<!early )stage(?:s|opdracht\w*|plaats\w*|plek\w*)?\b|"
-               r"stagiai?re?|working student|werkstudent|afstudeer|\bthesis\b|scriptie|\bgraduation\b|^student\b"),
+               # an "advocaat-stagiair" is a trainee lawyer in a three-year training, not an intern
+               r"(?<!advocaat-)(?<!advocaat )stagiai?re?|working student|werkstudent|afstudeer|\bthesis\b|scriptie|"
+               r"\bgraduation\b|^student\b"),
     ("trainee", r"\btrainee(ship)?s?\b|traineeprogramma|graduate (programme|program|scheme)|young professional|"
+                r"advocaat[- ]stagiai?re?|"
                 r"talent ?programm?a?\b|development program(me)?\b|starters?functie|starters?programma|"
                 r"\bstarter\b(?! kit)|\bbbl\b|apprentice\w*|\bleerling\b|leerwerk\w*|\bin opleiding\b|"
                 r"betaalde opleiding|opleiding tot\b"),
@@ -464,7 +467,8 @@ _SENIORITY = [
         r"vestigingsleider|groepsleider|\bgroup leader\b",
     ),
     ("lead", r"\blead\b|\btech ?lead\b|\bteam ?lead(?:er)?\b|\bteamleider\b|(?<!project )(?<!project-)\bleader\b|"
-             r"\bsupervisor\b|\barchitect\b"),
+             # a naval or landscape architect is a design discipline, not a lead level
+             r"\bsupervisor\b|(?<!naval )(?<!landscape )\barchitect\b"),
     ("senior", r"\bsenior\b|\bsr\.?\b"),
 ]
 _ROLE = [
@@ -474,7 +478,12 @@ _ROLE = [
     ("other", r"\bsales\b(?! data| analy)|pre-?sales|business ?develop\w*|product develop\w*|"
           r"(?<!deployed )\bsolutions? engineer\w*|"
               r"\bvalue engineer|\bmarketing (?:manager|lead|director|specialist|executive|intern\w*)|marketeer|"
-              r"account executive"),
+              r"account executive|\bfield applications? engineer|"
+              # machine programmers (CNC, CAM, welding robots, laser cutters) and procurement are not software jobs
+              r"\bcnc\b|\bcam[- ]?programm|cad/cam|lasrobot|lasersnij|meetprogramm|operator ?/ ?programm|"
+              r"\bav[- ]technicus|audio ?visual|\binkoop(?:adviseur|professional|er|specialist|manager|"
+              r"consultant|medewerker)?\b|"
+              r"procurement|\bbuyer\b"),
     ("fullstack", r"full[- ]?stack"),
     (
         "it_support",
@@ -483,8 +492,11 @@ _ROLE = [
         r"applicatie ?beheer\w*|application (?:manager|management|administrator|support)|"
         r"modern workplace|workplace (?:engineer|services|automation)|microsoft 365|\bm365\b|"
         r"technical services engineer|"
-        r"service management|\bitsm\b|\bitil\b",
+        r"service management|\bitsm\b|\bitil\b|major incident|incident (?:&|and) problem|\b(?:incident|"
+        r"problem) manager",
     ),
+    # Microsoft Power Platform is low-code app building, like Mendix and OutSystems, not platform engineering
+    ("backend", r"power ?(?:platform|apps)\b"),
     (
         "ml",
         r"machine learning|\bml\b|\bai\b(?! infra)|deep learning|computer vision|\bnlp\b|llm|data scientist|"
@@ -496,8 +508,9 @@ _ROLE = [
         r"modell?ing (?:engineer|scientist|specialist)",
     ),
     ("security", r"security|cyber|\bsoc\b|penetration|\biam\b|\bgrc\b|informatiebeveilig\w*|(?<!ship )vulnerabilit\w*|"
-                 r"\bit[- ]?audit\w*|technology risk|\bpki\b|threat|detection engineer"),
-    ("data", r"\bdata\b(?! ?cent(?:er|re))|analytics|\bbi\b|business intelligence|analist|analyst"),
+                 r"\bit[- ]?(?:audit|assurance)\w*|technology risk|\bpki\b|threat|detection engineer"),
+    ("data", r"\bdata\b(?! ?cent(?:er|re))|analytics|\bbi\b|business intelligence|analist|analyst|databricks|"
+             r"snowflake"),
     (
         "platform",
         r"devops|devsecops|\bsre\b|site reliability|platform|\bcloud\b|kubernetes|"
@@ -522,7 +535,9 @@ _ROLE = [
     ("frontend", r"front[- ]?end|\bui\b engineer|react|angular|vue|web developer"),
     (
         "backend",
-        r"back[- ]?end|software ?(?:engineer|developer|development|ontwikkel\w*)|developer|ontwikkelaar|programm|"
+        # "programm" but not a "Graduate Programme", "Programmamanager" or "SAP Programme Lead"
+        r"back[- ]?end|software ?(?:engineer|developer|development|ontwikkel\w*)|developer|ontwikkelaar|"
+        r"programm(?!es?\b|as?\b|[ae][- ]?(?:manag|lead|architect|director))|"
         r"python|java|\.net|golang|scala|kotlin|c\+\+|\bapi\b|\bphp\b|\bruby\b|\brust\b|elixir|mendix|outsystems|"
         r"sitecore|software architect|\btech lead\b|integrati(?:e|on) ?specialist",
     ),
@@ -533,9 +548,13 @@ _ROLE = [
         r"\binfra (?:engineer|specialist)|infrabeheer|openshift|virtuali[sz]ation|mainframe|z/os|"
         r"storage engineer|firewall|telecom ?engineer|engineer telecom|"
         r"telecommunicatie|glasvezel|\b(?:azure|aws|gcp) (?:engineer|specialist|consultant|architect)|"
-        r"database[- ]?(?:engineer|operations)|release engineer|build engineer|ci/cd|\bwindows (?:\w+ )?engineer",
+        r"database[- ]?(?:engineer|operations)|release engineer|build engineer|ci/cd|\bwindows (?:\w+ )?engineer|"
+        # "Azure Integration Architect", "Azure Competence Lead", "IT Architect (Azure)", "Practice Lead: AWS"
+        r"\bnetworking\b|\b(?:azure|aws|gcp)\b[\w\s]{0,20}?\b(?:architect|lead)\b|"
+        r"\b(?:architect|lead)\b\W{1,4}(?:\w+\W+)?(?:azure|aws|gcp)\b",
     ),
-    ("it_support", r"\bict\b|\bit (engineer|support|specialist)|\bit[- ](?:medewerker|technician|coördinator|"
+    ("it_support", r"\bict\b|managed services? engineer|\bit[- ]systems?\b|\bit (engineer|support|specialist)|"
+                   r"\bit[- ](?:medewerker|technician|coördinator|"
                    r"coordinator)|"
                    r"system technician|technisch beheer\w*|\bbeheerder\b"),
     ("embedded", r"robot\w*|\bros ?2?\b|\biot\b|\bot[- ](?:engineer|specialist)|it/ ?ot\b|signal processing|\bgnss\b|"
@@ -746,12 +765,15 @@ _REMOTE = re.compile(
     r"\b(?:role|position|job|vacancy|opportunity|functie) is (?:a |an )?(?:fully |100% |entirely |"
     r"completely )?remote\b|"
     r"\b(?:is|as) a (?:fully )?remote (?:role|position|job)|"
-    + _POLICY_LABEL + r"(?:fully |100% )?remote\b(?!\s*(?:or|/|\+|&|,|-|–|of)\s*(?:hybri|office|on|kantoor|in[- ]))|"
+    # not "Werkplek: Remote & Utrecht en klant locatie", which is remote next to an office
+    + _POLICY_LABEL + r"(?:fully |100% )?remote\b(?!\s*(?:or|/|\+|&|,|-|–|of)\s*(?:hybri|office|on|kantoor|in[- ])|"
+    r"\s*(?:&|\+|\ben\b|\band\b)\s*(?-i:[A-Z]))|"
     r"\bremote(?:ly)?(?: working| work)? (?:within|across|from anywhere in|anywhere in) (?:the )?(?:netherlands|"
     r"nl|europe|"
     r"eu|emea|cet|any)|\bwork (?:fully |100% )?remotely from (?:anywhere|home|any)|\bwork from anywhere\b|"
     r"(?:^|\n)\s*remote\s*[-–]\s*(?:emea|europe|eu|global|nl|netherlands)\b|\bremote-global\b|"
-    r"\bvolledig (?:remote|op afstand|thuis|vanuit huis)|\b100\s?% (?:thuis|vanuit huis)|"
+    # not the idiom "volledig thuis zijn in de techniek" (fully at home in, an expert in)
+    r"\bvolledig (?:remote|op afstand|thuis(?! (?:is|in|zijn|bent|op)\b)|vanuit huis)|\b100\s?% (?:thuis|vanuit huis)|"
     r"\bremote (?:role|position|job)\b(?! (?:is )?not)|"
     # remote is one of the options: "Hybrid or remote working setup", "remote, hybrid or from the Rotterdam office"
     r"\bhybri(?:d|de)(?: working| work| werken)?,? (?:or|of|and|en|/) (?:fully |volledig )?remote\b|"
@@ -767,7 +789,12 @@ _HYBRID = re.compile(
     r"landscape|search|retrieval|technical|techniek|radar|kubernetes|netwerk|network|vehicle|electric|engine|method|"
     r"machine|bond|integrat|mobile|app|data\b|database|workload|platform|simulat|model(?:s|l\w*)? (?:for|of|"
     r"to) (?!work)|"
-    r"comput|storage|identit|deploy|rag\b|learning|genetic|physics|modelling|models\b))|"
+    r"comput|storage|identit|deploy|rag\b|learning|genetic|physics|modelling|models\b|"
+    # technology and business senses: "hybride omgeving (on-premises en cloud)", "hybrid connectivity", "hybrid
+    # attackers", "hybrid bare-metal", "hybrid games", "een hybride rol waarin", "hybrid office and cloud environments"
+    r"omgeving\b|connectiv|attack|secur|threat|dreiging|positioning|casual|games?\b|publisher|solar|material|"
+    r"magnet|klanten|professional|rol\b|focus|agentic|bare|on[- ]?prem|office and cloud|setups|workloads|"
+    r"and (?:cloud|multi|on[- ]?prem)|of private))|"
     r"\b(?:[1-4]|one|two|three|four|een|één|twee|drie|vier)(?:\s*(?:[-–/]|to|or|tot|of)\s*(?:[1-5]|two|three|"
     r"four|five|twee|drie|vier|vijf))?\s*"
     r"(?:\(\d\)\s*)?(?:days?|dagen)\s*(?:a|per|p/|in the|/)\s*(?:week|wk)\s*(?:\w+\s+){0,4}?(?:in|at|from|on|op|vanuit|"
@@ -798,9 +825,21 @@ _HYBRID = re.compile(
     r"\b(?:office|kantoor|hq|headquarters|campus|hub)\W+(?:\w+\W+){0,5}?(?:[1-4]|one|two|three|four|twee|drie|vier)"
     r"(?:\s*(?:[-–/]|to|or|tot|of)\s*(?:[1-5]|two|three|four|five|twee|drie|vier|vijf))?\s*(?:days?|"
     r"dagen)\s*(?:a|per|in the|/)\s*(?:week|wk)|"
-    r"\b[1-9]0\s?% (?:on[- ]?site|in (?:the )?office|remote|from home|thuis|op kantoor)",
+    r"\b[1-9]0\s?% (?:on[- ]?site|in (?:the )?office|remote|from home|thuis|op kantoor)|"
+    # "Werkplek: Remote & Utrecht en klant locatie"
+    + _POLICY_LABEL + r"remote\s*(?:&|\+|\ben\b|\band\b)\s*(?-i:[A-Z])|"
+    # "travelling to the office twice per week", "once a week in the office"
+    r"\b(?:office|kantoor|on[- ]?site)\b[^.;\n]{0,50}?\b(?:twice|once|three times)\s+(?:a|per|every|in the)\s+week|"
+    r"\b(?:twice|once|three times)\s+(?:a|per|every|in the)\s+week\b[^.;\n]{0,40}?\b(?:office|kantoor|on[- ]?site|"
+    r"in[- ]person)",
     re.I,
 )
+# office attendance in the same clause makes a "remote" statement hybrid: "The role is remote in the Netherlands, but
+# you commit to travelling to the office twice per week"
+_OFFICE_WEEKLY = re.compile(
+    r"\b(?:office|kantoor|on[- ]?site|hq|headquarters|hub)\b[^.;\n]{0,50}?\b(?:twice|once|three times|[1-4]|one|two|"
+    r"three|four|een|één|twee|drie|vier)(?:\s*(?:[-–/]|to|or|tot|of)\s*[1-5])?\s*(?:times?\s*|days?\s*|dagen\s*|x\s*)?"
+    r"(?:a|per|in the|every|/|p/)\s*(?:week|wk)\b", re.I)
 _ONSITE = re.compile(
     r"\b(?:fully|100\s?%|entirely|volledig|always|completely) (?:on[- ]?site|in[- ]office|office[- ]based|op kantoor|"
     r"op locatie|in the office|from the office|at the office|at our office|in[- ]person)|"
@@ -819,6 +858,7 @@ _ONSITE = re.compile(
     r"\((?:on[- ]?site|onsite|in[- ]office|office[- ]based)\)|"
     + _POLICY_LABEL + r"(?:on[- ]?site|onsite|office|kantoor|op locatie|in[- ]office)\b|"
     r"#LI-On-?site\b|\bon[- ]?site \((?:5|five|vijf|full)|\b(?:role|position|job) is based on[- ]?site\b|"
+    r"\bbased on[- ]?site (?:at|in)\b|"
     r"\bwork on[- ]?site (?:in|at) (?:our|the) (?:\w+ )?office|(?:^|\n)[ \t]*on[- ]?site[ \t]*(?:\n|$)|"
     r"\bnot (?:a |an )?(?:fully )?remote\b|\bno (?:fully )?remote\b|\bnon[- ]remote\b|\bgeen (?:remote|thuiswerk\w*)|"
     r"\bremote(?:-only)? (?:work(?:ing)? )?(?:is )?not (?:possible|an option|available|supported)|"
@@ -841,6 +881,9 @@ _REMOTE_HEDGE = re.compile(r"depending on|afhankelijk van|some (?:roles|position
 _AFTER_NEG = re.compile(
     r"\W{0,3}(?:is |are |zijn )?(?:not|niet|geen) (?:possible|mogelijk|an option|allowed|available)", re.I)
 _CLAUSE_END_R = re.compile(r"[.!?;\n•|]")
+# the employer or team, not the role: "Remote first digital team, based across Europe", "a remote-first company"
+_REMOTE_COMPANY = re.compile(r"\bremote[- ](?:first|native|based)\s+(?:[\w-]+\s+)?(?:teams?|company|companies|"
+                             r"organi[sz]ations?|culture|business|workforce|employer|start-?up|scale-?up)\b", re.I)
 
 
 def _clause_parts(text: str, m: re.Match, back: int = 60) -> tuple[str, str]:
@@ -858,7 +901,7 @@ def _policy_hit(rx: re.Pattern, text: str, period_ok: bool = True) -> bool:
         if _REMOTE_NEG.search(before[-40:]) or _AFTER_NEG.match(after):
             continue
         if not period_ok and (_REMOTE_PERIOD.search(before) or _REMOTE_PERIOD.search(after[:60])
-                              or _REMOTE_HEDGE.search(before + after)):
+                              or _REMOTE_HEDGE.search(before + after) or _OFFICE_WEEKLY.search(after)):
             continue
         return True
     return False
@@ -879,7 +922,10 @@ def detect_remote(title: str, text: str) -> str:
         return "hybrid"
     if re.search(r"\b(?:on[- ]?site|in[- ]office)\b", title or "", re.I):
         return "onsite"
-    if _policy_hit(_REMOTE, text, period_ok=False) or (
+    remote = _policy_hit(_REMOTE, text, period_ok=False)
+    if remote and _ONSITE.search(text) and not _policy_hit(_REMOTE, _REMOTE_COMPANY.sub(" ", text), period_ok=False):
+        remote = False  # only the company or team is remote-first; the role itself is on-site
+    if remote or (
         _REMOTE_TITLE.search(title or "") and not _ONSITE.search(text) and not _policy_hit(_HYBRID, text)
     ):
         return "remote"
@@ -895,13 +941,16 @@ def detect_remote(title: str, text: str) -> str:
 _DEGREE = [
     # a PhD as a requirement, not the PhD position itself ("this PhD project", "PhD candidate", "four other PhDs")
     ("phd", r"(?<!your )(?<!this )(?<!the )(?<!our )(?<!during )(?<!funded )(?<!year )(?<!other )(?<!doing a )"
-            r"(?<!start a )(?<!starting a )(?<!towards a )(?<!for a )"
-            r"\bph\.?\s?d\.?(?:['’]s)?\b(?!['’]s\b)(?![\s-]*(?:position|project|candidate|student|researcher|"
+            r"(?<!start a )(?<!starting a )(?<!towards a )(?<!for a )(?<!pursue a )(?<!her )(?<!his )(?<!their )"
+            r"(?<!my )(?<!possession of a )"
+            r"\bph\.?\s?d\.?(?:['’]s)?\b(?!['’]s\b)(?![\s-]*(?:\d|,?\s*(?:and|or|&|/)\s*post-?doc|position|"
+            r"project|candidate|student|researcher|"
             r"vacanc|programme|"
             r"program|track|thesis|research|defen[cs]e|trajector|supervis|fellow|scholarship|journey|stud|"
             r"level position|"
             r"opportunit|network|intern|salary|allowance|contract|traineeship|school|course|life|period|phase))|"
-            r"\bdoctorate\b|\bdoctoral degree|\bgepromoveerd|\bpromotieonderzoek (?:afgerond|voltooid)"),
+            r"\bdoctorate\b|(?<!possession of a )\bdoctoral degree|\bgepromoveerd|"
+            r"\bpromotieonderzoek (?:afgerond|voltooid)"),
     ("msc", r"\bm\.?\s?sc\b(?![\s-]*(?:(?:and|en|or|of|/)\s*ph\.?d\s*)?(?:students|studenten|theses|projects|"
             r"interns?))|(?-i:\bMS)\s*(?:degree|in\b|or PhD|/\s?PhD)|\bmasters? of (?:een )?ph\.?d\b|"
             r"(?<!scrum )(?<!certified )(?<!quiz)\bmasters?(?:['’]s?)?(?:\s+(?:degree|diploma|"
@@ -943,6 +992,14 @@ _OTHER_ITEM = re.compile(r"\b(?:en|and|or|of)\b[^,]*?(?:opleiding|diploma|certif
 # "at least 4 years relevant working experience (or PhD)": the PhD replaces experience, it is not the level asked
 _INSTEAD_OF_EXPERIENCE = re.compile(r"(?:experience|ervaring)[^.;\n]{0,15}\(?\s*(?:or|of)\s*(?:a\s+)?$", re.I)
 _DEG_CLAUSE_END = re.compile(r"[.!?;\n•|]")
+# degrees that are not asked of the applicant: the students you supervise or teach, the transcripts to upload, the
+# programmes the university runs ("supervising Bachelor's and Master's students", "transcripts of your BSc and MSc")
+_DEG_NOT_ASKED_BEFORE = re.compile(
+    r"supervis\w*|mentor\w*|teach\w*|lectur\w*|tutor\w*|begeleid\w*|transcripts?|grades?\b|cijferlijst\w*|"
+    r"courses followed|list of courses|\bwe educate\b|\bmixed\b|students?\s*\(\s*$", re.I)
+_DEG_NOT_ASKED_AFTER = re.compile(
+    r"^(?:['’]s?)?\s*(?:(?:and|or|/|&|,)\s*(?:\w+\s)?(?:master|msc|m\.sc|bachelor|bsc|b\.sc)\w*(?:['’]s?)?\s*)?"
+    r"(?:teaching|onderwijs|lectures)\b", re.I)
 _POSTDOC_TITLE = re.compile(r"\bpost[- ]?doc\w*|\bpostdoctoral", re.I)
 
 
@@ -962,6 +1019,8 @@ def _degree_levels(text: str) -> list[str]:
                 continue
             plus = list(_DEGREE_PLUS.finditer(before))
             if plus and not _ANY_DEGREE.search(before[plus[-1].end() :]):
+                continue
+            if _DEG_NOT_ASKED_BEFORE.search(before) or _DEG_NOT_ASKED_AFTER.match(text[e : e + 60]):
                 continue
             if key == "phd" and _INSTEAD_OF_EXPERIENCE.search(text[max(0, s - 60) : s]):
                 continue
