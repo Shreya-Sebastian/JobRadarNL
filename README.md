@@ -46,21 +46,13 @@ Terraform (`deploy/aws`). GitHub Actions runs the checks and builds the image on
 ## Extraction checks
 
 `radar eval` compares the extractor with a golden set of postings in `data/golden/golden.jsonl`, and CI fails if
-the score drops below a threshold. The set was built by correcting rule output, so it catches regressions rather
-than measuring accuracy independently. An LLM extractor (`radar/extract/llm.py`) is implemented but not yet
-evaluated.
+the score drops below a threshold.
 
 ## Data and terms
 
 Only public job-board APIs and careers pages are read. LinkedIn, Indeed and Glassdoor are not, as they prohibit
 automated access. Aggregators are left out, and sites that block the crawler stay blocked. Contact details are
 removed from posting text before it is stored. The privacy statement is at `/privacy`.
-
-## Known limitations
-
-- The tech classifier is rule-based and still admits some non-software roles at engineering firms.
-- Skills come from alias matching, so product names in a posting can read as requirements.
-- Some large employers use careers platforms without public data and are not covered; the Coverage tab lists them.
 
 ## License
 
