@@ -15,10 +15,16 @@ SKILLS: dict[str, list[str]] = {
     "C#": [r"c#", r"c-sharp", r"csharp"],
     ".NET": [r"\.net\b", r"dotnet", r"asp\.net"],
     "Go": [r"\bgolang\b", r"\bgo\b(?=\s*(?:developer|engineer|programming|language|\(golang\)|/|,))"],
-    "Rust": [r"\brust\b"],
+    # the language, not the Dutch word for rest ("rust en ruimte", "in alle rust"): capitalised and not after or before
+    # a Dutch function word, or written with a programming context
+    "Rust": [r"(?-i:\bRust\b)(?<!de Rust)(?<!De Rust)(?!\s+(?:en|in|aan|van|voor|op|om|is|te|nodig|brengen)\b)"
+             r"(?<!alle Rust)(?<!met Rust)",
+             r"\brust(?:lang|-lang)\b", r"\brust (?:developer|engineer|programming|programmer)\b"],
     "Kotlin": [r"kotlin"],
     "Swift": [r"\bswift\b(?!\s*(?:code|payment|transfer))"],
-    "Scala": [r"\bscala\b"],
+    # the language, not Dutch "een (breed) scala aan" (a wide range of)
+    "Scala": [r"(?<!een )(?<!breed )(?<!brede )(?<!ruim )(?<!ruime )(?<!groot )(?<!grote )(?<!hele )\bscala\b"
+              r"(?!\s+(?:aan|van)\b)"],
     "Ruby": [r"\bruby\b", r"\brails\b"],  # not "guardrails"
     "PHP": [r"\bphp\b", r"laravel", r"symfony"],
     "R": [r"\bR\b(?=\s*(?:programming|language|/|,|and|or|\)))"],

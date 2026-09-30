@@ -5,9 +5,10 @@ from __future__ import annotations
 import re
 
 from radar.extract.schema import Extraction
+from radar.extract.sections import job_text
 from radar.taxonomy import find_skills
 
-RULES_VERSION = "rules-v11"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
+RULES_VERSION = "rules-v12"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
 
 _NL_WORDS = re.compile(
     r"\b(de|het|een|en|van|voor|met|je|jij|wij|bij|niet|zijn|werken|ervaring|functie|wat|jouw|onze|ook|"
@@ -318,7 +319,10 @@ def extract_rules(title: str, description: str) -> Extraction:
     text = description or ""
     lang = detect_language(text) if text else "en"
     core = _BENEFITS_SPLIT.split(text, maxsplit=1)[0] if text else ""
-    parts = _NICE_SPLIT.split(core, maxsplit=1)
+    # skills come from the role and requirement sections when the posting has headers, so the company intro and
+    # "about us" (which often name the employer's own products) do not read as requirements
+    focus = job_text(text)
+    parts = _NICE_SPLIT.split(focus if focus is not None else core, maxsplit=1)
     required_part = parts[0]
     nice_part = parts[-1] if len(parts) > 1 else ""
     skills_req = find_skills(title + "\n" + required_part)

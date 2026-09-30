@@ -50,25 +50,25 @@ def cmd_extract(args: argparse.Namespace) -> None:
 
     init_db()
     extract, version = get_extractor(args.extractor)
-    done = 0
+    q = select(Posting.id).where(Posting.is_tech.is_(True)).order_by(Posting.id)
+    if not args.all:
+        q = q.where(
+            (Posting.extractor_version != version)
+            | (Posting.extracted_hash != Posting.content_hash)
+            | Posting.extraction.is_(None)
+        )
+    if args.limit:
+        q = q.limit(args.limit)
     with session_scope() as s:
-        q = select(Posting).where(Posting.is_tech.is_(True))
-        if not args.all:
-            q = q.where(
-                (Posting.extractor_version != version)
-                | (Posting.extracted_hash != Posting.content_hash)
-                | Posting.extraction.is_(None)
-            )
-        if args.limit:
-            q = q.limit(args.limit)
-        for p in s.scalars(q):
-            p.extraction = extract(p.title, p.description).model_dump()
-            p.extractor_version = version
-            p.extracted_hash = p.content_hash
-            done += 1
-            if done % 200 == 0:
-                s.commit()
-    print(f"extracted {done} postings with {version}")
+        ids = list(s.scalars(q))
+    # in batches, each committed on its own, so the run fits in memory on a small server
+    for i in range(0, len(ids), 200):
+        with session_scope() as s:
+            for p in s.scalars(select(Posting).where(Posting.id.in_(ids[i:i + 200]))):
+                p.extraction = extract(p.title, p.description).model_dump()
+                p.extractor_version = version
+                p.extracted_hash = p.content_hash
+    print(f"extracted {len(ids)} postings with {version}")
 
 
 def cmd_reclassify(_: argparse.Namespace) -> None:

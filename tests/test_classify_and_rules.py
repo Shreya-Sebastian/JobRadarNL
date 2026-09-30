@@ -328,3 +328,34 @@ def test_short_teaser_text_does_not_make_a_generic_title_tech():
     # a specific tech title stands on its own, even next to a teaser
     for title in ("OutSystems consultant", "Senior Detection Engineer", "Technical Data Steward", "Software Engineer"):
         assert is_tech(title, teaser), title
+
+
+def test_skills_come_from_the_job_sections_not_the_company_blurb():
+    from radar.extract.rules import extract_rules
+    from radar.extract.sections import job_text
+
+    text = ("About Acme\nAcme is the application monitoring standard; clients include OpenAI and our SDKs support "
+            "Ruby and PHP.\n\nWhat you'll do\n- Build backend services in Python and Kotlin\n\nRequirements\n"
+            "- Experience with PostgreSQL\n\nNice to have\n- Kubernetes\n\nWhat we offer\n- A Java learning budget")
+    ex = extract_rules("Backend Engineer", text)
+    assert {"Python", "Kotlin", "PostgreSQL"} <= set(ex.skills_required)
+    assert "Kubernetes" in ex.skills_nice
+    for wrong in ("Monitoring/Observability", "LLMs", "Ruby", "PHP", "Java"):
+        assert wrong not in ex.skills_required + ex.skills_nice, wrong
+    # a sentence in the introduction that describes the role still counts
+    intro = "As a data engineer you will build pipelines with Spark.\n\nRequirements\n- SQL"
+    assert "Spark" in extract_rules("Data Engineer", intro).skills_required
+    # without recognisable headers the whole text is used, as before
+    assert job_text("We use Python and Go every day.") is None
+    assert "Python" in extract_rules("Engineer", "We use Python and Go every day.").skills_required
+
+
+def test_rust_and_scala_are_not_read_from_dutch_words():
+    from radar.taxonomy import find_skills
+
+    for text in ("We use Rust and Go", "Experience with Rust, C++ or Go", "Rust developer", "Spark with Scala",
+                 "Scala, Kotlin or Java"):
+        assert {"Rust", "Scala"} & set(find_skills(text)), text
+    for text in ("rust en ruimte om te groeien", "in alle rust werken", "met rust laten",
+                 "een breed scala aan projecten", "een scala van mogelijkheden"):
+        assert not {"Rust", "Scala"} & set(find_skills(text)), text

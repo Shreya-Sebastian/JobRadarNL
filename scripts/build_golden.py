@@ -28,17 +28,19 @@ OVERRIDES: dict[int, dict] = {
     12: rm("Product Management"),
     13: {"visa_sponsorship": False},
     15: {"remote_policy": "onsite", **rm("Product Management")},
-    16: {"degree_required": "unknown"},
+    16: {"degree_required": "unknown", **rm("LLMs")},  # "LLMs" came from "clients include ... OpenAI"
     17: {"skills_required": ["Machine Learning", "NLP", "LLMs", "MLOps", "Data Science"],
          "skills_nice": ["Python", "SQL", "AWS", "Azure", "GCP"]},
     18: {"remote_policy": "onsite", **rm("Monitoring/Observability")},
     19: rm("UX/Design"),
-    22: rm("UX/Design"),
+    22: rm("UX/Design", "LLMs"),  # "LLMs" came from "clients include ... OpenAI"
+    23: rm("Statistics"),  # "statistical reporting" is a regulatory regime the team reports under, not a skill
     24: rm("Product Management"),
     25: rm("UX/Design"),
     26: {"seniority": "senior", "role_family": "product", "remote_policy": "onsite", "degree_required": "unknown"},
     28: {"skills_nice": ["DevOps"], **rm("DevOps")},
-    30: {"role_family": "other"},
+    30: {"role_family": "other", **rm("Monitoring/Observability")},  # the company blurb ("Sentry is ... application
+    # monitoring"), not a requirement of the role
     32: {"degree_required": "bsc", **rm("UX/Design")},
     33: {"role_family": "it_support"},
     35: {"role_family": "other"},
