@@ -199,3 +199,15 @@ class DailyStat(Base):
     hits: Mapped[int] = mapped_column(Integer, default=0)
     humans: Mapped[int] = mapped_column(Integer, default=0)
     uniques: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class DiscoveryCandidate(Base):
+    """A board or employer the weekly discovery has already checked, so later runs only look at new ones."""
+
+    __tablename__ = "discovery_candidates"
+
+    kind: Mapped[str] = mapped_column(String(20), primary_key=True)  # platform ("recruitee", ...) or "sponsor"
+    key: Mapped[str] = mapped_column(String(300), primary_key=True)  # board slug, or KvK number
+    status: Mapped[str] = mapped_column(String(20))  # ok / not_found / error, or board / no_board / no_domain
+    nl: Mapped[int] = mapped_column(Integer, default=0)  # postings in the Netherlands when last checked
+    checked_at: Mapped[datetime] = mapped_column(DateTime, index=True)

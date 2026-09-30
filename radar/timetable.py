@@ -25,6 +25,7 @@ class Entry:
     every_minutes: int | None = None  # interval job: runs when (minute of day - offset) % every == 0
     offset_minutes: int = 0
     daily_at: tuple[int, int] | None = None  # (hour, minute) for a nightly job
+    weekday: int | None = None  # with daily_at: only on this day (0 = Monday ... 6 = Sunday)
     timeout_seconds: int = 1800
 
 
@@ -36,6 +37,7 @@ TIMETABLE = [
     Entry("qualitycheck", daily_at=(3, 45)),
     Entry("analytics_nightly", daily_at=(0, 10)),
     Entry("send_alerts", daily_at=(6, 30)),  # 08:30 in the Netherlands in summer, 07:30 in winter
+    Entry("discover_weekly", daily_at=(0, 40), weekday=6, timeout_seconds=5400),  # Sunday night, quietest hours
 ]
 
 
@@ -46,7 +48,8 @@ def slot(entry: Entry, now: datetime) -> str | None:
         if (minute_of_day - entry.offset_minutes) % entry.every_minutes == 0:
             return f"{entry.name}:{now:%Y-%m-%dT%H:%M}"
         return None
-    if entry.daily_at and (now.hour, now.minute) == entry.daily_at:
+    on_day = entry.weekday is None or now.weekday() == entry.weekday
+    if entry.daily_at and (now.hour, now.minute) == entry.daily_at and on_day:
         return f"{entry.name}:{now:%Y-%m-%d}"
     return None
 

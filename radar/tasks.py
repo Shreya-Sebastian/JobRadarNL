@@ -183,6 +183,16 @@ def analytics_nightly() -> dict:
     return out
 
 
+def discover_weekly() -> dict:
+    """Weekly: look for employers and boards the radar does not read yet (radar/weekly.py)."""
+    from radar import weekly
+
+    init_db()
+    with session_scope() as s:
+        out = weekly.run(s)
+    return out
+
+
 def send_alerts() -> dict:
     """Daily: e-mail new matching jobs to users who turned on job alerts."""
     from radar import alerts

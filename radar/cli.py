@@ -346,6 +346,39 @@ def cmd_find_sitemaps(args: argparse.Namespace) -> None:
     print(f"registered {added} new sitemap sources from {len(entries)} domains")
 
 
+def cmd_discover_weekly(args: argparse.Namespace) -> None:
+    """Run the weekly discovery now (it also runs by itself every Sunday night)."""
+    from radar import weekly
+    from radar.db import init_db, session_scope
+
+    init_db()
+    with session_scope() as s:
+        print(weekly.run(s, boards=args.boards, rechecks=args.rechecks, sponsors=args.sponsors,
+                         time_budget_s=args.minutes * 60))
+
+
+def cmd_discovery_import(args: argparse.Namespace) -> None:
+    """Load earlier discovery results (data/enumerated/probed_*.json, sponsors_state.json) into the database."""
+    import json
+    from datetime import datetime
+    from pathlib import Path
+
+    from radar import weekly
+    from radar.db import init_db, session_scope
+
+    init_db()
+    folder = Path(args.folder)
+    probed = {f.stem.removeprefix("probed_"): json.loads(f.read_text(encoding="utf-8"))
+              for f in sorted(folder.glob("probed_*.json"))}
+    sponsor_file = folder / "sponsors_state.json"
+    sponsors = json.loads(sponsor_file.read_text(encoding="utf-8")) if sponsor_file.exists() else {}
+    files = list(folder.glob("probed_*.json")) + ([sponsor_file] if sponsor_file.exists() else [])
+    checked_at = datetime.utcfromtimestamp(max((f.stat().st_mtime for f in files), default=0))
+    with session_scope() as s:
+        added = weekly.import_state(s, probed, sponsors, checked_at)
+    print(f"imported {added} checked boards and employers from {len(files)} files")
+
+
 def cmd_sponsors(args: argparse.Namespace) -> None:
     """Find job boards for employers on the IND register of recognised sponsors (resumable)."""
     from pathlib import Path
@@ -563,6 +596,15 @@ def main(argv: list[str] | None = None) -> None:
     p.set_defaults(fn=cmd_copy_db)
     sub.add_parser("reclassify", help="re-run the tech classifier on all postings").set_defaults(fn=cmd_reclassify)
 
+    p = sub.add_parser("discover-weekly", help="look for new employers and boards now (runs weekly by itself)")
+    p.add_argument("--boards", type=int, default=300, help="new boards to probe")
+    p.add_argument("--rechecks", type=int, default=100, help="boards without Dutch postings to probe again")
+    p.add_argument("--sponsors", type=int, default=200, help="new employers on the IND register to look up")
+    p.add_argument("--minutes", type=int, default=60, help="stop after this long")
+    p.set_defaults(fn=cmd_discover_weekly)
+    p = sub.add_parser("discovery-import", help="load earlier discovery results so the weekly run skips them")
+    p.add_argument("folder", nargs="?", default="data/enumerated")
+    p.set_defaults(fn=cmd_discovery_import)
     p = sub.add_parser("sponsors", help="find job boards for employers on the IND sponsor register")
     p.add_argument("--register", default="data/seeds/ind_sponsors.tsv")
     p.add_argument("--state", default="data/enumerated/sponsors_state.json")
