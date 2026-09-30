@@ -118,6 +118,10 @@ def test_robots_longest_match_precedence_and_delays():
     assert not rules.allowed("/a/b.pdf") and rules.allowed("/a/b.pdf?x") and not rules.allowed("/search-jobs/")
     assert rules.crawl_delay == 0.1
     # our own token gets its own group; nothing for us means the star group
-    rules = robots.parse("User-agent: nl-tech-job-radar\nDisallow: /jobs\n\nUser-agent: *\nAllow: /\n")
+    rules = robots.parse("User-agent: TechJobsRadar\nDisallow: /jobs\n\nUser-agent: *\nAllow: /\n")
     assert not rules.allowed("/jobs/1")
+    # the token robots.txt rules are matched on is the one the crawler sends
+    from radar.config import settings
+
+    assert settings.user_agent.lower().startswith(robots.OUR_TOKEN + "/")
     assert robots.parse("").allowed("/anything")

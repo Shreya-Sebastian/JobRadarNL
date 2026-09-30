@@ -32,7 +32,7 @@ from radar.normalize import norm_company  # noqa: E402
 WRONG = {
     "Port of Rotterdam": "Wikidata counts all jobs in the port economy (~385,000); the port authority has ~1,300",
 }
-UA = {"User-Agent": "JobRadarNL/0.2 (+https://github.com/Shreya-Sebastian/JobRadarNL) company-size lookup"}
+UA = {"User-Agent": "TechJobsRadar/1.0 (+https://techjobsradar.nl/privacy; contact@techjobsradar.nl)"}
 WD = "https://www.wikidata.org/w/api.php"
 NL = "Q55"
 _INFOBOX_FIELDS = re.compile(r"^\s*\|\s*(?:werknemers|medewerkers|aantal[ _]werknemers|aantal[ _]medewerkers|"

@@ -22,7 +22,7 @@ import httpx
 
 log = logging.getLogger(__name__)
 
-OUR_TOKEN = "nl-tech-job-radar"
+OUR_TOKEN = "techjobsradar"  # the product token of the crawler's User-Agent (config.user_agent)
 
 
 class Rules:
