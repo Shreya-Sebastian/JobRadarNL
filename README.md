@@ -41,7 +41,7 @@ workers. Configuration is through `RADAR_*` environment variables, see `.env.exa
 ## Deployment
 
 k3s on a single AWS EC2 instance, deployed with the Helm chart in `deploy/helm/radar`; the AWS resources are in
-Terraform (`deploy/aws`). GitHub Actions runs the checks and builds the image on every push. See `DEPLOY.md`.
+Terraform (`deploy/aws`). GitHub Actions runs the checks and builds the image on every push.
 
 ## Extraction checks
 
@@ -54,8 +54,7 @@ evaluated.
 
 Only public job-board APIs and careers pages are read. LinkedIn, Indeed and Glassdoor are not, as they prohibit
 automated access. Aggregators are left out, and sites that block the crawler stay blocked. Contact details are
-removed from posting text before it is stored. `COMPLIANCE.md` covers each source, and the privacy statement is
-at `/privacy`.
+removed from posting text before it is stored. The privacy statement is at `/privacy`.
 
 ## Known limitations
 
