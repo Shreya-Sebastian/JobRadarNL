@@ -58,6 +58,7 @@
   <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
   <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
 </div>
+<p class="small muted mt-3 mb-0" id="scope-note" hidden></p>
 <div class="boot" id="boot" role="status"><div class="spinner"></div><span data-i18n="loading">Loading the latest jobs…</span></div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -73,17 +74,10 @@
       <div class="chart tall" id="ov-graph"></div>
     </div>
   </div>
-  <div class="grid two">
-    <div class="card">
-      <h2><span data-i18n="ov.new">New since your last visit</span> <span class="hint" id="ov-since"></span></h2>
-      <ol class="matches" id="ov-new"></ol>
-      <p><a href="#jobs" class="btn" id="ov-new-all" data-i18n="ov.new.all">See all new jobs</a></p>
-    </div>
-    <div class="card">
-      <h2><span data-i18n="ov.matches">Best matches for you</span> <span class="hint" id="ov-match-hint"></span></h2>
-      <ol class="matches" id="ov-matches"></ol>
-      <p class="muted small" id="ov-match-empty" hidden data-i18n-html="ov.matches.empty">Add your skills under <a href="#profile">Profile</a> to see matches.</p>
-    </div>
+  <div class="card">
+    <h2><span data-i18n="ov.matches">Best matches for you</span> <span class="hint" id="ov-match-hint"></span></h2>
+    <ol class="matches" id="ov-matches"></ol>
+    <p class="muted small" id="ov-match-empty" hidden data-i18n-html="ov.matches.empty">Add your skills under <a href="#profile">Profile</a> to see matches.</p>
   </div>
 </section>
 
@@ -113,7 +107,6 @@
       <label class="check"><input type="checkbox" id="f-agencies"> <span data-i18n="f.agencies">Hide agencies</span></label>
       <label class="check" data-i18n-title="f.confirmed.title"><input type="checkbox" id="f-confirmed"> <span data-i18n="f.confirmed">Only confirmed on the employer's site in the last 7 days</span></label>
       <label class="check" data-i18n-title="f.noenrol.title"><input type="checkbox" id="f-noenrol"> <span data-i18n="f.noenrol">Exclude internships that require enrolment</span></label>
-      <label class="check"><input type="checkbox" id="f-new"> <span data-i18n="f.new">Only new since last visit</span></label>
       <label class="check"><input type="checkbox" id="f-saved"> <span data-i18n="f.saved">Saved only</span></label>
     </div>
     <div class="filter-row">
@@ -315,6 +308,6 @@
   <p class="mt-6 border-t border-line pt-6"><b class="text-ink">{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites, refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in. CV text you paste is used once to find skills and is not stored.</span> <a href="{{PRIVACY_PATH}}" data-i18n="privacy">Privacy</a> · <a href="{{FEEDBACK_PATH}}" data-i18n="feedback">Feedback</a>{{SOURCE_LINK}}</p>
  </div>
 </footer>
-<script src="/static/app.js?v=51"></script>
+<script src="/static/app.js?v=52"></script>
 </body>
 </html>

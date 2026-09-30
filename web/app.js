@@ -18,15 +18,16 @@
     en: {
       "tab.overview": "Overview", "tab.jobs": "Jobs", "tab.market": "Market", "tab.profile": "Profile", "tab.coverage": "Coverage",
       "personalised": "Personalised", "personalised.title": "Apply the saved profile as the default filter on every tab",
+      "scope.note": "Filtered by your profile: {f}.", "scope.edit": "Edit", "scope.visa": "visa sponsorship", "scope.noagency": "no agencies",
       "ov.skills": "Most requested skills", "ov.skills.hint": "Click a bar to open those jobs.",
       "ov.graph": "Skills asked for together", "ov.graph.hint": "a line joins skills named in the same posting",
-      "ov.new": "New since your last visit", "ov.new.all": "See all new jobs", "ov.matches": "Best matches for you",
+      "ov.matches": "Best matches for you",
       "ov.matches.empty": 'Add your skills under <a href="#profile">Profile</a> to see matches.',
       "f.search": "Search", "f.search.ph": "title or company", "f.window": "Window", "f.window.all": "All live", "f.window.1": "Last 24 h",
       "f.window.7": "Last 7 days", "f.window.30": "Last 30 days", "f.window.90": "Last 90 days",
       "f.language": "Language", "f.language.any": "Dutch and/or English", "f.language.nl": "Dutch only (no English needed)", "f.language.en": "English (no Dutch required)",
       "f.sort": "Sort", "f.sort.newest": "Newest", "f.sort.match": "Best match", "f.role": "Role", "f.level": "Level", "f.remote": "Remote",
-      "f.cities": "Cities", "f.visa": "Visa sponsorship mentioned", "f.agencies": "Hide agencies", "f.new": "Only new since last visit",
+      "f.cities": "Cities", "f.visa": "Visa sponsorship mentioned", "f.agencies": "Hide agencies", 
       "f.saved": "Saved only", "f.skill": "Skill", "f.reset": "Reset filters",
       "th.age": "Age", "th.title": "Title", "th.company": "Company", "th.city": "City", "th.level": "Level", "th.skills": "Skills",
       "th.match": "Match", "th.lang": "Language", "th.visa": "Visa", "th.employer": "Employer", "th.open": "Open tech roles", "th.share": "Share",
@@ -51,11 +52,11 @@
       "kpi.live": "live tech postings", "kpi.employers": "employers", "kpi.sources": "sources healthy", "kpi.crawl": "last crawl",
       "title": "{n} tech jobs in the Netherlands",
       "scope.all": "all live tech postings", "scope.profile": "filtered by your profile", "scope.label": "Scope: {s}.",
-      "since.first": "first visit: showing the newest", "since": "since {d}", "since.profile": ", matching your profile",
-      "new.none": "Nothing new that fits your profile yet.", "match.hint": "by overlap with your {n} skills", "match.hint.profile": ", within your profile filters",
+      
+      "match.hint": "by overlap with your {n} skills", "match.hint.profile": ", within your profile filters",
       "match.none": "No live posting fits all your profile filters. Loosen a level or city under Profile.",
       "li.match": "match {p}%", "li.have": "you have {s}", "li.missing": "missing {s}", "agency": "agency", "closed": "closed",
-      "jobs.match": "{n} jobs match", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", "new": "new",
+      "jobs.match": "{n} jobs match", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Dutch required, no English needed", "lang.en.title": "No Dutch required", "lang.both.title": "Dutch and English both required",
       "visa.yes": "yes", "visa.no": "no", "visa.unknown": "?", "save": "save", "remove": "remove",
       "salary.none": "No posting in this selection states a salary.", "salary.n": "n", "salary.median": "median",
@@ -126,15 +127,16 @@
     nl: {
       "tab.overview": "Overzicht", "tab.jobs": "Vacatures", "tab.market": "Markt", "tab.profile": "Profiel", "tab.coverage": "Dekking",
       "personalised": "Persoonlijk", "personalised.title": "Gebruik het opgeslagen profiel als standaardfilter op elk tabblad",
+      "scope.note": "Gefilterd op je profiel: {f}.", "scope.edit": "Aanpassen", "scope.visa": "visumsponsoring", "scope.noagency": "geen bureaus",
       "ov.skills": "Meest gevraagde skills", "ov.skills.hint": "Klik op een balk om die vacatures te openen.",
       "ov.graph": "Skills die samen gevraagd worden", "ov.graph.hint": "een lijn verbindt skills uit dezelfde vacature",
-      "ov.new": "Nieuw sinds je laatste bezoek", "ov.new.all": "Alle nieuwe vacatures", "ov.matches": "Beste matches voor jou",
+      "ov.matches": "Beste matches voor jou",
       "ov.matches.empty": 'Voeg je skills toe onder <a href="#profile">Profiel</a> om matches te zien.',
       "f.search": "Zoeken", "f.search.ph": "functietitel of werkgever", "f.window": "Periode", "f.window.all": "Alle open", "f.window.1": "Laatste 24 uur",
       "f.window.7": "Laatste 7 dagen", "f.window.30": "Laatste 30 dagen", "f.window.90": "Laatste 90 dagen",
       "f.language": "Taal", "f.language.any": "Nederlands en/of Engels", "f.language.nl": "Alleen Nederlands (geen Engels nodig)", "f.language.en": "Engels (geen Nederlands vereist)",
       "f.sort": "Sorteren", "f.sort.newest": "Nieuwste", "f.sort.match": "Beste match", "f.role": "Rol", "f.level": "Niveau", "f.remote": "Thuiswerken",
-      "f.cities": "Steden", "f.visa": "Visumsponsoring genoemd", "f.agencies": "Bureaus verbergen", "f.new": "Alleen nieuw sinds laatste bezoek",
+      "f.cities": "Steden", "f.visa": "Visumsponsoring genoemd", "f.agencies": "Bureaus verbergen", 
       "f.saved": "Alleen bewaard", "f.skill": "Skill", "f.reset": "Filters wissen",
       "th.age": "Leeftijd", "th.title": "Functie", "th.company": "Werkgever", "th.city": "Plaats", "th.level": "Niveau", "th.skills": "Skills",
       "th.match": "Match", "th.lang": "Taal", "th.visa": "Visum", "th.employer": "Werkgever", "th.open": "Open techvacatures", "th.share": "Aandeel",
@@ -158,11 +160,11 @@
       "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.sources": "bronnen gezond", "kpi.crawl": "laatste crawl",
       "title": "{n} ICT en tech vacatures in Nederland",
       "scope.all": "alle open techvacatures", "scope.profile": "gefilterd op je profiel", "scope.label": "Bereik: {s}.",
-      "since.first": "eerste bezoek: de nieuwste", "since": "sinds {d}", "since.profile": ", passend bij je profiel",
-      "new.none": "Nog niets nieuws dat bij je profiel past.", "match.hint": "op overlap met je {n} skills", "match.hint.profile": ", binnen je profielfilters",
+      
+      "match.hint": "op overlap met je {n} skills", "match.hint.profile": ", binnen je profielfilters",
       "match.none": "Geen open vacature past bij al je profielfilters. Versoepel een niveau of stad onder Profiel.",
       "li.match": "match {p}%", "li.have": "je hebt {s}", "li.missing": "mist {s}", "agency": "bureau", "closed": "gesloten",
-      "jobs.match": "{n} vacatures gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", "new": "nieuw",
+      "jobs.match": "{n} vacatures gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Nederlands vereist, geen Engels nodig", "lang.en.title": "Geen Nederlands vereist", "lang.both.title": "Nederlands en Engels allebei vereist",
       "visa.yes": "ja", "visa.no": "nee", "visa.unknown": "?", "save": "bewaren", "remove": "verwijderen",
       "salary.none": "Geen vacature in deze selectie noemt een salaris.", "salary.n": "n", "salary.median": "mediaan",
@@ -328,8 +330,6 @@
     profile: Object.assign(emptyProfile(), store.get("profile", {})),
     personalised: store.get("personalised", false),
     saved: store.get("saved", []),
-    lastVisit: store.get("lastVisit", null),
-    visitStart: new Date().toISOString(),
     options: { roles: [], cities: [], skills: [] },
     charts: {}, overview: null,
   };
@@ -367,7 +367,23 @@
     return q;
   }
   function scopeParams() { return state.personalised ? profileParams() : new URLSearchParams(); }
-  function scopeLabel() { return state.personalised ? t("scope.profile") : t("scope.all"); }
+  // "Filtered by your profile: junior · Amsterdam · Edit" on the tabs the switch affects; the switch itself is
+  // hidden while the profile has nothing to filter by (skills alone rank matches but filter nothing)
+  function updateScope() {
+    const has = [...profileParams().keys()].length > 0;
+    $("#personalised").closest("label").hidden = !has;
+    const p = state.profile, shown = has && state.personalised && ["overview", "jobs", "market"].includes(state.tab);
+    $("#scope-note").hidden = !shown;
+    if (!shown) return;
+    const parts = [...p.roles.map(roleLabel), ...p.levels.map(levelLabel), ...p.exp.map(expLabel),
+      ...p.degrees.map((d) => t("deg." + d)), ...p.remote.map(remoteLabel), ...p.cities.map(cityLabel),
+      ...(p.language ? [t("f.language." + p.language)] : []), ...(p.visa ? [t("scope.visa")] : []),
+      ...(p.agencies ? [t("scope.noagency")] : [])];
+    const more = p.emps.length + p.sizes.length + p.exclude.length + (p.noenrol ? 1 : 0);
+    $("#scope-note").innerHTML = esc(t("scope.note", { f: parts.join(" · ") + (more ? ` · +${more}` : "") })) +
+      ` <a href="#profile">${esc(t("scope.edit"))}</a>`;
+  }
+  function scopeLabel() { return [...scopeParams().keys()].length ? t("scope.profile") : t("scope.all"); }
   function withParams(base, extra) { const p = new URLSearchParams(base); Object.entries(extra).forEach(([k, v]) => v != null && v !== "" && p.set(k, v)); return p; }
   function fmtDate(iso) { return new Date(iso).toLocaleString(LANG === "nl" ? "nl-NL" : "en-GB", { dateStyle: "medium", timeStyle: "short" }); }
 
@@ -536,13 +552,8 @@
     barChart("ov-skills", skills.skills.map((s) => s.skill), skills.skills.map((s) => Math.round(s.share * 100)),
       { pct: true, onClick: (s) => openJobsWithSkill(s), color: skills.skills.map((s) => have.has(s.skill) ? palette[1] : palette[0]) });
     graph($("#ov-graph"), co, (s) => openJobsWithSkill(s));
-    const mine = profileParams();
+    const mine = scopeParams();
     const hasProfile = [...mine.keys()].length > 0;
-    const since = state.lastVisit;
-    $("#ov-since").textContent = (since ? t("since", { d: fmtDate(since) }) : t("since.first")) + (hasProfile ? t("since.profile") : "");
-    const fresh = await api("/api/postings", withParams(mine, since ? { since, size: 8 } : { size: 8 }));
-    $("#ov-new").innerHTML = fresh.items.length ? fresh.items.map(li).join("") : `<li class="muted">${t("new.none")}</li>`;
-    $("#ov-new-all").onclick = () => { jobFilters = null; jobFilters = currentJobFilters(); jobFilters.newOnly = !!since; };
     if (state.profile.skills.length) {
       $("#ov-match-empty").hidden = true;
       $("#ov-match-hint").textContent = t("match.hint", { n: state.profile.skills.length }) + (hasProfile ? t("match.hint.profile") : "");
@@ -598,8 +609,8 @@
     if (jobFilters) return jobFilters;
     const p = state.profile;
     jobFilters = state.personalised
-      ? { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false }
-      : { roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", newOnly: false, savedOnly: false };
+      ? { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", savedOnly: false }
+      : { roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false };
     return jobFilters;
   }
   function jobParams() {
@@ -621,7 +632,6 @@
     if (f.confirmed) q.set("confirmed_days", "7");
     if (f.q) q.set("q", f.q);
     if (f.days) q.set("days", f.days);
-    if (f.newOnly && state.lastVisit) q.set("since", state.lastVisit);
     if (f.savedOnly) q.set("ids", state.saved.join(",") || "0");
     if (state.skill) q.set("skill", state.skill);
     return q;
@@ -638,12 +648,11 @@
     toggles($("#f-remote"), REMOTE, f.remote, remoteLabel, () => refreshJobs(true));
     chipInput($("#f-cities"), f.cities, [...state.options.cities, "Remote"], () => refreshJobs(true), t("ph.city"), null, cityLabel);
     $("#f-language").value = f.language || ""; $("#f-visa").checked = f.visa; $("#f-agencies").checked = f.agencies; $("#f-noenrol").checked = !!f.noenrol; $("#f-confirmed").checked = !!f.confirmed;
-    $("#f-new").checked = f.newOnly; $("#f-saved").checked = f.savedOnly; $("#f-q").value = f.q; $("#f-days").value = f.days;
+    $("#f-saved").checked = f.savedOnly; $("#f-q").value = f.q; $("#f-days").value = f.days;
     $("#f-sort").value = state.sort;
-    $("#f-new").disabled = !state.lastVisit;
     if (!jobsBuilt) {
       jobsBuilt = true;
-      [["#f-visa", "visa"], ["#f-agencies", "agencies"], ["#f-noenrol", "noenrol"], ["#f-confirmed", "confirmed"], ["#f-new", "newOnly"], ["#f-saved", "savedOnly"]]
+      [["#f-visa", "visa"], ["#f-agencies", "agencies"], ["#f-noenrol", "noenrol"], ["#f-confirmed", "confirmed"], ["#f-saved", "savedOnly"]]
         .forEach(([id, key]) => $(id).addEventListener("change", (e) => { currentJobFilters()[key] = e.target.checked; refreshJobs(true); }));
       $("#f-language").addEventListener("change", (e) => { currentJobFilters().language = e.target.value; refreshJobs(true); });
       $("#f-days").addEventListener("change", (e) => { currentJobFilters().days = e.target.value; refreshJobs(true); });
@@ -682,10 +691,9 @@
     $("#count").textContent = t("jobs.match", { n: fmt(d.total) });
     $("#page-info").textContent = t("page", { p: d.page, t: pages });
     $("#prev").disabled = d.page <= 1; $("#next").disabled = d.page >= pages;
-    const since = state.lastVisit;
     $("#postings tbody").innerHTML = d.items.map((i) => `<tr>
       <td><button class="star${state.saved.includes(i.id) ? " on" : ""}" data-id="${i.id}" title="${t("save")}">${state.saved.includes(i.id) ? "★" : "☆"}</button></td>
-      <td class="muted" title="${esc(i.posted_at)}">${age(i)}${since && i.first_seen > since.replace("Z", "") ? `<span class="badge">${t("new")}</span>` : ""}${i.age_days > 90 ? `<span class="badge stale" title="${t("trust.old.title")}">${t("old")}</span>` : ""}</td>
+      <td class="muted" title="${esc(i.posted_at)}">${age(i)}${i.age_days > 90 ? `<span class="badge stale" title="${t("trust.old.title")}">${t("old")}</span>` : ""}</td>
       <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener" title="${esc(trustText(i))}">${esc(i.title)}</a>${trustBadge(i)}</td>
       <td>${companyLink(i.company)}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}</td>
       <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}${i.also_in && i.also_in.length ? ` <span class="more-cities" title="${esc(t("also.in", { c: i.also_in.map(cityLabel).join(", ") }))}">+${i.also_in.length}</span>` : ""}</td>
@@ -758,9 +766,9 @@
       store.set("profile", p); jobFilters = null; beacon("profile_save");
       if (!state.personalised) { state.personalised = true; store.set("personalised", true); $("#personalised").checked = true; }
       $("#p-status").textContent = t("p.saved.status"); setTimeout(() => $("#p-status").textContent = "", 3000);
-      loadHeader();
+      loadHeader(); updateScope();
     });
-    $("#p-reset").addEventListener("click", () => { state.profile = emptyProfile(); store.set("profile", state.profile); jobFilters = null; renderProfile(); });
+    $("#p-reset").addEventListener("click", () => { state.profile = emptyProfile(); store.set("profile", state.profile); jobFilters = null; renderProfile(); updateScope(); });
     $("#p-export").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify({ profile: state.profile, saved: state.saved }, null, 2)], { type: "application/json" });
       const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "radar-profile.json"; a.click();
@@ -989,6 +997,7 @@
     state.tab = renderers[tab] ? tab : "overview";
     $$("#tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === state.tab));
     $$(".tab").forEach((s) => s.classList.toggle("on", s.dataset.tab === state.tab));
+    updateScope();
     $("#kpis").hidden = state.tab !== "overview";  // the market figures belong to the overview
     window.scrollTo(0, 0);
     const bar = $("#progress"), slow = setTimeout(() => { bar.hidden = false; }, 150);  // only when it takes a moment
@@ -1006,7 +1015,6 @@
     const b = e.target.closest("button"); if (!b || b.dataset.lang === LANG) return;
     LANG = b.dataset.lang; store.set("lang", LANG); applyI18n(); renderAccount(); renderHeader(); jobsBuilt = false; profileBuilt = false; route();
   });
-  window.addEventListener("beforeunload", () => store.set("lastVisit", state.visitStart));
   applyI18n();
   $("#kpis").hidden = !["", "#overview"].includes(location.hash);  // no placeholder flash on other tabs
   bindAccount();
