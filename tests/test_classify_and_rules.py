@@ -425,3 +425,43 @@ def test_it_operations_skills_are_recognised():
         assert skill in found, skill
     assert "Application Management" in find_skills("Als functioneel beheerder ben je verantwoordelijk voor ...")
     assert "Application Management" not in find_skills("Je werkt samen met functioneel beheer en de gebruikers.")
+
+
+def test_years_ranges_written_numbers_and_non_experience_years():
+    from radar.extract.rules import find_years
+
+    cases = {
+        'Minimaal 5 jaar ervaring met cloudbeheer en migraties': 5,
+        'circa 3–6 jaar relevante werkervaring met SAP': 3,
+        'Minimaal 3 jaar ervaring in contractmanagement': 3,
+        'substantial programming.\n\n1 to 3 years of relevant professional experience.': 1,
+        '3 years experience as a Java developer in a scale-up': 3,
+        'minimaal drie tot vijf jaar ervaring als product owner': 3,
+        'Tussen de 3 en 6 jaar relevante werkervaring': 3,
+        'Between 2 and 6 years of professional experience': 2,
+        'Minimum 1 or 2 years of experience in servicing': 1,
+        'Minimaal 2,5 jaar relevante werkervaring': 3,
+        'Minimaal 1.5 jaar ervaring als Scrum Master': 2,
+        'Minimaal een half jaar ervaring op een 1e lijns servicedesk': 1,
+        'minimaal 2 jaren kennis van en werkervaring met': 2,
+        '3+ (typically 5+) years of relevant experience': 3,
+        'a minimum of three (3) years of experience': 3,
+        '6 months to 3 years’ experience in QA': 1,
+        'Je hebt minimaal 3 à 4 jaar werkervaring': 3,
+        'a 3-year experience in backend': 3,
+        'or willingness to obtain it within the first two years; Ideally, some experience': None,
+        'obtain a UTQ within three years if you have less than five years of teaching experience': None,
+        'Ervaring: junior (< 1,5 jaar werkervaring)': None,
+        'De eerste 2 jaar neem je deel aan het Young Professional Program, ervaring': None,
+        '0 tot 2 jaar ervaring met data engineering': None,
+        "A 4-year bachelor's degree and relevant experience": None,
+        'Contract: 2 years, experience with Python': None,
+        'You are 18 years or older and have experience': None,
+        'Enkele jaren ervaring in de elektrotechniek': None,
+        'Several years of experience in network administration': None,
+        'Met ruim 90 jaar ervaring in de technische dienstverlening': None,
+        '5 jaar ervaring met IT-contracten': 5,
+        '5 years of program management experience': 5,
+    }
+    for text, want in cases.items():
+        assert find_years(text) == want, text

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 
 from radar.extract.schema import Extraction
@@ -74,9 +75,22 @@ _NO_VISA = re.compile(
     r"geen\W{0,15}(?:visa|sponsorship|relocat\w*|verhuis\w*)|(?:visa|sponsorship)\W{0,15}(?:is|wordt) niet",
     re.I,
 )
+_NUMBER_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
+                 "ten": 10, "eleven": 11, "twelve": 12, "fifteen": 15, "een": 1, "één": 1, "twee": 2, "drie": 3,
+                 "vier": 4, "vijf": 5, "zes": 6, "zeven": 7, "acht": 8, "negen": 9, "tien": 10, "elf": 11,
+                 "twaalf": 12, "vijftien": 15, "half": 1, "een half": 1, "a half": 1, "half a": 1, "anderhalf": 2}
+_NUM_WORDS = sorted((k for k in _NUMBER_WORDS if " " not in k), key=len, reverse=True)
+_NUM = r"(?:\d{1,2}(?:[.,]5)?|" + "|".join(_NUM_WORDS) + ")"
 _YEARS = re.compile(
-    r"\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|twelve|fifteen|een|één|twee|drie|vier|vijf|zes|"
-    r"zeven|acht|negen|tien)\s*(?:\+|[-–—]\s*\d{1,2}|to \d{1,2}|tot \d{1,2}|or more)?\s*(?:years?|yrs?|jaar)\b", re.I
+    # optional "6 months to" lead-in (the minimum is then under a year), the number, an optional "(3)" echo,
+    # then an optional upper bound or "+": "3-5", "drie tot vijf", "tussen de 3 en 6", "1 or 2", "3 à 4", "5+",
+    # "3+ (typically 5+)", and the unit, hyphenated or not ("3-year", "3 jaren")
+    # (a digit may follow a letter: "Your profile3-6 years", which the source glued together)
+    r"(?<![\d.,])(?:(?=\d)|\b)(\d{1,2}\s*(?:months?|maanden)\s*(?:to|tot|[-–—])\s*)?"
+    r"((?:een |a )?half(?: a)?|" + _NUM + r")(?:\s*\(\d{1,2}\+?\))?"
+    r"\s*(?:\+|plus|or more|of meer|(?:[-–—]|to|till|until|tot|t/m|à|and|en|or|of)\s*" + _NUM + r"\+?)?"
+    r"(?:\s*\([^()]{0,25}\))?[\s-]*(?:years?|yrs?|jaren|jaar)\b",
+    re.I,
 )
 _YEARS_CONTEXT = re.compile(
     r"experience|ervaring|track record|professional|working|relevant|hands[- ]on|in a similar|"
@@ -85,33 +99,62 @@ _YEARS_CONTEXT = re.compile(
     r"^\s*(?:of|in|as|with|leading|building|developing|managing|designing|delivering|running|als|met|in de)\b",
     re.I,
 )
-_YEARS_NOT = re.compile(
-    r"contract|overeenkomst|dienstverband|fixed[- ]term|duur|warranty|after|na |every|elke|per |"
-    r"old|oud|guarantee|program|programme|traineeship|founded|opgericht|ago|geleden|history|"
-    r"vacation|holiday|verlof|bonus|salary|salaris|budget|lease|tenure at",
+# experience wording: a "not experience" word only counts when no experience wording sits between it and the number,
+# so "5 jaar ervaring met contractmanagement" and "program management experience of 3 years" still count
+_YEARS_EXP = re.compile(r"experience|ervaring|expertise|track record|background|hands[- ]on|relevant", re.I)
+# whole words only: substrings used to reject "Cloud" (oud), "developer " (per), "programming", "duurzaam", "welke"
+_YEARS_NOT_AFTER = re.compile(
+    r"\b(?:contract(?!\s*manag|beheer)\w*|\w*overeenkomst|dienstverband|fixed[- ]term|looptijd|duration|warranty|"
+    r"garantie|guarantee|old(?:er)?|oud(?:er)?|leeftijd|of age|ago|geleden|history|bonus|salary|salaris|vacation|"
+    r"verlof|lease|pension|pensioen)\b|"
+    # right after the number: "4-year bachelor's degree", "2-year traineeship", "a 4-year position"
+    r"^[\s'’-]*(?:\w+[\s'’-]+)?(?:degree|bachelor|master|phd|study|studie|opleiding|programme|program(?!\s*manag)|"
+    r"traineeship|trainee|traject|position|positie|aanstelling|appointment|in dienst|in service)\b",
+    re.I,
+)
+_YEARS_NOT_BEFORE = re.compile(
+    r"\b(?:contract\w*|\w*overeenkomst|dienstverband|fixed[- ]term|duur|duration|looptijd|warranty|guarantee|after|"
+    r"na|every|elke|per|founded|opgericht|since|sinds|history|traineeship|programme|traject|bonus|salary|salaris|"
+    r"budget|tenure at|period of|periode van|aanstelling|"
+    # company age: "Conclusion is al meer dan twaalf jaar actief", "we have over 20 years of experience"
+    r"(?:is|zijn) al|(?:we|wij) (?:have|hebben)|we've)\b|"
+    # right before the number: "within three years", "de eerste 2 jaar", "in de afgelopen 3 jaar", "up to 4 years"
+    r"(?:\b(?:within|binnen|the first|de eerste|het eerste|next|komende|last|past|afgelopen|laatste|less than|"
+    r"fewer than|minder dan|up to|no more than|maximaal|maximum|max|hooguit|aged?)\b|<)\W*$",
     re.I,
 )
 
 
+def _years_value(m: re.Match) -> int:
+    if m.group(1):  # "6 months to 3 years": the minimum is under a year
+        return 1
+    raw = m.group(2).lower()
+    if raw[0].isdigit():
+        return math.ceil(float(raw.replace(",", ".")))  # "1,5 jaar" counts as more than one year
+    return _NUMBER_WORDS.get(raw, 0)
+
+
 def find_years(text: str) -> int | None:
     """Minimum years of experience asked for, or None. Requires experience wording nearby and rejects
-    contract durations, benefits ("after 2 years"), company history and the like."""
+    contract durations, benefits ("after 2 years"), company history, ages, "less than 2 years" and the like."""
     for m in _YEARS.finditer(text or ""):
         before = text[max(0, m.start() - 40) : m.start()]
         after = text[m.end() : m.end() + 60]
-        if _YEARS_NOT.search(before[-25:]) or _YEARS_NOT.search(after[:25]):
+        near_before = before[-25:]
+        cut = list(_YEARS_EXP.finditer(near_before))
+        if cut:
+            near_before = near_before[cut[-1].end() :]
+        near_after = after[:25]
+        cut_a = _YEARS_EXP.search(near_after)
+        if cut_a:
+            near_after = near_after[: cut_a.start()]
+        if _YEARS_NOT_BEFORE.search(near_before) or _YEARS_NOT_AFTER.search(near_after):
             continue
         if _YEARS_CONTEXT.search(after) or _YEARS_CONTEXT.search(before):
-            raw = m.group(1).lower()
-            years = int(raw) if raw.isdigit() else _NUMBER_WORDS.get(raw, 0)
-            if 0 < years <= 20:
+            years = _years_value(m)
+            if 0 < years < 20:  # "20 years" is nearly always company history, not a requirement
                 return years
     return None
-
-
-_NUMBER_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
-                 "ten": 10, "twelve": 12, "fifteen": 15, "een": 1, "één": 1, "twee": 2, "drie": 3, "vier": 4,
-                 "vijf": 5, "zes": 6, "zeven": 7, "acht": 8, "negen": 9, "tien": 10}
 
 
 _SALARY = re.compile(
