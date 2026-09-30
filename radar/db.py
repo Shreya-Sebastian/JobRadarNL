@@ -1,3 +1,4 @@
+import os
 from collections.abc import Iterator
 from contextlib import contextmanager
 
@@ -9,11 +10,19 @@ from radar.models import Base
 
 _engine = None
 _SessionLocal = None
+_engine_pid = None
 
 
 def get_engine(url: str | None = None):
-    global _engine, _SessionLocal
+    global _engine, _SessionLocal, _engine_pid
+    if _engine is not None and _engine_pid != os.getpid():
+        # A forked child (every RQ job runs in one) must not use the parent's pooled connections: both processes
+        # would talk over the same socket and the next job fails with "SSL error: unexpected eof". Forget the
+        # inherited pool without closing it (closing would cut the parent's connections) and open fresh ones.
+        _engine.dispose(close=False)
+        _engine_pid = os.getpid()
     if _engine is None or url is not None:
+        _engine_pid = os.getpid()
         url = url or settings.database_url
         connect_args = {"check_same_thread": False, "timeout": 30} if url.startswith("sqlite") else {}
         _engine = create_engine(url, connect_args=connect_args, future=True)

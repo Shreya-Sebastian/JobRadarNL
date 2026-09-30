@@ -182,25 +182,41 @@ def main() -> None:
     ap.add_argument("--min-postings", type=int, default=2)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--out", default=str(ROOT / "data/company_sizes.tsv"))
+    ap.add_argument("--restart", action="store_true", help="forget earlier progress and look everything up again")
     args = ap.parse_args()
     todo = employers(args.min_postings)
     names = sorted(todo)[: args.limit or None]
-    found = []
-    with httpx.Client(timeout=20, headers=UA, follow_redirects=True) as client:
-        for i, name in enumerate(names, 1):
+    # progress is kept next to the output, so an interrupted run continues where it stopped
+    partial = Path(args.out + ".partial")
+    checked = Path(args.out + ".checked")
+    if args.restart:
+        partial.unlink(missing_ok=True)
+        checked.unlink(missing_ok=True)
+    done = set(checked.read_text(encoding="utf-8").splitlines()) if checked.exists() else set()
+    left = [n for n in names if n not in done]
+    print(f"{len(names)} employers, {len(names) - len(left)} already checked, {len(left)} to go", flush=True)
+    with httpx.Client(timeout=20, headers=UA, follow_redirects=True) as client, \
+            open(partial, "a", encoding="utf-8", newline="") as hits, open(checked, "a", encoding="utf-8") as seen:
+        w = csv.writer(hits, delimiter="\t", lineterminator="\n")
+        for i, name in enumerate(left, 1):
             try:
                 hit = wikidata(client, name, todo[name]) or wikipedia(client, name, todo[name])
             except (httpx.HTTPError, ValueError) as e:
                 print(f"  {name}: {e}", file=sys.stderr)
-                hit = None
+                continue  # not marked as checked: a rerun tries it again
             if hit:
-                found.append((name, *hit))
-                print(f"[{i}/{len(names)}] {name}: {hit[0]:,} ({hit[2]})", flush=True)
+                w.writerow([name, *hit])
+                hits.flush()
+                print(f"[{i}/{len(left)}] {name}: {hit[0]:,} ({hit[2]})", flush=True)
+            seen.write(name + "\n")
+            seen.flush()
             time.sleep(0.2)
+    with open(partial, encoding="utf-8") as f:
+        found = {row[0]: row for row in csv.reader(f, delimiter="\t") if len(row) >= 4}
     with open(args.out, "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f, delimiter="\t", lineterminator="\n")
         w.writerow(["# company", "employees", "as_of", "source"])
-        w.writerows(sorted(found))
+        w.writerows(sorted(found.values()))
     print(f"{len(found)} of {len(names)} employers with an employee count -> {args.out}")
 
 

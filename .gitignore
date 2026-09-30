@@ -40,3 +40,5 @@ deploy/aws/.terraform/
 deploy/aws/*.tfstate*
 deploy/aws/.terraform.lock.hcl
 deploy/aws/tfplan
+data/company_sizes.tsv.partial
+data/company_sizes.tsv.checked
