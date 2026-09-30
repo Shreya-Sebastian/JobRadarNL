@@ -65,6 +65,22 @@ async def _metrics_middleware(request: Request, call_next):
     return response
 
 
+@app.middleware("http")
+async def _throttle_middleware(request: Request, call_next):
+    # added after the metrics middleware, so it runs first and refused requests cost nothing further
+    from starlette.concurrency import run_in_threadpool
+
+    from radar import analytics, throttle
+
+    refused = await run_in_threadpool(throttle.check, request.url.path, analytics.client_ip(request),
+                                      request.headers.get("user-agent", ""))
+    if refused:
+        status, reason = refused
+        return Response(reason + "\n", status_code=status, media_type="text/plain",
+                        headers={"Retry-After": "60"} if status == 429 else None)
+    return await call_next(request)
+
+
 def db() -> Iterator[Session]:
     s = new_session()
     try:
@@ -392,8 +408,12 @@ def metrics():
 @app.get("/robots.txt", include_in_schema=False)
 def robots():
     # The dashboard builds its content from /api/, so search engines may fetch it to render the page; the API
-    # responses themselves carry X-Robots-Tag: noindex. Accounts, login links and admin stay out.
-    return Response("User-agent: *\nAllow: /\nDisallow: /api/admin/\nDisallow: /api/me\nDisallow: /api/auth/\n"
+    # responses themselves carry X-Robots-Tag: noindex. Accounts, login links and admin stay out, and AI-training
+    # crawlers are asked to stay away altogether (radar/throttle.py refuses them too).
+    from radar.throttle import AI_CRAWLERS
+
+    ai = "".join(f"User-agent: {a}\n" for a in AI_CRAWLERS) + "Disallow: /\n\n"
+    return Response(ai + "User-agent: *\nAllow: /\nDisallow: /api/admin/\nDisallow: /api/me\nDisallow: /api/auth/\n"
                     f"Disallow: /auth/\nDisallow: /admin/\nSitemap: {settings.site_url.rstrip('/')}/sitemap.xml\n",
                     media_type="text/plain")
 

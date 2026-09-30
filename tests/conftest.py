@@ -30,3 +30,16 @@ def _no_analytics(monkeypatch):
     analytics._salt = None
     yield
     analytics._buffer.clear()
+
+
+@pytest.fixture(autouse=True)
+def _no_rate_limit(monkeypatch):
+    """Request limits are off in tests unless a test turns them on (tests/test_throttle.py)."""
+    from radar import throttle
+    from radar.config import settings
+
+    monkeypatch.setattr(settings, "rate_limit_per_minute", 0)
+    monkeypatch.setattr(settings, "redis_url", None)
+    throttle.reset()
+    yield
+    throttle.reset()

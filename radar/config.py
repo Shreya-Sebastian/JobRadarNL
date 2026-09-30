@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     worker_timetable: bool = False
     # public source repository; when set, the footer and privacy statement link to it (unset = no link)
     source_url: str | None = None
+    # requests per client IP per minute (radar/throttle.py); 0 turns the limit off. The detail limit covers
+    # /api/postings and the job and company pages, which a scraper would page through.
+    rate_limit_per_minute: int = 240
+    rate_limit_detail_per_minute: int = 90
+    block_scraper_agents: bool = True  # refuse AI-training crawlers and plain HTTP libraries
     # anonymous page-view statistics for /admin/analytics (radar/analytics.py)
     analytics_enabled: bool = True
     # secret for the admin-only "crawl now" endpoints; unset = the endpoints do not exist
