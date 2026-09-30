@@ -450,3 +450,20 @@ def test_a_posting_date_in_the_future_is_dropped():
 
     assert _plausible_posted(datetime(2484, 9, 29)) is None
     assert _plausible_posted(datetime(2026, 9, 25)) == datetime(2026, 9, 25)
+
+
+def test_city_in_the_title_does_not_split_one_vacancy(fresh_db):
+    from radar.adapters.base import RawPosting
+    from radar.crawler import mark_duplicates
+    from radar.models import Posting
+
+    text = "You build AI products with Python and PyTorch for our clients, in a small agile team of engineers."
+    with session_scope() as s:
+        src = _source(s, company="Linden IT", ats="jsonld", slug="https://linden.example/sitemap.xml")
+        ingest(s, src, [RawPosting(external_id=c, title=f"Medior / Senior AI Engineer {c}", location=f"{c}, Netherlands",
+                                   url=f"https://linden.example/vacatures/ai-engineer-{c.lower()}",
+                                   description_html=text, posted_at=datetime(2026, 9, 10))
+                        for c in ("Hilversum", "Amsterdam")])
+        mark_duplicates(s)
+        shown = s.query(Posting).filter(Posting.duplicate_of.is_(None)).all()
+        assert len(shown) == 1 and len(shown[0].also_in) == 1

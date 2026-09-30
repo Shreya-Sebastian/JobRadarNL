@@ -339,11 +339,11 @@ def _lang_rank(url: str) -> int:
 
 def _per_city_groups(session: Session, rows: list) -> list[list]:
     """Groups of postings that are one vacancy under several addresses (rule 5)."""
-    from radar.normalize import norm_company, norm_title
+    from radar.normalize import norm_company
 
     candidates: dict[tuple, list] = {}
     for r in rows:
-        key = (r.source_id, norm_company(r.company or "").lower(), norm_title(r.title or ""))
+        key = (r.source_id, norm_company(r.company or "").lower(), _title_without_city(r.title or "", r.city))
         candidates.setdefault(key, []).append(r)
     candidates = {k: v for k, v in candidates.items() if len(v) > 1}
     ids = [r.id for v in candidates.values() for r in v]
@@ -361,6 +361,20 @@ def _per_city_groups(session: Session, rows: list) -> list[list]:
         # paths or once per city
         groups.extend(same for sig, same in by_sig.items() if sig and len(same) > 1)
     return groups
+
+
+def _title_without_city(title: str, city: str | None) -> str:
+    """The normalised title without the posting's own city, so "AI Engineer Hilversum" and "AI Engineer Amsterdam"
+    (same text on the same board) compare equal."""
+    from radar.normalize import norm_title
+    from radar.seo import city_nl
+
+    t = norm_title(title)
+    for name in {city, city_nl(city)} - {None, ""} if city else ():
+        n = norm_title(name)
+        if n:
+            t = re.sub(rf"\b(?:in |te |- )?{re.escape(n)}\b", " ", t)
+    return " ".join(t.split()) or norm_title(title)
 
 
 def _text_signature(description: str, cities: set[str]) -> str:
