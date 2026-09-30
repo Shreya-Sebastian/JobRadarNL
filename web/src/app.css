@@ -86,7 +86,14 @@
   button.link { @apply rounded-md border-0 bg-transparent px-1.5 py-1 text-sm font-medium text-accent hover:underline; }
   button.link.danger, .danger { @apply text-bad; }
   .acct-btn { @apply border-accent bg-accent font-semibold whitespace-nowrap text-on-accent hover:bg-accent/90; }
-  .acct-btn.in { @apply border-line bg-card text-ink hover:bg-chip; }
+  .avatar { @apply grid size-9 place-items-center rounded-full border-0 bg-accent p-0 text-sm font-semibold text-on-accent shadow-none
+    hover:bg-accent/90; }
+  .menu { @apply absolute top-full right-0 z-40 mt-2 w-64 overflow-hidden rounded-xl border border-line bg-card py-1 shadow-lg; }
+  .menu-head { @apply mb-1 border-b border-line px-4 pt-2 pb-2.5 text-xs text-muted; }
+  .menu-head b { @apply block truncate text-sm font-semibold text-ink; }
+  .menu > a, .menu > button { @apply flex w-full items-center justify-start rounded-none border-0 bg-transparent px-4 py-2 text-left
+    text-sm font-normal text-ink no-underline shadow-none hover:bg-chip; }
+  .toast { @apply fixed bottom-6 left-1/2 z-50 max-w-[90vw] -translate-x-1/2 rounded-full bg-ink px-4 py-2 text-sm text-bg shadow-lg; }
 
   /* ---------- header ---------- */
   .top { @apply sticky top-0 z-20 border-b border-line bg-card/85 backdrop-blur-md; }

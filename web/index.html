@@ -28,6 +28,15 @@
     <div class="topbar-right">
       <div class="langswitch" id="langswitch"><button data-lang="nl">NL</button><button data-lang="en">EN</button></div>
       <button class="acct-btn" id="acct-btn" data-i18n="acct.login">Log in</button>
+      <div class="relative" id="acct" hidden>
+        <button class="avatar" id="acct-avatar" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-menu"></button>
+        <div class="menu" id="acct-menu" role="menu" hidden>
+          <div class="menu-head"><span data-i18n="acct.in.as">Logged in as</span><b id="acct-menu-email"></b></div>
+          <a href="#account" role="menuitem" data-i18n="acct.settings">Account settings</a>
+          <a href="#profile" role="menuitem" data-i18n="tab.profile">My profile</a>
+          <button type="button" role="menuitem" id="acct-menu-logout" data-i18n="acct.logout">Log out</button>
+        </div>
+      </div>
     </div>
   </div>
   <nav class="wrap tabs" id="tabs">
@@ -42,6 +51,7 @@
   </nav>
 </header>
 
+<div class="toast" id="toast" role="status" hidden></div>
 <div class="banner" id="fresh-banner" hidden><span data-i18n="fresh.text">New listings are in.</span> <button class="primary" id="fresh-reload" data-i18n="fresh.reload">Refresh</button> <button class="link" id="fresh-dismiss" data-i18n="fresh.later">Later</button></div>
 <main class="wrap pt-5">
 <div class="kpis sm:grid-cols-4" id="kpis">
@@ -152,39 +162,9 @@
 
 <!-- ============ PROFILE ============ -->
 <section class="tab" data-tab="profile">
-  <div class="card account" id="acct-card">
-    <div id="acct-out">
-      <h2 data-i18n="acct.title">Keep your profile on every device</h2>
-      <p class="muted small" data-i18n-html="acct.hint">Log in with your e-mail address to keep your profile and saved jobs on your phone and laptop. No password: we send you a link that works once. Without an account everything stays in this browser. <a href="/privacy">Privacy</a></p>
-      <div class="row">
-        <a class="btn primary" id="acct-go" href="/login" data-i18n="acct.go">Sign in or create an account</a>
-        <span class="muted" id="acct-status" role="status"></span>
-      </div>
-    </div>
-    <div id="acct-in" hidden>
-      <h2 data-i18n="acct.in.title">Your account</h2>
-      <p class="muted small"><span data-i18n="acct.in.as">Logged in as</span> <b id="acct-who"></b>. <span data-i18n="acct.in.sync">Your profile and saved jobs are kept in your account.</span> <span id="acct-sync" class="muted"></span></p>
-      <div class="field mt"><label for="acct-alerts" data-i18n="alerts.label">E-mail me new jobs that match my profile</label>
-        <div class="row"><select id="acct-alerts"><option value="off" data-i18n="alerts.off">Off</option><option value="daily" data-i18n="alerts.daily">Daily</option><option value="weekly" data-i18n="alerts.weekly">Weekly</option></select>
-        <span class="muted small" id="acct-alerts-status" data-i18n="alerts.hint">Uses your saved profile. Every e-mail has an unsubscribe link.</span></div></div>
-      <div class="field mt"><label data-i18n="pw.label">Password</label>
-        <p class="muted small" id="pw-state"></p>
-        <form id="pw-form" class="pw-form" hidden autocomplete="on">
-          <input type="email" id="pw-user" autocomplete="username" hidden>
-          <input type="password" id="pw-current" autocomplete="current-password" data-i18n-placeholder="pw.current" placeholder="Current password" hidden>
-          <input type="password" id="pw-new" autocomplete="new-password" data-i18n-placeholder="pw.new" placeholder="New password (10+ characters)">
-          <input type="password" id="pw-repeat" autocomplete="new-password" data-i18n-placeholder="pw.repeat" placeholder="Repeat the new password">
-          <div class="row"><button class="primary" type="submit" data-i18n="pw.save">Save password</button><button type="button" class="link" id="pw-cancel" data-i18n="pw.cancel">Cancel</button><span class="muted small" id="pw-msg"></span></div>
-        </form>
-        <div class="row" id="pw-actions"><button id="pw-set"></button><button class="link danger" id="pw-remove" data-i18n="pw.remove" hidden>Remove password</button></div>
-      </div>
-      <div class="row">
-        <button id="acct-logout" data-i18n="acct.logout">Log out</button>
-        <a class="btn" href="/api/me/export" data-i18n="acct.export">Download my data</a>
-        <button class="link danger" id="acct-delete" data-i18n="acct.delete">Delete my account</button>
-        <a class="muted small" href="/privacy">Privacy</a>
-      </div>
-    </div>
+  <div class="card flex flex-wrap items-center gap-x-4 gap-y-3 py-4" id="acct-out">
+    <p class="m-0 flex-1 basis-72 text-sm text-muted" data-i18n="acct.nudge">Log in to keep your profile and saved jobs on every device. Without an account, everything stays in this browser.</p>
+    <a class="btn primary acct-go" href="/login" data-i18n="acct.go">Sign in or create an account</a>
   </div>
   <div class="grid two">
     <div class="card">
@@ -231,6 +211,41 @@
   <div class="card">
     <h2><span data-i18n="p.saved">Saved jobs</span> <span class="hint" id="p-saved-count"></span></h2>
     <ol class="matches" id="p-saved"></ol>
+  </div>
+</section>
+
+<!-- ============ ACCOUNT (opened from the avatar menu, not in the tab bar) ============ -->
+<section class="tab" data-tab="account">
+  <div class="card account mx-auto max-w-2xl" id="acct-card">
+    <div id="acct-none">
+      <h2 data-i18n="acct.none.title">You are not logged in</h2>
+      <p class="muted small" data-i18n="acct.nudge">Log in to keep your profile and saved jobs on every device. Without an account, everything stays in this browser.</p>
+      <a class="btn primary acct-go" href="/login" data-i18n="acct.go">Sign in or create an account</a>
+    </div>
+    <div id="acct-in" hidden>
+      <h2 data-i18n="acct.settings">Account settings</h2>
+      <p class="muted small"><span data-i18n="acct.in.as">Logged in as</span> <b id="acct-who"></b>. <span data-i18n-html="acct.in.sync">Your <a href="#profile">profile</a> and saved jobs are kept in your account.</span> <span id="acct-sync" class="muted"></span></p>
+      <div class="field mt"><label for="acct-alerts" data-i18n="alerts.label">E-mail me new jobs that match my profile</label>
+        <div class="row"><select id="acct-alerts"><option value="off" data-i18n="alerts.off">Off</option><option value="daily" data-i18n="alerts.daily">Daily</option><option value="weekly" data-i18n="alerts.weekly">Weekly</option></select>
+        <span class="muted small" id="acct-alerts-status" data-i18n="alerts.hint">Uses your saved profile. Every e-mail has an unsubscribe link.</span></div></div>
+      <div class="field mt"><label data-i18n="pw.label">Password</label>
+        <p class="muted small" id="pw-state"></p>
+        <form id="pw-form" class="pw-form" hidden autocomplete="on">
+          <input type="email" id="pw-user" autocomplete="username" hidden>
+          <input type="password" id="pw-current" autocomplete="current-password" data-i18n-placeholder="pw.current" placeholder="Current password" hidden>
+          <input type="password" id="pw-new" autocomplete="new-password" data-i18n-placeholder="pw.new" placeholder="New password (10+ characters)">
+          <input type="password" id="pw-repeat" autocomplete="new-password" data-i18n-placeholder="pw.repeat" placeholder="Repeat the new password">
+          <div class="row"><button class="primary" type="submit" data-i18n="pw.save">Save password</button><button type="button" class="link" id="pw-cancel" data-i18n="pw.cancel">Cancel</button><span class="muted small" id="pw-msg"></span></div>
+        </form>
+        <div class="row" id="pw-actions"><button id="pw-set"></button><button class="link danger" id="pw-remove" data-i18n="pw.remove" hidden>Remove password</button></div>
+      </div>
+      <div class="row">
+        <button id="acct-logout" data-i18n="acct.logout">Log out</button>
+        <a class="btn" href="/api/me/export" data-i18n="acct.export">Download my data</a>
+        <button class="link danger" id="acct-delete" data-i18n="acct.delete">Delete my account</button>
+        <a class="muted small" href="/privacy">Privacy</a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -304,6 +319,6 @@
   <p class="mt-6 border-t border-line pt-6"><b class="text-ink">{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.</span> <a href="/privacy" data-i18n="privacy">Privacy</a>{{SOURCE_LINK}}</p>
  </div>
 </footer>
-<script src="/static/app.js?v=41"></script>
+<script src="/static/app.js?v=42"></script>
 </body>
 </html>

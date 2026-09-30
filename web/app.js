@@ -91,15 +91,16 @@
       "alerts.label": "E-mail me new jobs that match my profile", "alerts.off": "Off", "alerts.daily": "Daily", "alerts.weekly": "Weekly",
       "alerts.hint": "Uses your saved profile. Every e-mail has an unsubscribe link.", "alerts.saved": "Saved.",
       "alerts.noprofile": "Saved. Set roles, cities or skills in your profile below, or the alert matches every new job.",
-      "acct.login": "Log in", "acct.account": "Account", "acct.title": "Keep your profile on every device",
-      "acct.hint": 'Log in with your e-mail address to keep your profile and saved jobs on your phone and laptop. No password: we send you a link that works once. Without an account everything stays in this browser. <a href="/privacy">Privacy</a>',
+      "acct.login": "Log in", "acct.settings": "Account settings", "acct.none.title": "You are not logged in",
+      "acct.nudge": "Log in to keep your profile and saved jobs on every device. Without an account, everything stays in this browser.",
+      "acct.loggedout": "You are logged out.",
       "acct.email.ph": "you@example.com", "acct.send": "Send login link", "acct.sending": "Sending…",
       "acct.sent": "Check your inbox: the link works once and for 15 minutes.", "acct.bad": "That does not look like an e-mail address.",
       "acct.slow": "Too many requests. Try again in an hour.", "acct.fail": "Could not send the link. Try again later.",
       "acct.nomail": "E-mail is not set up on this server yet, so no e-mail was sent. The login link is in the server log.",
       "acct.devlink": "Open the login link (local mode)",
       "acct.expired": "That login link has expired or was already used. Request a new one.", "acct.welcome": "You are logged in.",
-      "acct.in.title": "Your account", "acct.in.as": "Logged in as", "acct.in.sync": "Your profile and saved jobs are kept in your account.",
+      "acct.in.title": "Your account", "acct.in.as": "Logged in as", "acct.in.sync": 'Your <a href="#profile">profile</a> and saved jobs are kept in your account.',
       "acct.synced": "Synced.", "acct.sync.fail": "Not synced; changes are kept in this browser.", "acct.logout": "Log out",
       "acct.export": "Download my data", "acct.delete": "Delete my account",
       "acct.delete.confirm": "Delete your account? Your e-mail address, profile and saved jobs are removed from the server. This browser keeps its own copy.",
@@ -202,15 +203,16 @@
       "alerts.label": "Mail me nieuwe vacatures die bij mijn profiel passen", "alerts.off": "Uit", "alerts.daily": "Dagelijks", "alerts.weekly": "Wekelijks",
       "alerts.hint": "Gebruikt je opgeslagen profiel. Elke e-mail heeft een afmeldlink.", "alerts.saved": "Opgeslagen.",
       "alerts.noprofile": "Opgeslagen. Kies functies, steden of skills in je profiel hieronder, anders past elke nieuwe vacature.",
-      "acct.login": "Inloggen", "acct.account": "Account", "acct.title": "Je profiel op elk apparaat",
-      "acct.hint": 'Log in met je e-mailadres om je profiel en bewaarde vacatures op je telefoon en laptop te hebben. Geen wachtwoord: je krijgt een link die één keer werkt. Zonder account blijft alles in deze browser. <a href="/nl/privacy">Privacy</a>',
+      "acct.login": "Inloggen", "acct.settings": "Accountinstellingen", "acct.none.title": "Je bent niet ingelogd",
+      "acct.nudge": "Log in om je profiel en bewaarde vacatures op elk apparaat te hebben. Zonder account blijft alles in deze browser.",
+      "acct.loggedout": "Je bent uitgelogd.",
       "acct.email.ph": "jij@voorbeeld.nl", "acct.send": "Stuur inloglink", "acct.sending": "Versturen…",
       "acct.sent": "Kijk in je inbox: de link werkt één keer en 15 minuten lang.", "acct.bad": "Dat lijkt geen e-mailadres.",
       "acct.slow": "Te veel verzoeken. Probeer het over een uur opnieuw.", "acct.fail": "De link kon niet worden verstuurd. Probeer het later opnieuw.",
       "acct.nomail": "E-mail is op deze server nog niet ingesteld, dus er is geen e-mail verstuurd. De inloglink staat in het serverlog.",
       "acct.devlink": "Open de inloglink (lokale modus)",
       "acct.expired": "Die inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.", "acct.welcome": "Je bent ingelogd.",
-      "acct.in.title": "Je account", "acct.in.as": "Ingelogd als", "acct.in.sync": "Je profiel en bewaarde vacatures staan in je account.",
+      "acct.in.title": "Je account", "acct.in.as": "Ingelogd als", "acct.in.sync": 'Je <a href="#profile">profiel</a> en bewaarde vacatures staan in je account.',
       "acct.synced": "Gesynchroniseerd.", "acct.sync.fail": "Niet gesynchroniseerd; wijzigingen blijven in deze browser.", "acct.logout": "Uitloggen",
       "acct.export": "Download mijn gegevens", "acct.delete": "Verwijder mijn account",
       "acct.delete.confirm": "Je account verwijderen? Je e-mailadres, profiel en bewaarde vacatures worden van de server verwijderd. Deze browser houdt zijn eigen kopie.",
@@ -813,12 +815,14 @@
 
   function renderAccount() {
     const me = account.me;
-    const btn = $("#acct-btn");
-    btn.textContent = me ? t("acct.account") : t("acct.login");
-    btn.classList.toggle("in", !!me);
-    btn.title = me ? me.email : "";
-    $("#acct-out").hidden = !!me; $("#acct-in").hidden = !me;
+    // header: "Log in" when signed out; an avatar with the account menu when signed in
+    $("#acct-btn").hidden = !!me; $("#acct").hidden = !me;
+    if (!me) closeMenu();
+    $("#acct-out").hidden = !!me; $("#acct-none").hidden = !!me; $("#acct-in").hidden = !me;
     if (me) {
+      $("#acct-avatar").textContent = me.email.slice(0, 1).toUpperCase();
+      $("#acct-avatar").title = me.email;
+      $("#acct-menu-email").textContent = me.email;
       $("#acct-who").textContent = me.email;
       $("#pw-state").textContent = t(me.has_password ? "pw.has" : "pw.none");
       $("#pw-set").textContent = t(me.has_password ? "pw.change" : "pw.set");
@@ -829,14 +833,25 @@
         .then((a) => { if (a) $("#acct-alerts").value = a.frequency; }).catch(() => {});
     }
   }
+  function closeMenu() { $("#acct-menu").hidden = true; $("#acct-avatar").setAttribute("aria-expanded", "false"); }
+  let toastTimer = null;
+  function toast(msg) {
+    const el = $("#toast"); el.textContent = msg; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 4000);
+  }
   function bindAccount() {
     const loginUrl = () => (LANG === "nl" ? "/nl/inloggen" : "/login");
-    $("#acct-btn").addEventListener("click", () => {
-      if (!account.me) { location.href = loginUrl(); return; }
-      if (location.hash !== "#profile") location.hash = "#profile";
-      setTimeout(() => $("#acct-card").scrollIntoView({ block: "start" }), 50);
+    $("#acct-btn").addEventListener("click", () => { location.href = loginUrl(); });
+    $$(".acct-go").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); location.href = loginUrl(); }));
+    $("#acct-avatar").addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = $("#acct-menu").hidden;
+      $("#acct-menu").hidden = !open; $("#acct-avatar").setAttribute("aria-expanded", String(open));
     });
-    $("#acct-go").addEventListener("click", (e) => { e.preventDefault(); location.href = loginUrl(); });
+    $("#acct-menu").addEventListener("click", (e) => { if (e.target.closest("a, button")) closeMenu(); });
+    document.addEventListener("click", (e) => { if (!e.target.closest("#acct")) closeMenu(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#acct-menu").hidden) { closeMenu(); $("#acct-avatar").focus(); } });
+    $("#acct-menu-logout").addEventListener("click", () => $("#acct-logout").click());
     $("#pw-set").addEventListener("click", () => { $("#pw-form").hidden = false; $("#pw-actions").hidden = true; $("#pw-msg").textContent = ""; ($("#pw-current").hidden ? $("#pw-new") : $("#pw-current")).focus(); });
     $("#pw-cancel").addEventListener("click", () => { $("#pw-form").reset(); $("#pw-form").hidden = true; $("#pw-actions").hidden = false; });
     $("#pw-form").addEventListener("submit", async (e) => {
@@ -867,14 +882,14 @@
       $("#acct-alerts-status").textContent = r.ok ? t(e.target.value !== "off" && empty ? "alerts.noprofile" : "alerts.saved") : t("acct.fail");
     });
     $("#acct-logout").addEventListener("click", async () => {
-      await account.post("/api/auth/logout"); account.me = null; renderAccount();
+      await account.post("/api/auth/logout"); account.me = null; renderAccount(); toast(t("acct.loggedout"));
     });
     $("#acct-delete").addEventListener("click", async () => {
       if (!confirm(t("acct.delete.confirm"))) return;
       const r = await account.post("/api/me", "DELETE");
-      if (r.ok) { account.me = null; renderAccount(); $("#acct-status").textContent = t("acct.deleted"); }
+      if (r.ok) { account.me = null; renderAccount(); toast(t("acct.deleted")); }
     });
-    // back from the e-mailed link: /?login=ok#profile or /?login=expired#profile
+    // back from the e-mailed link: /?login=ok#profile, /?login=ok&reset=1#account or /?login=expired#profile
     const q = new URLSearchParams(location.search);
     if (q.get("reset") === "1") {
       // opened from a "forgot password" link: go straight to choosing a new one
@@ -890,7 +905,7 @@
     if (q.has("login")) {
       const msg = q.get("login") === "ok" ? "acct.welcome" : "acct.expired";
       history.replaceState(null, "", location.pathname + location.hash);
-      setTimeout(() => { const el = account.me ? $("#acct-sync") : $("#acct-status"); if (el) el.textContent = t(msg); }, 0);
+      setTimeout(() => toast(t(msg)), 300);
     }
   }
 
@@ -971,7 +986,7 @@
   }
 
   // ---------- routing ----------
-  const renderers = { overview: renderOverview, jobs: () => { buildJobsFilters(); return refreshJobs(); }, market: renderMarket, profile: renderProfile, coverage: renderCoverage, company: renderCompany, admin: renderAdmin };
+  const renderers = { overview: renderOverview, jobs: () => { buildJobsFilters(); return refreshJobs(); }, market: renderMarket, profile: renderProfile, account: renderAccount, coverage: renderCoverage, company: renderCompany, admin: renderAdmin };
   let firstRoute = true;
   async function route() {
     if (!firstRoute) beacon("nav");

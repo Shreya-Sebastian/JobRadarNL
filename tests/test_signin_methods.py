@@ -153,7 +153,7 @@ def test_forgot_password_link_allows_one_new_password_without_the_old(client):
     client.post("/api/auth/logout", headers=H)
     assert client.post("/api/auth/forgot", json={"email": "ada@example.org"}, headers=H).json()["ok"] is True
     assert mailer.OUTBOX[-1]["Subject"].startswith("Reset your")
-    assert _open_last_link(client).headers["location"] == "/?login=ok&reset=1#profile"
+    assert _open_last_link(client).headers["location"] == "/?login=ok&reset=1#account"
     assert client.get("/api/me").json()["can_reset_password"] is True
     assert client.put("/api/me/password", json={"password": "the new pass 2"}, headers=H).status_code == 200
     # used up: a second change needs the current password again

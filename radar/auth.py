@@ -223,7 +223,7 @@ def verify(token: str, request: Request, session: Session = Depends(_db)):
         return RedirectResponse("/login?expired=1", status_code=303)
     row.used_at = now
     purpose = row.purpose or "login"
-    target = "/?login=ok&reset=1#profile" if purpose == "reset" else "/?login=ok#profile"
+    target = "/?login=ok&reset=1#account" if purpose == "reset" else "/?login=ok#profile"
     resp = _sign_in(session, request, row.email, row.remember is not False, RedirectResponse(target, status_code=303),
                     reset=purpose == "reset")
     if purpose == "signup" and row.password_hash:
@@ -503,17 +503,17 @@ def alerts_unsubscribe(u: int, t: str, session: Session = Depends(_db)):
     from radar import alerts
 
     ok = alerts.unsubscribe(session, u, t)
-    msg = ("You won't get job alerts any more. You can turn them back on under My profile." if ok
-           else "This unsubscribe link is not valid. You can turn alerts off under My profile.")
-    nl = ("Je krijgt geen vacature-alerts meer. Je kunt ze weer aanzetten onder Mijn profiel." if ok
-          else "Deze afmeldlink is niet geldig. Je kunt alerts uitzetten onder Mijn profiel.")
+    msg = ("You won't get job alerts any more. You can turn them back on under Account settings." if ok
+           else "This unsubscribe link is not valid. You can turn alerts off under Account settings.")
+    nl = ("Je krijgt geen vacature-alerts meer. Je kunt ze weer aanzetten onder Accountinstellingen." if ok
+          else "Deze afmeldlink is niet geldig. Je kunt alerts uitzetten onder Accountinstellingen.")
     html = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" '
             f'content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>'
             f'{escape(settings.site_name)}</title><link rel="stylesheet" href="/static/app.css?v=1"></head>'
             f'<body><main class="wrap max-w-xl pt-[12vh]">'
             f'<div class="card"><h2>{"Unsubscribed" if ok else "Link not valid"}</h2><p>{escape(msg)}</p>'
             f'<p class="muted">{escape(nl)}</p>'
-            f'<p><a class="btn primary" href="/#profile">{escape(settings.site_name)}</a>'
+            f'<p><a class="btn primary" href="/#account">{escape(settings.site_name)}</a>'
             f"</p></div></main></body></html>")
     return Response(html, media_type="text/html", status_code=200 if ok else 400)
 

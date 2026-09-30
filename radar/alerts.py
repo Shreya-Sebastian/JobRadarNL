@@ -98,7 +98,7 @@ def _compose(session: Session, user, jobs: list[stats.Row], total: int) -> tuple
     t = _TEXT[lang]
     site = settings.site_name
     base = settings.site_url.rstrip("/")
-    home = f"{base}/nl/#profile" if lang == "nl" else f"{base}/#profile"
+    home = f"{base}/nl/" if lang == "nl" else f"{base}/"
     stop = unsubscribe_url(session, user)
     freq = _FREQ_NL.get(user.alerts, user.alerts) if lang == "nl" else user.alerts
     subject = t["subject1"] if total == 1 else t["subject"].format(n=total)
@@ -107,19 +107,19 @@ def _compose(session: Session, user, jobs: list[stats.Row], total: int) -> tuple
         where = r.city or ("Remote" if r.remote else "")
         lines += [f"- {r.title} · {r.company}{' · ' + where if where else ''}", f"  {r.url}"]
     if total > len(jobs):
-        lines += ["", t["more"].format(n=total - len(jobs)) + f": {home.replace('#profile', '#jobs')}"]
-    lines += ["", f"{t['profile']}: {home}", f"{t['stop']}: {stop}", "", t["why"].format(f=freq, site=site)]
+        lines += ["", t["more"].format(n=total - len(jobs)) + f": {home}#jobs"]
+    lines += ["", f"{t['profile']}: {home}#account", f"{t['stop']}: {stop}", "", t["why"].format(f=freq, site=site)]
     items = "".join(
         f'<li style="margin:0 0 10px"><a href="{escape(r.url)}" style="font-weight:600">{escape(r.title)}</a><br>'
         f'<span style="color:#5f6b7a">{escape(r.company)}{" · " + escape(r.city or "") if r.city else ""}</span></li>'
         for r in jobs)
-    jobs_url = escape(home.replace("#profile", "#jobs"))
+    jobs_url, account_url = escape(home + "#jobs"), escape(home + "#account")
     more = (f'<p><a href="{jobs_url}">{escape(t["more"].format(n=total - len(jobs)))}</a></p>'
             if total > len(jobs) else "")
     why = escape(t["why"].format(f=freq, site=site))
     html = (f'<div style="font-family:system-ui,sans-serif;font-size:15px;line-height:1.45;color:#1b1f24">'
             f'<p>{escape(t["intro"].format(site=site))}</p><ul style="padding-left:18px">{items}</ul>{more}'
-            f'<p style="font-size:13px;color:#5f6b7a"><a href="{escape(home)}">{escape(t["profile"])}</a> · '
+            f'<p style="font-size:13px;color:#5f6b7a"><a href="{account_url}">{escape(t["profile"])}</a> · '
             f'<a href="{escape(stop)}">{escape(t["stop"])}</a><br>{why}</p></div>')
     headers = {"List-Unsubscribe": f"<{stop}>", "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"}
     return subject, "\n".join(lines), html, headers
