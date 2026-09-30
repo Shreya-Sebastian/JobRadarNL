@@ -255,7 +255,9 @@ THRESHOLDS = {
     "unknown_city_share": 0.35,
     "missing_posted_date_share": 0.30,
     "invalid_url_count": 0,
-    "stale_over_90_days_share": 0.25,
+    # about 40% of live postings are over 90 days old: universities, government and large employers keep roles
+    # open for months (the site marks them "long open"); a jump well above that means something broke
+    "stale_over_90_days_share": 0.50,
     "tech_unknown_seniority_share": 0.50,
     "tech_no_skills_share": 0.35,
     "sources_partial": 25,
