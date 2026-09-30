@@ -5,7 +5,7 @@ the radar extracts the skills, seniority, experience and degree asked, posting l
 visa sponsorship, remote policy and stated salary. Visitors can filter the market, see which skills are asked for
 together and compare their own skills against the jobs that fit them. Every listing links to the employer's page.
 
-Live at **https://techjobsradar.nl** since 30 September 2026, in Dutch and English.
+Live at **https://techjobsradar.nl**, in Dutch and English.
 
 | On 30 September 2026 | |
 |---|---|
