@@ -42,6 +42,7 @@ OVERRIDES: dict[int, dict] = {
     1: add("Windows Server/AD", "Virtualization", "Endpoint Management"),  # Windows Server, Hyper-V, SCCM
     2: {"role_family": "it_support", **add("Networking")},  # "troubleshoot network issues (mainly Cisco)"
     4: {"seniority": "senior", "role_family": "product", "remote_policy": "onsite", "degree_required": "unknown"},
+    7: {"dutch_required": True, "english_only": False},  # "What We Require ... Dutch language fluency"
     10: {"remote_policy": "onsite", "skills_required": []},
     # "2 years" in this posting is a tenure perk (travel budget), not experience asked
     11: {"role_family": "security", "skills_required": [], "seniority": "unknown", "years_experience": None},

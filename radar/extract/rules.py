@@ -11,29 +11,138 @@ from radar.taxonomy import find_skills
 
 RULES_VERSION = "rules-v13"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
 
+# words only one of the languages uses: "in", "is", "we", "team", "over" and "of" are both Dutch and English,
+# "die" and "er" are also German
 _NL_WORDS = re.compile(
     r"\b(de|het|een|en|van|voor|met|je|jij|wij|bij|niet|zijn|werken|ervaring|functie|wat|jouw|onze|ook|"
-    r"als|dat|naar|over|kunnen|wordt|vacature|collega|team|bieden|sollicit\w*)\b",
+    r"als|dat|naar|kunnen|wordt|vacature|collega|bieden|sollicit\w*|ben|heb|hebt|deze|dit|waar|"
+    r"om|te|op|aan|uit|ons|zij|jullie|binnen|werkzaamheden|kennis|vaardigheden)\b",
     re.I,
 )
 _EN_WORDS = re.compile(
-    r"\b(the|and|you|with|for|our|we|experience|will|are|is|to|of|in|that|this|your|team|role|skills|"
-    r"working|have|as|be|on|or|about|who)\b",
+    r"\b(the|and|you|with|for|our|experience|will|are|to|of|that|this|your|role|skills|"
+    r"working|have|as|be|on|or|about|who|an|at|from|what|us|can|join|work|their|which|within|strong)\b",
     re.I,
 )
+_DE_WORDS = re.compile(
+    r"\b(und|der|das|mit|für|wir|sie|ist|nicht|auf|eine?|zu|du|dich|dein\w*|unser\w*|oder|bei|sind)\b", re.I)
+_DUTCH = r"(?:dutch|nederlands|flemish|vlaams)"
+_OTHER_LANG = (r"(?:english|engels|german|duits|french|frans|spanish|spaans|italian|polish|portuguese|mandarin|"
+               r"chinese|arabic|turkish|russian|japanese|swedish|danish|norwegian|finnish)")
+# what follows "Dutch" when it names the language, not a Dutch company, market, law or university
+_LANG_AFTER = (
+    r"(?=\s*(?:\(|[,.;:!/|\n•\-–<]|$|and\b|&|en\b|is\b|are\b|as\b|at\b|on\b|op\b|in\b|language|taal|speak|"
+    r"skills?|proficien|fluen|native|written|spoken|verbal|both|required|mandatory|essential|a must|must|"
+    r"would|preferred|c1\b|c2\b|b1\b|b2\b|level|niveau|communication|vaardig|mondeling|schriftelijk|zowel|"
+    r"goed|vloeiend|well\b|to\b|too\b|also\b|oral|for\b))"
+)
+_BOTH = r"(?:both\s+)?(?:the\s+)?(?:" + _OTHER_LANG + r"\s*(?:and|&|,|/|as well as|en)\s*(?:the\s+)?)?"
 _DUTCH_REQ = re.compile(
-    r"(fluent(?:ly)?|fluency|proficien\w*|native|excellent|good|strong|professional|business)\W{0,20}(in\s+)?"
-    r"(dutch|nederlands)|(dutch|nederlands)\W{0,25}(is\s+)?(required|mandatory|a must|must|essential|"
-    r"necessary|needed|vereist|verplicht|noodzakelijk)|"
-    r"(speak|spreek|beheers\w*)\W{0,30}(dutch|nederlands)|(dutch|nederlands)\s+(and|en)\s+(english|engels)|"
-    r"(dutch|nederlands)[- ]speaking|(?:read|write|speak)\W{0,40}fluently in (dutch|nederlands)",
+    # "fluent in Dutch", "fluency in both English and Dutch", "full professional fluency in both Dutch"
+    r"(?:fluent(?:ly)?|fluency|proficien\w*|native|mother tongue|vloeiend\w*)\W{0,25}(?:level\s+)?(?:in\s+|of\s+)?"
+    + _BOTH + _DUTCH + r"|"
+    # "excellent Dutch and English", "good command of the Dutch language", "goede beheersing van het Nederlands"
+    r"(?:excellent|good|very good|strong|professional|business|full|perfect|solid|working|written|spoken|"
+    r"verbal|advanced|uitstekend\w*|goede?|zeer goede?|prima|perfect\w*|sterke?)\W{0,20}"
+    r"(?:(?:command|knowledge|mastery|understanding|proficiency|skills?|beheersing|kennis)\s+(?:of|in|van)\s+)?"
+    r"(?:in\s+)?(?:het\s+)?" + _BOTH + r"(?:de\s+)?" + _DUTCH + _LANG_AFTER + r"|"
+    r"(?:command|knowledge|mastery|understanding|beheersing|kennis)\s+(?:of|in|van)\s+" + _BOTH + r"(?:de\s+)?"
+    + _DUTCH + _LANG_AFTER + r"|"
+    # "Dutch is required", "Dutch (must)", "Dutch <-must have", "Dutch: fluent", "Dutch (C1)", "Nederlands op C1-niveau"
+    + _DUTCH + r"(?:\s+language)?(?:\s+skills)?\W{0,25}(?:is\s+|are\s+)?(?:a\s+)?"
+    r"(?:required|mandatory|a must|must|essential|necessary|needed|"
+    r"vereist|verplicht|noodzakelijk|requirement|obligatory|een must|een vereiste)|"
+    + _DUTCH + r"\s*(?:language\s*)?[:(\-–]\s*(?:fluent|native|c1|c2|b2|mother tongue|vloeiend|moedertaal|"
+    r"business|professional|excellent|full|good|goed|uitstekend|minimum|min\.)|"
+    + _DUTCH + r"[^.\n]{0,20}?\b(?:c1|c2|b2)\b|\b(?:c1|c2|b2)\b[^.\n]{0,12}?(?:level\s+)?(?:in\s+)?" + _DUTCH + r"|"
+    # "you speak Dutch", "je spreekt en schrijft goed Nederlands", "speak, write, and read fluently in Dutch"
+    r"(?:speak|spreek\w*|schrijf\w*|beheers\w*|write|read|communicat\w*|communiceer\w*|converse|praat)"
+    r"(?:[\s,]+(?:and|en|&|write|read|schrijft|spreekt|fluently|fluent|goed|vloeiend|uitstekend|perfect|"
+    r"well|also|both|zowel|in|het|the|english|engels|and/or|native|mondeling|schriftelijk|good|excellent)){0,6}"
+    r"\s+" + _DUTCH + _LANG_AFTER + r"|"
+    r"(?:conversation|correspondence|documentation|reports?|presentations?|communication)\s+in\s+" + _BOTH
+    + _DUTCH + r"|"
+    # "Dutch and English", "English and Dutch", "NL/EN"
+    + _DUTCH + r"\s*(?:and|en|&|/|\+)\s*(?:the\s+)?(?:english|engels)|"
+    r"(?:english|engels)\s*(?:and|en|&|/|\+|as well as)\s*(?:also\s+)?" + _DUTCH + _LANG_AFTER + r"|"
+    r"(?-i:\bNL\s*(?:/|&|\+|and|en)\s*EN\b|\bEN\s*(?:/|&|\+|and|en)\s*NL\b)|"
+    # "Dutch-speaking", "Dutch speaker", "Nederlandstalig", "Nederlands is je moedertaal"
+    + _DUTCH + r"[- ]speak\w*|nederlandstalig\w*|"
+    + _DUTCH + r"(?:\s+[\w-]+){0,2}?\s+(?:proficiency|fluency|skills?)\b|"
+    # a sentence that ends in "is (also) required", unless it is about nationality, a degree or a permit
+    + _DUTCH + r"(?:(?!(?:or|and/or)\s+" + _OTHER_LANG
+    + r"|nationalit|citizen|passport|universit|degree|diploma|residen|bank|security|screening|clearance|"
+    r"driv|licen|permit|bsn)[^.;\n]){0,40}?\b(?:is|are)\s+(?:also\s+)?(?:required|mandatory|a must|essential|"
+    r"necessary)|"
+    + _DUTCH + r"\s+(?:fluent|native)\b|" + _DUTCH + r"[^.\n]{0,25}(?:moedertaal|mother tongue)|"
+    r"(?:moedertaal|mother tongue)\W{0,20}(?:is\s+)?" + _DUTCH + r"|"
+    r"nederlandse\s+(?:en\s+(?:de\s+)?engelse\s+)?taal|engelse\s+en\s+(?:de\s+)?nederlandse\s+taal|"
+    r"nederlands\s+(?:in\s+woord\s+en\s+geschrift|op\s+\w+[- ]?niveau)",
+    re.I,
+)
+# a Dutch requirement is void when its own clause calls it optional: "Dutch is a plus", "fluent Dutch preferred"
+_OPTIONAL = re.compile(
+    r"nice[- ]to[- ]have|bonus|prefer\w*|\ba plus\b|\bplus\b|pluspunt|advantage\w*|\basset\b|"
+    r"beneficial|helpful|desir\w*|welcome|appreciated|\bpre\b|\bpré\b|optional|ideal(?:ly)?|"
+    r"not (?:required|mandatory|necessary|needed|a must|a requirement|essential)|useful|"
+    r"\b(?:or|of)\s+(?:are\s+|be\s+|you'?re\s+|a\s+)?willing(?:ness)?\s+to\s+learn|"
+    r"willing(?:ness)? to learn (?:it|dutch)|"
+    r"(?:wilt|bereid)\w*[^.\n]{0,30}(?:te )?leren|would be nice|meerwaarde|valuable|priorit[iy]\w*|"
+    r"\bgood to have|optimal",
+    re.I,
+)
+# qualifiers that come before what they qualify: "Nice to have: fluent Dutch", "Preferably Dutch-speaking"
+_OPT_BEFORE = re.compile(
+    r"nice[- ]to[- ]have|bonus|prefer\w*|ideal(?:ly)?|optional\w*|desir\w*|a plus if|\bplus\s*:|pluspunt|"
+    r"pr[eé]\s*(?:als|if|:)|not (?:required|mandatory)|advantage\w*\s*(?:if|:)|would be (?:nice|great)|"
+    r"asset\s*:",
+    re.I,
+)
+# a clause that says it is required is not undone by a "nice to have" header further up
+_STRONG = re.compile(
+    r"required|mandatory|\bmust\b|essential|essentieel|vereist\w*|verplicht|noodzakelijk|necessary|needed|\bnodig\b|"
+    r"\beis\b|will not be accepted|only\b",
+    re.I,
+)
+# "Dutch or English", "German or Dutch", "Nederlands of Engels": either language will do
+# ("of" is Dutch for "or" only before a Dutch language name: "command of English and Dutch" is not a choice)
+_OR_LANG = (r"(?:(?:or|and/or|and/of|/\s*or|en/of)\s+(?:the\s+)?" + _OTHER_LANG
+            + r"|of\s+(?:het\s+)?(?:engels|duits|frans|spaans)\b)")
+_ALT_AFTER = re.compile(r"\s*(?:\)\s*)?" + _OR_LANG, re.I)
+_ALT_INSIDE = re.compile(r"\b" + _OR_LANG, re.I)
+_ALT_BEFORE = re.compile(_OTHER_LANG + r"(?:[- ]speak\w*)?\s*(?:or|of|and/or|en/of)\s+(?:the\s+)?(?:de\s+)?$", re.I)
+# list headers: "Nice to have", "Plusses", "Not mandatory, but valuable", "Het is een pré als je:"
+_OPT_HEADER = re.compile(
+    r"nice[- ]to[- ]have|bonus|plus(?:ses|sen|punten)?\b|prefer\w*|desir\w*|not (?:mandatory|required)|"
+    r"\bpr[eé]\b|pluspunt|\bextra\b|good to have|would be great|ideally|advantage|we'?d love|niet verplicht|"
+    r"optional|valuable|also nice",
+    re.I,
+)
+_SECTION_HEADER = re.compile(
+    r"requirement|qualification|must|what you bring|you bring|you have|about you|who you are|your profile|profile|"
+    r"we offer|what we|we ask|looking for|skills|eisen|vereist|wat breng|wie ben|wat vragen|wat wij|jouw profiel|"
+    r"functie|responsibil|what you|you will|je gaat|taken|offer|language|talen|taal",
     re.I,
 )
 _DUTCH_NOT_REQ = re.compile(
-    r"dutch\W{0,20}(is\s+)?(not|isn't|is not)\s+(required|necessary|needed|a must)|no dutch (required|needed)|"
-    r"english[- ]speaking (environment|company|team)|english is (our|the) (working|company|official) language|"
-    r"(nice[- ]to[- ]have|bonus|preferred|a plus|advantage|pre\b)\W{0,40}(fluen\w*\W{0,10})?(in\s+)?(dutch|nederlands)|"
-    r"(dutch|nederlands)\W{0,15}(is|would be)\s+(a|an)\s+(plus|bonus|advantage|pre\b)",
+    _DUTCH + r"(?:\s+language)?(?:\s+skills)?\W{0,30}(?:is\s+|are\s+)?(?:not|isn'?t|aren'?t|niet|geen)\s+"
+    r"(?:a\s+|een\s+)?(?:strict\s+)?(?:required|necessary|needed|a must|mandatory|requirement|essential|vereist|"
+    r"nodig|noodzakelijk|verplicht|vereiste|must|eis)|"
+    r"no dutch (?:is )?(?:required|needed|necessary)|" + _DUTCH + r"[^.\n]{0,40}\bbut not (?:required|necessary|"
+    r"mandatory|a must)|(?:no need|not necessary|not required) to (?:speak|know) "
+    + _DUTCH + r"|"
+    r"(?:don'?t|do not|doesn'?t|does not|without)\s+(?:need\s+to\s+|having\s+to\s+)?(?:speak|speaking|know|knowing)\s+"
+    r"(?:any\s+)?" + _DUTCH + r"|geen nederlands (?:nodig|vereist)|"
+    r"(?:not|niet)\s+(?:required|necessary|needed|nodig|vereist)\s+(?:to\s+)?(?:speak\s+|spreken\s+)?" + _DUTCH,
+    re.I,
+)
+# "Dutch is a plus", "Nederlands is een pré": says outright that Dutch is optional
+_DUTCH_PLUS = re.compile(
+    _DUTCH + r"(?:\s+language)?(?:\s+(?:skills?|proficiency|knowledge))?\W{0,30}(?:is|would be|are|zijn|is een|zou)\s+"
+    r"(?:a|an|een)?\s*(?:strong\s+|big\s+|grote?\s+|real\s+)?"
+    r"(?:plus|bonus|advantage|pre\b|pr\u00e9|pluspunt|asset|nice to have|useful|helpful|beneficial)|"
+    r"(?:nice[- ]to[- ]have|bonus|preferred|preferably|a plus|advantage|\bpre\b|pluspunt)\W{0,40}"
+    r"(?:fluen\w*\W{0,10})?(?:in\s+)?" + _DUTCH,
     re.I,
 )
 _ENGLISH_REQ = re.compile(
@@ -52,6 +161,10 @@ _ENGLISH_NOT_REQ = re.compile(
     r"(english|engels)\W{0,15}(is|would be|is een)\s+(a|an|een)?\s*(plus|bonus|advantage|pre\b|pluspunt)",
     re.I,
 )
+_CLAUSE_END = re.compile(r"[.;!?\n•|]|\s-\s|\s–\s")
+# a qualifier after another language belongs to that language: "Fluent Dutch and English, German is a plus"
+_LANG_NAME = re.compile(r"\b(?:" + _OTHER_LANG[3:-1] + r"|engelse|duitse|franse|spaanse|italiaanse|poolse|"
+                        r"other|additional|language|languages|taal|talen)\b", re.I)
 _VISA = re.compile(
     r"visa sponsorship|sponsor(?:ship)? (?:a |your )?(?:work )?visa|"
     r"relocation (?:package|support|assistance|budget|team|help|bonus|allowance)|"
@@ -491,9 +604,84 @@ _NO_DEGREE = re.compile(
 def detect_language(text: str) -> str:
     nl = len(_NL_WORDS.findall(text))
     en = len(_EN_WORDS.findall(text))
-    if nl == 0 and en == 0:
+    de = len(_DE_WORDS.findall(text))
+    if nl == 0 and en == 0 or de > max(nl, en):
         return "other"
-    return "nl" if nl > en * 1.2 else "en"
+    return "nl" if nl > en else "en"
+
+
+def _is_opt_header(line: str) -> bool | None:
+    """True for a "nice to have" list header, False for another section header, None for an ordinary line."""
+    s = line.strip(" \t|•-*[]")
+    if not s or len(s) > 70 or s[-1] in ".;,":
+        return None
+    if s.endswith(":") and len(s.split()) <= 10:
+        return bool(_OPT_HEADER.search(s))
+    if ":" in s or len(s.split()) > 6:
+        return None
+    if _OPT_HEADER.search(s) and not re.search(r"\b(?:is|are|zijn|is een)\b", s, re.I):
+        return True
+    return False if _SECTION_HEADER.search(s) else None
+
+
+def _optional(text: str, m: re.Match, headers: bool = True) -> bool:
+    """Whether the clause around a Dutch-requirement match, or the list header above it, marks it optional."""
+    a = max(0, m.start() - 120)
+    cut = [x.end() for x in _CLAUSE_END.finditer(text, a, m.start())]
+    start = cut[-1] if cut else a
+    e = _CLAUSE_END.search(text, m.end(), m.end() + 120)
+    tail = text[m.end():e.start() if e else m.end() + 120]
+    n = _LANG_NAME.search(tail)
+    own_tail = tail[:n.start()] if n else tail
+    # "(preferably native)" qualifies the level, not the requirement
+    own_tail = re.sub(r"\((?:preferably|ideally|bij voorkeur)\s+(?:native|c1|c2|mother tongue|moedertaal)\)", "",
+                      own_tail, flags=re.I)
+    head = text[start:m.start()]
+    near = head.rsplit(",", 1)[-1]
+    if _OPTIONAL.search(own_tail) or _OPT_BEFORE.search(near) or \
+            re.match(r"\W*(?:ideally|preferably|optionally|bonus|nice to have|a plus)\b", head, re.I):
+        return True
+    if _ALT_AFTER.match(tail) or _ALT_BEFORE.search(head) or _ALT_INSIDE.search(m.group(0)):
+        return True
+    # "Dutch is an advantage, as we work with Dutch-speaking clients"
+    if any(start <= x.start() < m.end() + len(tail) for x in _DUTCH_PLUS.finditer(text, start, m.end() + len(tail))):
+        return True
+    if _STRONG.search(own_tail) or _STRONG.search(near):
+        return False
+    if not headers:
+        return False
+    # the nearest header line above: "Nice to have", "Pluspunten"
+    for line in reversed(text[:start].splitlines()[-12:]):
+        h = _is_opt_header(line)
+        if h is not None:
+            return h
+    return False
+
+
+def dutch_requirement(text: str, lang: str = "en") -> bool | None:
+    """True/False when the text says whether Dutch is required, None when it does not say."""
+    if _DUTCH_NOT_REQ.search(text):
+        return False
+    found = False
+    for m in _DUTCH_REQ.finditer(text):
+        found = True
+        if not _optional(text, m, headers=lang != "nl"):
+            return True
+    return False if found or _DUTCH_PLUS.search(text) else None
+
+
+def language_fields(title: str, text: str) -> tuple[str, bool, bool, bool]:
+    """(posting_language, dutch_required, english_only, english_required)."""
+    lang = detect_language(text) if text else "en"
+    said = dutch_requirement(title + "\n" + text, lang)
+    # written in Dutch means you work in Dutch, unless the posting says Dutch is not needed or only a plus
+    dutch_required = said if said is not None else lang == "nl"
+    # a posting with no readable text (empty, a bare link, "x", a salary line) does not tell whether Dutch is needed
+    words = len(_NL_WORDS.findall(text)) + len(_EN_WORDS.findall(text)) + len(_DE_WORDS.findall(text))
+    known = said is not None or words >= 3 or len(re.findall(r"[^\W\d_]{3,}", text)) >= 6
+    english_only = not dutch_required and known
+    english_required = (lang == "en") or (bool(_ENGLISH_REQ.search(text)) and not _ENGLISH_NOT_REQ.search(text))
+    return lang, dutch_required, english_only, english_required
 
 
 def detect_seniority(title: str, text: str = "") -> str:
@@ -566,7 +754,7 @@ _ODD_SPACES = re.compile(r"[     ]")
 def extract_rules(title: str, description: str) -> Extraction:
     text = _ODD_SPACES.sub(" ", description or "")
     title = _ODD_SPACES.sub(" ", title or "")
-    lang = detect_language(text) if text else "en"
+    lang, dutch_required, english_only, english_required = language_fields(title, text)
     core = _BENEFITS_SPLIT.split(text, maxsplit=1)[0] if text else ""
     # skills come from the role and requirement sections when the posting has headers, so the company intro and
     # "about us" (which often name the employer's own products) do not read as requirements
@@ -577,9 +765,6 @@ def extract_rules(title: str, description: str) -> Extraction:
     skills_req = find_skills(title + "\n" + required_part)
     skills_nice = [s for s in find_skills(nice_part) if s not in skills_req]
 
-    dutch_required = bool(_DUTCH_REQ.search(text)) and not _DUTCH_NOT_REQ.search(text)
-    if lang == "nl" and not _DUTCH_NOT_REQ.search(text):
-        dutch_required = True
     visa: bool | None = None
     if _NO_VISA.search(text):
         visa = False
@@ -626,9 +811,8 @@ def extract_rules(title: str, description: str) -> Extraction:
         skills_nice=skills_nice,
         posting_language=lang,
         dutch_required=dutch_required,
-        english_only=not dutch_required,
-        # written in English means you work in English; a Dutch posting needs English only when it asks for it
-        english_required=(lang == "en") or (bool(_ENGLISH_REQ.search(text)) and not _ENGLISH_NOT_REQ.search(text)),
+        english_only=english_only,
+        english_required=english_required,
         years_experience=years,
         salary_min_eur=lo,
         salary_max_eur=hi,

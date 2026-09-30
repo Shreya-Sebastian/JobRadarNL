@@ -480,3 +480,24 @@ def test_levels_and_role_families_from_titles():
         assert detect_seniority(title) == want, title
     for title, want in roles.items():
         assert detect_role(title) == want, title
+
+
+def test_dutch_requirement_in_english_and_dutch_postings():
+    from radar.extract.rules import extract_rules
+
+    en = "We are looking for a backend engineer to join our team in Amsterdam. You will build services in Python. "
+    nl = "Wij zoeken een backend developer voor ons team in Utrecht. Je bouwt services in Python en werkt met data. "
+    required = [en + "You have fluency in both Dutch (minimum C1 level) and English.",
+                en + "You have a good command of the Dutch language.",
+                en + "Dutch language required, minimum B2.",
+                en + "You are fluent in English and Dutch.",
+                nl + "Je spreekt en schrijft goed Nederlands."]
+    optional = [en + "Dutch is a plus.",
+                en + "Dutch or French fluency is a must.",
+                en + "Nice to have:\n- Dutch\n- Kubernetes",
+                nl + "Nederlands is een pré, Engels is onze voertaal."]
+    for text in required:
+        assert extract_rules("Backend Engineer", text).dutch_required is True, text
+    for text in optional:
+        e = extract_rules("Backend Engineer", text)
+        assert e.dutch_required is False and e.english_only is True, text
