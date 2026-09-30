@@ -125,6 +125,7 @@ class LoginToken(Base):
     expires_at: Mapped[datetime] = mapped_column(DateTime)
     used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    remember: Mapped[bool] = mapped_column(Boolean, default=True)  # "keep me signed in" on the sign-in page
 
 
 class UserSession(Base):

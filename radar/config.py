@@ -58,7 +58,8 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str | None = None
     smtp_password: str | None = None
-    session_days: int = 30
+    session_days: int = 90  # with "keep me signed in"; without it the login ends with the browser
+    short_session_hours: int = 12
     # local development only: with the console backend, show the login link on the page instead of only in the log.
     # Never set this on a server: anyone could then log in as any e-mail address.
     dev_login_links: bool = False

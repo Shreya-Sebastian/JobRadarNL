@@ -143,3 +143,19 @@ def test_sign_in_page_in_both_languages(client):
     assert en.status_code == 200 and '<html lang="en">' in en.text and "noindex" in en.headers["x-robots-tag"]
     assert "Create account" in en.text and "{{" not in en.text
     assert '<html lang="nl">' in client.get("/nl/inloggen").text
+
+
+def test_keep_me_signed_in_or_not(client):
+    def login(email, remember):
+        client.post("/api/auth/request", json={"email": email, "remember": remember}, headers=H)
+        body = mailer.OUTBOX[-1].get_body(("plain",)).get_content()
+        token = parse_qs(urlparse(next(w for w in body.split() if "token=" in w)).query)["token"][0]
+        return client.get(f"/auth/verify?token={token}", follow_redirects=False)
+
+    kept = login("keep@example.org", True)
+    assert "Max-Age=7776000" in kept.headers["set-cookie"]  # 90 days
+    short = login("shared@example.org", False)
+    assert "Max-Age" not in short.headers["set-cookie"] and "expires" not in short.headers["set-cookie"].lower()
+    with session_scope() as s:
+        sess = s.query(UserSession).join(User, User.id == UserSession.user_id).filter(User.email == "shared@example.org").one()
+        assert sess.expires_at - datetime.utcnow() <= timedelta(hours=12)

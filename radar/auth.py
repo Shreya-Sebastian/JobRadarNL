@@ -105,6 +105,7 @@ def require_user(user: User | None = Depends(current_user)) -> User:
 class LinkRequest(BaseModel):
     email: str = Field(max_length=254)
     lang: str = "en"
+    remember: bool = True  # "keep me signed in on this device"
 
 
 @router.post("/api/auth/request")
@@ -124,7 +125,7 @@ def request_link(body: LinkRequest, request: Request, session: Session = Depends
         out["delivery"] = "console"  # no mail service configured: say so instead of pretending a mail is on its way
     if recent < MAX_PER_EMAIL_PER_HOUR:
         token = secrets.token_urlsafe(32)
-        session.add(LoginToken(token_hash=_hash(token), email=email, ip=ip,
+        session.add(LoginToken(token_hash=_hash(token), email=email, ip=ip, remember=body.remember,
                                expires_at=datetime.utcnow() + timedelta(minutes=TOKEN_MINUTES)))
         session.commit()
         # The link always points at the configured public site, never at the Host header of this request (which
@@ -163,7 +164,7 @@ def _send_link(email: str, token: str, lang: str, base: str) -> str:
 def verify(token: str, request: Request, session: Session = Depends(_db)):
     row = session.scalar(select(LoginToken).where(LoginToken.token_hash == _hash(token)))
     now = datetime.utcnow()
-    if row is None or row.used_at is not None or row.expires_at < now:
+    if row is None or row.used_at is not None or row.expires_at <= now:
         return RedirectResponse("/login?expired=1", status_code=303)
     row.used_at = now
     user = session.scalar(select(User).where(User.email == row.email))
@@ -173,14 +174,17 @@ def verify(token: str, request: Request, session: Session = Depends(_db)):
         session.flush()
     user.last_login_at = now
     raw = secrets.token_urlsafe(32)
-    session.add(UserSession(token_hash=_hash(raw), user_id=user.id,
-                            expires_at=now + timedelta(days=settings.session_days)))
+    remember = row.remember is not False
+    # "keep me signed in": a cookie that lasts session_days; otherwise a browser-session cookie that ends when the
+    # browser closes, and a server-side session that ends after short_session_hours at the latest
+    lifetime = timedelta(days=settings.session_days) if remember else timedelta(hours=settings.short_session_hours)
+    session.add(UserSession(token_hash=_hash(raw), user_id=user.id, expires_at=now + lifetime))
     session.commit()
     resp = RedirectResponse("/?login=ok#profile", status_code=303)
     # Secure behind a TLS-terminating proxy too (the app then sees http); only a local run gets a plain cookie
     local = request.url.hostname in {"localhost", "127.0.0.1", "::1", "testserver"}
-    resp.set_cookie(COOKIE, raw, max_age=settings.session_days * 86400, httponly=True, samesite="lax",
-                    secure=request.url.scheme == "https" or not local, path="/")
+    resp.set_cookie(COOKIE, raw, max_age=int(lifetime.total_seconds()) if remember else None, httponly=True,
+                    samesite="lax", secure=request.url.scheme == "https" or not local, path="/")
     return resp
 
 

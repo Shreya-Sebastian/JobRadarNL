@@ -359,6 +359,7 @@ def overview(session: Session) -> dict[str, Any]:
     # the last *finished* crawl: while a crawl is running the newest run has no finish time yet
     last_run = session.scalar(select(CrawlRun).where(CrawlRun.finished_at.is_not(None))
                               .order_by(CrawlRun.finished_at.desc()).limit(1))
+    last_ok = session.scalar(select(func.max(Source.last_run_at)).where(Source.last_status == "ok"))
     # Freshness only makes sense for postings that appeared after we started watching their source:
     # a source's backlog is "seen" at its first crawl regardless of when it was posted.
     fresh_rows = session.execute(
@@ -404,7 +405,10 @@ def overview(session: Session) -> dict[str, Any]:
         "new_last_7d": new_7d,
         "closed_last_7d": closed_7d,
         "freshness_median_hours": round(statistics.median(fresh), 1) if fresh else None,
-        "last_crawl_at": last_run.finished_at.isoformat() if last_run and last_run.finished_at else None,
+        # queue workers crawl sources one by one, so the latest successful source crawl is the freshness signal;
+        # a finished full run (the `radar crawl` command) counts too
+        "last_crawl_at": (max(t for t in (last_ok, last_run.finished_at if last_run else None) if t).isoformat()
+                          if (last_ok or (last_run and last_run.finished_at)) else None),
     }
 
 
