@@ -35,8 +35,8 @@ class Settings(BaseSettings):
                          "and visa facts extracted, and every listing linking to the employer's own page.")
     # Browser-shaped so career sites that block unknown bots (Coolblue) serve the sitemap; still names the crawler.
     user_agent: str = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                       "Chrome/128.0 Safari/537.36 JobRadarNL/0.2 (+https://github.com/Shreya-Sebastian/JobRadarNL; "
-                       "contact via GitHub issues)")
+                       "Chrome/128.0 Safari/537.36 JobRadarNL/0.2 (+https://techjobsradar.nl/privacy; "
+                       "contact@techjobsradar.nl)")
     http_timeout: float = 30.0
     max_workers: int = 8
     per_domain_delay: float = 0.5

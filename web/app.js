@@ -80,7 +80,7 @@
       "f.confirmed.title": "Keeps postings that the employer's own careers site still listed at a crawl in the last 7 days, or whose page was opened and checked in that time.",
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
       "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
-      "acct.go": "Sign in or create an account",
+      "acct.go": "Sign in or create an account", "loading": "Loading the latest jobs…",
       "pw.choose": "Choose your new password.", "pw.label": "Password", "pw.none": "No password yet. You sign in with an e-mail link or Google; add a password to sign in with it too.",
       "pw.has": "You can sign in with your password, an e-mail link or Google.", "pw.set": "Set a password", "pw.change": "Change password",
       "pw.remove": "Remove password", "pw.current": "Current password", "pw.new": "New password (10+ characters)", "pw.repeat": "Repeat the new password",
@@ -191,7 +191,7 @@
       "f.confirmed.title": "Houdt vacatures die de eigen carrièresite van de werkgever bij een crawl in de laatste 7 dagen nog toonde, of waarvan de pagina in die tijd is geopend en gecontroleerd.",
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
       "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
-      "acct.go": "Inloggen of account maken",
+      "acct.go": "Inloggen of account maken", "loading": "De nieuwste vacatures laden…",
       "pw.choose": "Kies je nieuwe wachtwoord.", "pw.label": "Wachtwoord", "pw.none": "Nog geen wachtwoord. Je logt in met een e-maillink of Google; voeg een wachtwoord toe om daar ook mee in te loggen.",
       "pw.has": "Je kunt inloggen met je wachtwoord, een e-maillink of Google.", "pw.set": "Wachtwoord instellen", "pw.change": "Wachtwoord wijzigen",
       "pw.remove": "Wachtwoord verwijderen", "pw.current": "Huidig wachtwoord", "pw.new": "Nieuw wachtwoord (10+ tekens)", "pw.repeat": "Herhaal het nieuwe wachtwoord",
@@ -389,6 +389,8 @@
       options: {
         indexAxis: horizontal ? "y" : "x", maintainAspectRatio: false,
         onClick: onClick ? (_, els) => { if (els.length) onClick(labels[els[0].index]); } : undefined,
+        // a hand cursor over bars that open something, so it is clear they can be clicked
+        onHover: onClick ? (e, els) => { e.native.target.style.cursor = els.length ? "pointer" : "default"; } : undefined,
         plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => pct ? `${c.raw}%` : `${c.raw}` } } },
         scales: { x: { grid: { color: css("--line") }, ticks: { color: css("--muted") } },
                   y: { grid: { display: false }, ticks: { color: css("--ink"), autoSkip: false, font: { size: 11 } } } },
@@ -430,7 +432,10 @@
       .call(d3.drag().on("start", (e, d) => { if (!e.active) sim.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
         .on("drag", (e, d) => { d.fx = e.x; d.fy = e.y; }).on("end", (e, d) => { if (!e.active) sim.alphaTarget(0); d.fx = null; d.fy = null; }));
     const have = new Set(state.profile.skills);
-    node.append("circle").attr("r", (d) => r(d.count)).attr("fill", (d) => have.has(d.id) ? css("--accent-2") : css("--accent")).attr("fill-opacity", 0.85);
+    node.style("cursor", "pointer");
+    // solid dots with an outline in the card colour, so the edges behind them never show through
+    node.append("circle").attr("r", (d) => r(d.count)).attr("fill", (d) => have.has(d.id) ? css("--accent-2") : css("--accent"))
+      .attr("stroke", css("--card")).attr("stroke-width", 1.5);
     node.append("title").text((d) => `${d.id}: ${d.count}`);
     node.append("text").attr("dy", (d) => r(d.count) + 11).attr("text-anchor", "middle").text((d) => d.id);
     sim.on("tick", () => {
@@ -529,7 +534,6 @@
       [`${fmt(o.sources_ok)}/${fmt(o.sources_total)}`, t("kpi.sources")], [fmt(o.new_last_7d), t("kpi.new7")],
       [newCount, t("kpi.newvisit")], [last, t("kpi.crawl")],
     ].map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
-    $("#tagline").textContent = t("tagline", { n: fmt(o.live_tech_postings), m: fmt(o.companies) });
     document.title = `${document.title.split(":")[0]}: ${t("title", { n: fmt(o.live_tech_postings) })}`;
   }
 
@@ -982,10 +986,17 @@
     $$("#tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === state.tab));
     $$(".tab").forEach((s) => s.classList.toggle("on", s.dataset.tab === state.tab));
     window.scrollTo(0, 0);
+    const bar = $("#progress"), slow = setTimeout(() => { bar.hidden = false; }, 150);  // only when it takes a moment
     try { await renderers[state.tab](); } catch (e) { console.error(e); $("#kpis").insertAdjacentHTML("beforeend", `<div class="kpi bad"><b>!</b><span>${esc(e.message)}</span></div>`); }
+    finally { clearTimeout(slow); bar.hidden = true; $("#boot").hidden = true; }
   }
   window.addEventListener("hashchange", route);
   $("#personalised").addEventListener("change", (e) => { state.personalised = e.target.checked; store.set("personalised", state.personalised); jobFilters = null; loadHeader(); route(); });
+  $("#brand").addEventListener("click", (e) => {
+    e.preventDefault();
+    const target = LANG === "nl" ? "/nl/" : "/";
+    if (location.pathname === target) { location.hash = "#overview"; window.scrollTo(0, 0); } else location.href = target;
+  });
   $("#langswitch").addEventListener("click", (e) => {
     const b = e.target.closest("button"); if (!b || b.dataset.lang === LANG) return;
     LANG = b.dataset.lang; store.set("lang", LANG); applyI18n(); renderAccount(); renderHeader(); jobsBuilt = false; profileBuilt = false; route();

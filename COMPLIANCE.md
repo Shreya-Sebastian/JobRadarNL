@@ -36,7 +36,7 @@ link. It keeps the project well clear of copying employers' copy, which is where
 ## Identifying ourselves
 
 The crawler's User-Agent is browser-shaped, because a few career sites return 403 to anything else, but it ends
-with `JobRadarNL/0.2 (+https://github.com/Shreya-Sebastian/JobRadarNL; contact via GitHub issues)`, so a site
+with `JobRadarNL/0.2 (+https://techjobsradar.nl/privacy; contact@techjobsradar.nl)`, so a site
 owner who looks at their logs can see who is crawling and how to reach the maintainer. Sites that still refuse
 an identified crawler (Rabobank, SAP) are left out rather than fetched under a disguise.
 
