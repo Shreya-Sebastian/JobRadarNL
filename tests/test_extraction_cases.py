@@ -64,3 +64,40 @@ def test_degree_not_from_teaching_or_transcripts():
     assert detect_degree("Assistant Professor", t, t) == "phd"
     t = "Upload your resume with a motivation letter and grade lists (of high school, bachelor and master)."
     assert extract_rules("Consultant", "Master's degree or PhD in a technical field.\n" + t).degree_required == "msc"
+
+
+def test_second_pass_language_and_enrolment():
+    from radar.extract.rules import detect_enrollment, extract_rules
+
+    nl = "Wij zoeken een backend developer voor ons team in Utrecht. Je bouwt services in Python en werkt met data. "
+    de = "Wir suchen einen Senior Fullstack Engineer (w/m/d), der uns mit viel Energie unterstützt. Du bist Teil unseres Teams und arbeitest mit unseren Kunden. "
+    checks = [
+        ("url only", extract_rules("SAP Business consultant", "https://werkenbij.example.nl/vacatures/sap-business-consultant-eam/").english_only, False),
+        ("salary line", extract_rules("AI Business Consultant", "AI-First Business Consultant (hybrid • 32—40 hours• Barendrecht/Rotterdam • €5700—€8,000)").english_only, False),
+        ("german", extract_rules("Senior Engineer", de).english_only, False),
+        ("german+eng", extract_rules("Senior Engineer", de + "Englisch fließend.").english_only, False),
+        ("nl en/of", extract_rules("Lead Engineer", nl + "Je communiceert helder in het Nederlands en/of Engels.").dutch_required, False),
+        ("nl helder", extract_rules("Lead Engineer", nl + "Je communiceert helder in het Nederlands.").dutch_required, True),
+        ("en clearly", extract_rules("Engineer", "We are looking for an engineer to join the team. You communicate clearly in Dutch.").dutch_required, True),
+        ("no dutch terse", extract_rules("Python dev", "Python dev. No Dutch required.").english_only, True),
+        ("plain en", extract_rules("Engineer", "We are looking for an engineer to join our team. You will build services.").english_only, True),
+    ]
+    enr = [
+        ("grad open", detect_enrollment("Completed BSc and currently in the final stages of a master's, or already holding a master's, in a STEM field."), False),
+        ("abn stage", detect_enrollment("De stagevergoeding bedraagt voor een mbo-, hbo- of wo stage €750 per maand."), True),
+        ("xsens still req", detect_enrollment("Note that you actually need to be enrolled in a school or university in order to be considered for an internship. Almost or already graduated? Please take a look at our current vacancies."), True),
+    ]
+    en = "We are looking for a backend engineer to join our team in Amsterdam. You will build services in Python. "
+    lang2 = [
+        ("comm skills both", extract_rules("Engineer", en + "Excellent communication skills in English and Dutch with the ability to explain risks.").dutch_required, True),
+        ("comm skills the lang", extract_rules("Engineer", en + "Strong written and verbal communication skills in the Dutch language.").dutch_required, True),
+        ("ability essential", extract_rules("Engineer", en + "Ability to speak and write in English; ability in Dutch is considered essential.").dutch_required, True),
+        ("or another language", extract_rules("Engineer", en + "Strong communication skills in Dutch or another European language are a plus.").english_only, True),
+        ("skills in dutch law", extract_rules("Engineer", en + "Skills in Dutch tax law are useful.").english_only, True),
+    ]
+    lang3 = [
+        ("at least dutch", extract_rules("Engineer", en + "You speak at least Dutch fluently, as our drawings are in Dutch.").dutch_required, True),
+        ("english language and dutch", extract_rules("Engineer", en + "Proficient in English language and Dutch.").dutch_required, True),
+    ]
+    for name, got, want in checks + enr + lang2 + lang3:
+        assert got == want, name

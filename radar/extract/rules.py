@@ -9,7 +9,7 @@ from radar.extract.schema import Extraction
 from radar.extract.sections import job_text
 from radar.taxonomy import find_skills
 
-RULES_VERSION = "rules-v15"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
+RULES_VERSION = "rules-v16"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
 
 # words only one of the languages uses: "in", "is", "we", "team", "over" and "of" are both Dutch and English,
 # "die" and "er" are also German
@@ -36,7 +36,7 @@ _LANG_AFTER = (
     r"would|preferred|c1\b|c2\b|b1\b|b2\b|level|niveau|communication|vaardig|mondeling|schriftelijk|zowel|"
     r"goed|vloeiend|well\b|to\b|too\b|also\b|oral|for\b))"
 )
-_BOTH = r"(?:both\s+)?(?:the\s+)?(?:" + _OTHER_LANG + r"\s*(?:and|&|,|/|as well as|en)\s*(?:the\s+)?)?"
+_BOTH = r"(?:both\s+)?(?:the\s+)?(?:" + _OTHER_LANG + r"(?:\s+language)?\s*(?:and|&|,|/|as well as|en)\s*(?:the\s+)?)?"
 _DUTCH_REQ = re.compile(
     # "fluent in Dutch", "fluency in both English and Dutch", "full professional fluency in both Dutch"
     r"(?:fluent(?:ly)?|fluency|proficien\w*|native|mother tongue|vloeiend\w*)\W{0,25}(?:level\s+)?(?:in\s+|of\s+)?"
@@ -46,8 +46,9 @@ _DUTCH_REQ = re.compile(
     r"verbal|advanced|uitstekend\w*|goede?|zeer goede?|prima|perfect\w*|sterke?)\W{0,20}"
     r"(?:(?:command|knowledge|mastery|understanding|proficiency|skills?|beheersing|kennis)\s+(?:of|in|van)\s+)?"
     r"(?:in\s+)?(?:het\s+)?" + _BOTH + r"(?:de\s+)?" + _DUTCH + _LANG_AFTER + r"|"
-    r"(?:command|knowledge|mastery|understanding|beheersing|kennis)\s+(?:of|in|van)\s+" + _BOTH + r"(?:de\s+)?"
-    + _DUTCH + _LANG_AFTER + r"|"
+    # "ability in Dutch is essential", "communication skills in English and Dutch"
+    r"(?:command|knowledge|mastery|understanding|abilit(?:y|ies)|skills?|beheersing|kennis)\s+(?:of|in|van)\s+"
+    + _BOTH + r"(?:de\s+)?" + _DUTCH + _LANG_AFTER + r"|"
     # "Dutch is required", "Dutch (must)", "Dutch <-must have", "Dutch: fluent", "Dutch (C1)", "Nederlands op C1-niveau"
     + _DUTCH + r"(?:\s+language)?(?:\s+skills)?\W{0,25}(?:is\s+|are\s+)?(?:a\s+)?"
     r"(?:required|mandatory|a must|must|essential|necessary|needed|"
@@ -58,10 +59,11 @@ _DUTCH_REQ = re.compile(
     # "you speak Dutch", "je spreekt en schrijft goed Nederlands", "speak, write, and read fluently in Dutch"
     r"(?:speak|spreek\w*|schrijf\w*|beheers\w*|write|read|communicat\w*|communiceer\w*|converse|praat)"
     r"(?:[\s,]+(?:and|en|&|write|read|schrijft|spreekt|fluently|fluent|goed|vloeiend|uitstekend|perfect|"
-    r"well|also|both|zowel|in|het|the|english|engels|and/or|native|mondeling|schriftelijk|good|excellent)){0,6}"
+    r"well|also|both|zowel|in|het|the|english|engels|and/or|native|mondeling|schriftelijk|good|excellent|helder|"
+    r"duidelijk|clearly|effectively|effectief|vlot|at|least|minimaal)){0,6}"
     r"\s+" + _DUTCH + _LANG_AFTER + r"|"
-    r"(?:conversation|correspondence|documentation|reports?|presentations?|communication)\s+in\s+" + _BOTH
-    + _DUTCH + r"|"
+    r"(?:conversation|correspondence|documentation|reports?|presentations?|communication)(?:\s+skills)?\s+in\s+"
+    + _BOTH + _DUTCH + r"|"
     # "Dutch and English", "English and Dutch", "NL/EN"
     + _DUTCH + r"\s*(?:and|en|&|/|\+)\s*(?:the\s+)?(?:english|engels)|"
     r"(?:english|engels)\s*(?:and|en|&|/|\+|as well as)\s*(?:also\s+)?" + _DUTCH + _LANG_AFTER + r"|"
@@ -107,7 +109,9 @@ _STRONG = re.compile(
 # "Dutch or English", "German or Dutch", "Nederlands of Engels": either language will do
 # ("of" is Dutch for "or" only before a Dutch language name: "command of English and Dutch" is not a choice)
 _OR_LANG = (r"(?:(?:or|and/or|and/of|/\s*or|en/of)\s+(?:the\s+)?" + _OTHER_LANG
-            + r"|of\s+(?:het\s+)?(?:engels|duits|frans|spaans)\b)")
+            + r"|of\s+(?:het\s+)?(?:engels|duits|frans|spaans)\b"
+            # "Dutch or another European language"
+            + r"|(?:or|and/or)\s+(?:any\s+)?(?:an)?other\s+(?:\w+\s+)?languages?\b)")
 _ALT_AFTER = re.compile(r"\s*(?:\)\s*)?" + _OR_LANG, re.I)
 _ALT_INSIDE = re.compile(r"\b" + _OR_LANG, re.I)
 _ALT_BEFORE = re.compile(_OTHER_LANG + r"(?:[- ]speak\w*)?\s*(?:or|of|and/or|en/of)\s+(?:the\s+)?(?:de\s+)?$", re.I)
@@ -401,6 +405,8 @@ _ENROL_REQ = re.compile(_ENROL_REQ.pattern + "|" + "|".join([
     r"internship agreement",
     # German postings: "Du absolvierst derzeit ein Studium", "immatrikuliert", "eingeschrieben"
     r"absolvierst (?:derzeit |aktuell )?ein\w* \w*studium|immatrikuliert|eingeschrieben",
+    # an allowance paid per school level: "De stagevergoeding bedraagt voor een mbo-, hbo- of wo stage € 750"
+    r"stagevergoeding\b[^.]{0,40}?\b(?:mbo|hbo|wo)\b[^.]{0,25}?\bstage\b",
 ]), re.I)
 _ENROL_NOT = re.compile(_ENROL_NOT.pattern + "|" + "|".join([
     # "If you have recently graduated in Computer Science"
@@ -411,12 +417,17 @@ _ENROL_NOT = re.compile(_ENROL_NOT.pattern + "|" + "|".join([
     r"new )?(?:afgestudeerde?n?|graduates?|starters?|young professionals?)",
     # "Ben je (bijna) afgestudeerd", "net afgestudeerd"
     r"\((?:bijna|net)\) afgestudeerd|\b(?:net|pas|recent|onlangs) afgestudeerd",
+    # "currently in the final stages of a master's, or already holding a master's"
+    r"\b(?:or|and/or)\s+(?:you\s+)?(?:are\s+|have\s+)?already\s+(?:hold(?:ing)?|ha(?:ve|ving)|completed|"
+    r"obtained|finished|in possession of)\s+(?:a\s+|an\s+|your\s+)?(?:master|bachelor|msc|bsc|degree|diploma)",
 ]), re.I)
 # a title that says thesis, afstudeer or werkstudent is evidence even when the text is empty
 _TITLE_REQ = re.compile(
     r"afstudeer|graduation (?:internship|project|assignment)|(?<!non-)(?<!non )thesis|scriptie|werkstudent|"
     r"working student|"
-    r"student[- ]?stag|\b(?:mbo|hbo|wo)\b(?:[- ]?\d)?[^\n]{0,40}?stag|stag\w*[^\n]{0,40}?\b(?:mbo|hbo|wo)\b", re.I)
+    r"student[- ]?stag|\b(?:mbo|hbo|wo)\b(?:[- ]?\d)?[^\n]{0,40}?stag|stag\w*[^\n]{0,40}?\b(?:mbo|hbo|wo)\b|"
+    # a "meewerkstage" or "meeloopstage" is by definition part of a study programme
+    r"\bmee(?:werk|loop)stage", re.I)
 
 
 # titles of student jobs whose level is not "intern": "Onderzoeksstage", "Bijbaan IT", "Internships / Graduation"
@@ -1131,7 +1142,10 @@ def language_fields(title: str, text: str) -> tuple[str, bool, bool, bool]:
     # a posting with no readable text (empty, a bare link, "x", a salary line) does not tell whether Dutch is needed
     words = len(_NL_WORDS.findall(text)) + len(_EN_WORDS.findall(text)) + len(_DE_WORDS.findall(text))
     known = said is not None or words >= 3 or len(re.findall(r"[^\W\d_]{3,}", text)) >= 6
-    english_only = not dutch_required and known
+    # a German posting, or one whose only text is a link or a salary line, is not an English job, unless it says
+    # outright that Dutch is not needed
+    german = len(_DE_WORDS.findall(text)) > max(len(_NL_WORDS.findall(text)), len(_EN_WORDS.findall(text)))
+    english_only = not dutch_required and known and not german and (lang != "other" or said is False)
     english_required = (lang == "en") or (bool(_ENGLISH_REQ.search(text)) and not _ENGLISH_NOT_REQ.search(text))
     return lang, dutch_required, english_only, english_required
 
