@@ -45,9 +45,6 @@
     <a href="#market" data-tab="market" data-i18n="tab.market">Market</a>
     <a href="#profile" data-tab="profile" data-i18n="tab.profile">Profile</a>
     <a href="#coverage" data-tab="coverage" data-i18n="tab.coverage">Coverage</a>
-    <div class="tab-controls">
-      <label class="check personalised" data-i18n-title="personalised.title"><input type="checkbox" id="personalised"> <span data-i18n="personalised">Personalised</span></label>
-    </div>
   </nav>
 </header>
 
@@ -58,7 +55,6 @@
   <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
   <div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div><div class="kpi skel"><b>&nbsp;</b><span>&nbsp;</span></div>
 </div>
-<p class="small muted mt-3 mb-0" id="scope-note" hidden></p>
 <div class="boot" id="boot" role="status"><div class="spinner"></div><span data-i18n="loading">Loading the latest jobs…</span></div>
 
 <!-- ============ OVERVIEW ============ -->
@@ -112,6 +108,7 @@
     <div class="filter-row">
       <div class="active-skill" id="active-skill" hidden><span data-i18n="f.skill">Skill</span>: <b id="active-skill-name"></b> <button id="clear-skill" title="clear">×</button></div>
       <span class="count" id="count"></span>
+      <button class="link" id="f-profile" data-i18n="f.profile" hidden>Use my profile</button>
       <button class="link" id="f-reset" data-i18n="f.reset">Reset filters</button>
     </div>
   </div>
@@ -159,7 +156,7 @@
   <div class="grid two">
     <div class="card">
       <h2 data-i18n="p.looking">Job preferences</h2>
-      <p class="muted small" data-i18n-html="p.looking.hint">Saved in this browser, and in your account when you are logged in. Switch on <b>Personalised</b> in the header to apply it everywhere.</p>
+      <p class="muted small" data-i18n-html="p.looking.hint">Saved in this browser, and in your account when you are logged in. Used for Best matches on the Overview, for e-mail alerts, and by <b>Use my profile</b> on the Jobs tab.</p>
       <div class="field"><label data-i18n="p.roles">Roles</label><div class="chips toggles" id="p-roles"></div></div>
       <div class="field"><label data-i18n="p.levels">Levels</label><div class="chips toggles" id="p-levels"></div></div>
       <div class="field"><label data-i18n="p.exp">Experience asked</label><div class="chips toggles" id="p-exp"></div></div>
@@ -308,6 +305,6 @@
   <p class="mt-6 border-t border-line pt-6"><b class="text-ink">{{SITE_NAME}}</b> ({{SITE_ALIASES}}) <span data-i18n="footer">lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites, refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in. CV text you paste is used once to find skills and is not stored.</span> <a href="{{PRIVACY_PATH}}" data-i18n="privacy">Privacy</a> · <a href="{{FEEDBACK_PATH}}" data-i18n="feedback">Feedback</a>{{SOURCE_LINK}}</p>
  </div>
 </footer>
-<script src="/static/app.js?v=52"></script>
+<script src="/static/app.js?v=53"></script>
 </body>
 </html>
