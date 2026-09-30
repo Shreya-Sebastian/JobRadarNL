@@ -31,8 +31,8 @@ class Settings(BaseSettings):
     site_url: str = "https://techjobsradar.nl"
     # Google Search Console verification token (the content of its <meta name="google-site-verification">)
     google_site_verification: str | None = None
-    site_tagline: str = ("Tech jobs read directly from Dutch employers' own career sites, with the skills, language "
-                         "and visa facts extracted, and every listing linking to the employer's own page.")
+    site_tagline: str = ("Tech jobs from Dutch employers' own career sites, with the skills, language and visa "
+                         "details of every listing.")
     # Browser-shaped so career sites that block unknown bots (Coolblue) serve the sitemap; still names the crawler.
     user_agent: str = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
                        "Chrome/128.0 Safari/537.36 JobRadarNL/0.2 (+https://techjobsradar.nl/privacy; "

@@ -119,7 +119,7 @@
       [fmt(k.views_today), "Page views today", `${fmt(k.uniques_today)} unique`],
       [fmt(k.views_24h), "Views (24 h)", `${fmt(k.uniques_24h)} unique`],
       [fmt(k.human_views_24h), "Human visits", `${fmt(k.bot_hits_24h)} bot hits`],
-      [k.bounce_rate == null ? "–" : Math.round(k.bounce_rate * 100) + "%", "Bounce rate", `${k.pages_per_session} pages/session`],
+      [k.bounce_rate == null ? "-" : Math.round(k.bounce_rate * 100) + "%", "Bounce rate", `${k.pages_per_session} pages/session`],
       [k.avg_ms + " ms", "Avg response", `p95: ${k.p95_ms} ms`],
       [mb(k.bytes_today), "Bandwidth today", `${mb(k.bytes_24h)} (24 h)`],
       [mb(k.bytes_per_visitor), "Avg / visitor", "per unique visitor (24 h)"],
@@ -166,7 +166,7 @@
     table("#at_pages", a.top_pages, "Page");
 
     $("#recent").innerHTML = d.recent.length
-      ? `<table><tr><th>Time</th><th>Visitor</th><th>Page</th><th>Status</th><th>Speed</th><th>Size</th><th>Referrer</th><th>UTM</th><th>Country</th><th>Browser</th><th>Device</th></tr>${d.recent.map((r) => `<tr><td>${ago(r.ts)}</td><td>${esc(r.visitor)}</td><td>${esc(r.event && r.event !== "nav" ? r.event + " " : "")}${esc(r.path)}</td><td>${r.status}</td><td>${r.ms} ms</td><td>${r.bytes ? mb(r.bytes) : "–"}</td><td>${esc(r.referrer || "–")}</td><td>${esc(r.utm || "–")}</td><td>${esc(country(r.country))}</td><td>${esc(r.browser)}</td><td>${esc(r.device)}</td></tr>`).join("")}</table>`
+      ? `<table><tr><th>Time</th><th>Visitor</th><th>Page</th><th>Status</th><th>Speed</th><th>Size</th><th>Referrer</th><th>UTM</th><th>Country</th><th>Browser</th><th>Device</th></tr>${d.recent.map((r) => `<tr><td>${ago(r.ts)}</td><td>${esc(r.visitor)}</td><td>${esc(r.event && r.event !== "nav" ? r.event + " " : "")}${esc(r.path)}</td><td>${r.status}</td><td>${r.ms} ms</td><td>${r.bytes ? mb(r.bytes) : "-"}</td><td>${esc(r.referrer || "-")}</td><td>${esc(r.utm || "-")}</td><td>${esc(country(r.country))}</td><td>${esc(r.browser)}</td><td>${esc(r.device)}</td></tr>`).join("")}</table>`
       : `<div class="empty">No visits yet</div>`;
   }
 

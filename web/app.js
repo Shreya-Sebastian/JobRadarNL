@@ -19,7 +19,7 @@
       "tab.overview": "Overview", "tab.jobs": "Jobs", "tab.market": "Market", "tab.profile": "My profile", "tab.coverage": "Coverage",
       "personalised": "Personalised", "personalised.title": "Use my profile as the default filter on every tab",
       "ov.skills": "Most requested skills", "ov.skills.hint": "Click a bar to open those jobs.",
-      "ov.graph": "Skills asked for together", "ov.graph.hint": "edge = postings mentioning both",
+      "ov.graph": "Skills asked for together", "ov.graph.hint": "a line joins skills named in the same posting",
       "ov.new": "New since your last visit", "ov.new.all": "See all new jobs", "ov.matches": "Best matches for you",
       "ov.matches.empty": 'Add your skills under <a href="#profile">My profile</a> to see matches.',
       "f.search": "Search", "f.search.ph": "title or company", "f.window": "Window", "f.window.all": "All live", "f.window.1": "Last 24 h",
@@ -33,7 +33,7 @@
       "th.sector": "Sector", "th.status": "Status", "th.livetech": "Live tech postings", "th.platform": "Platform", "th.kind": "Kind", "th.postings": "Postings",
       "pager.prev": "‹ Prev", "pager.next": "Next ›",
       "mk.trend": "New postings per week", "mk.trend.hint": "and the skills you follow", "mk.cities": "Cities", "mk.seniority": "Seniority",
-      "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "only postings that print a number",
+      "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "only postings that state a salary",
       "mk.lang": "Posting language", "mk.remote": "Remote policy",
       "p.looking": "What I am looking for", "p.looking.hint": "Saved in this browser, and in your account when you are logged in. Switch on <b>Personalised</b> in the header to apply it everywhere.",
       "p.roles": "Roles", "p.levels": "Levels", "p.enter": "type and press Enter", "p.exclude": "Employers to hide", "p.language": "Posting language",
@@ -42,11 +42,11 @@
       "p.extract": "Extract skills from CV text", "p.cv.ph": "Paste your CV here. It is only used to detect skills and is not stored.", "p.extract.btn": "Extract",
       "p.gap": "Gap analysis", "p.gap.hint": "against the jobs that fit your profile", "p.gap.btn": "Analyse", "p.saved": "Saved jobs",
       "cv.title": "What this radar covers",
-      "cv.p1": "Postings are read from employers' own career sites (over a thousand of them publish structured job data) and from the public job boards of the platforms employers use, such as Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters and Homerun, plus AcademicTransfer for universities and Werken voor Nederland for the national government. Employers come from a list of the 540 largest Dutch employers, the IND register of recognised sponsors and the platforms' own directories. Only postings located in the Netherlands and classified as tech roles are counted. Every listing links to the employer's original page.",
-      "cv.p2": "<b>Not here yet:</b> employers on career-site platforms without an adapter (SAP SuccessFactors is partly covered, Radancy, Phenom, iCIMS are not), most big-tech companies' own job APIs, and anything that only exists on LinkedIn. The table below is the list of large employers we track and where each one stands.",
+      "cv.p1": "Postings are read from employers' own career sites and from the public job boards of the platforms employers use, such as Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters and Homerun, plus AcademicTransfer for universities and Werken voor Nederland for the national government. Employers come from a list of the 540 largest Dutch employers, the IND register of recognised sponsors and the platforms' own directories. Only postings located in the Netherlands and classified as tech roles are counted. Every listing links to the employer's original page.",
+      "cv.p2": "<b>Not here yet:</b> employers on career-site platforms without an adapter (SAP SuccessFactors is partly covered, Radancy, Phenom, iCIMS are not), most big-tech companies' own job APIs, and anything that only exists on LinkedIn. The table below lists the large employers we track and whether each one is covered.",
       "cv.large": "Large employers", "cv.sources": "Sources", "cv.sources.hint": "every board, its status and yield on the last crawl",
       "cv.flag": "⚑ marks a board whose posting pages could not be reached on the last link check; its postings are kept but may be stale. \"partial\" means the board returned far fewer postings than before and nothing was closed.",
-      "footer": "lists tech, software, data and IT vacancies in the Netherlands, read directly from employers' own career sites and the public job boards of the platforms they use, and refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in; CV text you paste is used once to detect skills and is not stored. Salary figures show sample sizes for a reason.",
+      "footer": "lists tech, software, data and IT vacancies in the Netherlands from employers' own career sites, refreshed every few hours. Every listing links to the employer's original page. Built by Shreya Sebastian. Your profile and saved jobs stay in your browser unless you log in. CV text you paste is used once to find skills and is not stored.",
       // dynamic strings
       "kpi.live": "live tech postings", "kpi.employers": "employers", "kpi.sources": "sources healthy", "kpi.new7": "new in 7 days", "kpi.newvisit": "new since your last visit", "kpi.crawl": "last crawl",
       "tagline": "{n} live tech jobs from {m} Dutch employers, read directly from their own career sites and refreshed every few hours.",
@@ -80,7 +80,7 @@
       "f.confirmed": "Only confirmed on the employer's site in the last 7 days",
       "f.confirmed.title": "Keeps postings that the employer's own careers site still listed at a crawl in the last 7 days, or whose page was opened and checked in that time.",
       "trust.seen": "Still listed on the employer's own site on {d}", "trust.checked": "page opened and checked on {d}",
-      "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. It is still listed, but long-open roles can be evergreen or pipeline vacancies: check the date on the employer's page before investing a lot of time.",
+      "trust.expires": "closes on {d}", "trust.old.title": "Open for more than 90 days. Some long-open roles are standing vacancies, so check the date on the employer's page.",
       "loading": "Loading the latest jobs…",
       "pw.choose": "Choose your new password.", "pw.label": "Password", "pw.none": "No password yet. You sign in with an e-mail link or Google; add a password to sign in with it too.",
       "pw.has": "You can sign in with your password, an e-mail link or Google.", "pw.set": "Set a password", "pw.change": "Change password",
@@ -113,14 +113,14 @@
       "f.exp": "Experience asked", "p.exp": "Experience asked", "mk.exp": "Experience asked", "yrs": "yrs",
       "f.size": "Hiring activity (open roles)", "f.sort.small": "Smaller organisations first", "f.sort.large": "Larger organisations first",
       "f.emp": "Company size (employees)", "f.emp.title": "Headcount from Wikidata and Wikipedia where known; worldwide for international companies. Smaller companies are often unknown.",
-      "emp.1-49": "under 50", "emp.50-249": "50–249", "emp.250-4999": "250–4,999", "emp.5000+": "5,000+", "emp.unknown": "unknown",
-      "f.size.title": "How many roles the organisation has open right now, in all fields. This says how actively it is hiring, not how big it is: see company size for that.",
-      "size.small": "a few openings (under 10)", "size.medium": "10–99 openings", "size.large": "100+ openings",
+      "emp.1-49": "under 50", "emp.50-249": "50-249", "emp.250-4999": "250-4,999", "emp.5000+": "5,000+", "emp.unknown": "unknown",
+      "f.size.title": "How many roles the organisation has open right now, in all fields.",
+      "size.small": "a few openings (under 10)", "size.medium": "10-99 openings", "size.large": "100+ openings",
       "f.noenrol": "Exclude internships that require enrolment", "f.noenrol.title": "Drops internships whose text says you must be enrolled at a university or school; internships that do not say so stay",
       "enrol.required": "enrolment required", "enrol.open": "open to graduates",
       "f.degree": "Degree asked", "f.degree.title": "The minimum degree the posting asks for. HBO counts as a bachelor's; \"HBO or WO\" counts as HBO.",
       "deg.bachelor": "Bachelor's (HBO / WO)", "deg.master": "Master's", "deg.phd": "PhD", "deg.mbo": "MBO", "deg.unstated": "not stated",
-      "exp.none": "none asked (entry level)", "exp.1": "≤ 1 year", "exp.2-3": "2–3 years", "exp.4-5": "4–5 years", "exp.6+": "6+ years", "exp.unspecified": "not stated",
+      "exp.none": "none asked (entry level)", "exp.1": "≤ 1 year", "exp.2-3": "2-3 years", "exp.4-5": "4-5 years", "exp.6+": "6+ years", "exp.unspecified": "not stated",
       "co.back": "← Market", "co.skills": "Skills asked for", "co.level": "Seniority", "co.lang": "Posting language", "co.roles": "Open tech roles",
       "co.kpi.roles": "open tech roles", "co.kpi.cities": "cities", "co.kpi.en": "need no Dutch", "co.kpi.visa": "mention visa sponsorship", "co.kpi.new": "new in 30 days",
       "co.none": "No open tech roles at the moment.", "co.title": "{c}: tech jobs", "co.permalink": "Permanent page", "co.all": "All employers",
@@ -132,7 +132,7 @@
       "tab.overview": "Overzicht", "tab.jobs": "Vacatures", "tab.market": "Markt", "tab.profile": "Mijn profiel", "tab.coverage": "Dekking",
       "personalised": "Persoonlijk", "personalised.title": "Gebruik mijn profiel als standaardfilter op elk tabblad",
       "ov.skills": "Meest gevraagde skills", "ov.skills.hint": "Klik op een balk om die vacatures te openen.",
-      "ov.graph": "Skills die samen gevraagd worden", "ov.graph.hint": "lijn = vacatures die beide noemen",
+      "ov.graph": "Skills die samen gevraagd worden", "ov.graph.hint": "een lijn verbindt skills uit dezelfde vacature",
       "ov.new": "Nieuw sinds je laatste bezoek", "ov.new.all": "Alle nieuwe vacatures", "ov.matches": "Beste matches voor jou",
       "ov.matches.empty": 'Voeg je skills toe onder <a href="#profile">Mijn profiel</a> om matches te zien.',
       "f.search": "Zoeken", "f.search.ph": "functietitel of werkgever", "f.window": "Periode", "f.window.all": "Alle open", "f.window.1": "Laatste 24 uur",
@@ -155,11 +155,11 @@
       "p.extract": "Skills uit cv-tekst halen", "p.cv.ph": "Plak hier je cv. Het wordt alleen gebruikt om skills te herkennen en niet opgeslagen.", "p.extract.btn": "Herkennen",
       "p.gap": "Gap-analyse", "p.gap.hint": "tegen de vacatures die bij je profiel passen", "p.gap.btn": "Analyseren", "p.saved": "Bewaarde vacatures",
       "cv.title": "Wat deze radar dekt",
-      "cv.p1": "Vacatures worden gelezen van de eigen carrièresites van werkgevers (ruim duizend daarvan publiceren gestructureerde vacaturegegevens) en van de openbare vacatureborden van de platforms die werkgevers gebruiken, zoals Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters en Homerun, plus AcademicTransfer voor universiteiten en Werken voor Nederland voor de Rijksoverheid. Werkgevers komen uit een lijst van de 540 grootste Nederlandse werkgevers, het IND-register van erkende referenten en de overzichten van de platforms zelf. Alleen vacatures in Nederland die als techfunctie zijn geclassificeerd tellen mee. Elke vacature linkt naar de originele pagina van de werkgever.",
-      "cv.p2": "<b>Nog niet aanwezig:</b> werkgevers op platforms zonder adapter (SAP SuccessFactors deels, Radancy, Phenom en iCIMS niet), de eigen vacature-API's van de meeste big-techbedrijven, en alles wat alleen op LinkedIn staat. De tabel hieronder toont de grote werkgevers die we volgen en hoe elk ervoor staat.",
+      "cv.p1": "Vacatures worden gelezen van de eigen carrièresites van werkgevers en van de openbare vacatureborden van de platforms die werkgevers gebruiken, zoals Greenhouse, Lever, Workday, Recruitee, Teamtailor, SmartRecruiters en Homerun, plus AcademicTransfer voor universiteiten en Werken voor Nederland voor de Rijksoverheid. Werkgevers komen uit een lijst van de 540 grootste Nederlandse werkgevers, het IND-register van erkende referenten en de overzichten van de platforms zelf. Alleen vacatures in Nederland die als techfunctie zijn geclassificeerd tellen mee. Elke vacature linkt naar de originele pagina van de werkgever.",
+      "cv.p2": "<b>Nog niet aanwezig:</b> werkgevers op platforms zonder adapter (SAP SuccessFactors deels, Radancy, Phenom en iCIMS niet), de eigen vacature-API's van de meeste big-techbedrijven, en alles wat alleen op LinkedIn staat. De tabel hieronder toont de grote werkgevers die we volgen en of ze gedekt zijn.",
       "cv.large": "Grote werkgevers", "cv.sources": "Bronnen", "cv.sources.hint": "elk vacaturebord, de status en opbrengst bij de laatste crawl",
       "cv.flag": "⚑ markeert een bord waarvan de vacaturepagina's bij de laatste linkcontrole onbereikbaar waren; de vacatures blijven staan maar kunnen verouderd zijn. \"partial\" betekent dat het bord veel minder vacatures teruggaf dan eerder en er niets is gesloten.",
-      "footer": "toont tech-, software-, data- en IT-vacatures in Nederland, rechtstreeks gelezen van de carrièresites van werkgevers en de openbare vacatureborden van de platforms die zij gebruiken, en elke paar uur ververst. Elke vacature linkt naar de originele pagina van de werkgever. Gemaakt door Shreya Sebastian. Je profiel en bewaarde vacatures blijven in je browser, tenzij je inlogt; geplakte cv-tekst wordt één keer gebruikt om skills te herkennen en niet opgeslagen. Salariscijfers tonen steekproefgroottes met een reden.",
+      "footer": "toont tech-, software-, data- en IT-vacatures in Nederland van de eigen carrièresites van werkgevers, elke paar uur ververst. Elke vacature linkt naar de originele pagina van de werkgever. Gemaakt door Shreya Sebastian. Je profiel en bewaarde vacatures blijven in je browser, tenzij je inlogt. Geplakte cv-tekst wordt één keer gebruikt om skills te herkennen en niet opgeslagen.",
       "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.sources": "bronnen gezond", "kpi.new7": "nieuw in 7 dagen", "kpi.newvisit": "nieuw sinds je laatste bezoek", "kpi.crawl": "laatste crawl",
       "tagline": "{n} open techvacatures van {m} Nederlandse werkgevers, rechtstreeks van hun eigen carrièresites en elke paar uur ververst.",
       "title": "{n} ICT en tech vacatures in Nederland",
@@ -192,7 +192,7 @@
       "f.confirmed": "Alleen bevestigd op de site van de werkgever in de laatste 7 dagen",
       "f.confirmed.title": "Houdt vacatures die de eigen carrièresite van de werkgever bij een crawl in de laatste 7 dagen nog toonde, of waarvan de pagina in die tijd is geopend en gecontroleerd.",
       "trust.seen": "Nog vermeld op de eigen site van de werkgever op {d}", "trust.checked": "pagina geopend en gecontroleerd op {d}",
-      "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. De vacature wordt nog vermeld, maar langlopende vacatures kunnen doorlopende of pijplijnvacatures zijn: controleer de datum op de pagina van de werkgever.",
+      "trust.expires": "sluit op {d}", "trust.old.title": "Staat al meer dan 90 dagen open. Sommige langlopende vacatures staan altijd open, dus controleer de datum op de pagina van de werkgever.",
       "loading": "De nieuwste vacatures laden…",
       "pw.choose": "Kies je nieuwe wachtwoord.", "pw.label": "Wachtwoord", "pw.none": "Nog geen wachtwoord. Je logt in met een e-maillink of Google; voeg een wachtwoord toe om daar ook mee in te loggen.",
       "pw.has": "Je kunt inloggen met je wachtwoord, een e-maillink of Google.", "pw.set": "Wachtwoord instellen", "pw.change": "Wachtwoord wijzigen",
@@ -225,14 +225,14 @@
       "f.exp": "Gevraagde ervaring", "p.exp": "Gevraagde ervaring", "mk.exp": "Gevraagde ervaring", "yrs": "jr",
       "f.size": "Wervingsactiviteit (open vacatures)", "f.sort.small": "Kleinere organisaties eerst", "f.sort.large": "Grotere organisaties eerst",
       "f.emp": "Bedrijfsgrootte (medewerkers)", "f.emp.title": "Aantal medewerkers uit Wikidata en Wikipedia waar bekend; wereldwijd voor internationale bedrijven. Van kleinere bedrijven is het vaak onbekend.",
-      "emp.1-49": "minder dan 50", "emp.50-249": "50–249", "emp.250-4999": "250–4.999", "emp.5000+": "5.000+", "emp.unknown": "onbekend",
-      "f.size.title": "Hoeveel vacatures de organisatie nu open heeft, in alle vakgebieden. Dat zegt hoe actief ze werft, niet hoe groot ze is: zie daarvoor bedrijfsgrootte.",
-      "size.small": "enkele vacatures (minder dan 10)", "size.medium": "10–99 vacatures", "size.large": "100+ vacatures",
+      "emp.1-49": "minder dan 50", "emp.50-249": "50-249", "emp.250-4999": "250-4.999", "emp.5000+": "5.000+", "emp.unknown": "onbekend",
+      "f.size.title": "Hoeveel vacatures de organisatie nu open heeft, in alle vakgebieden.",
+      "size.small": "enkele vacatures (minder dan 10)", "size.medium": "10-99 vacatures", "size.large": "100+ vacatures",
       "f.noenrol": "Stages die inschrijving bij een opleiding eisen verbergen", "f.noenrol.title": "Verbergt stages waarvan de tekst zegt dat je ingeschreven moet staan bij een universiteit of school; stages die daar niets over zeggen blijven staan",
       "enrol.required": "inschrijving vereist", "enrol.open": "ook voor afgestudeerden",
       "f.degree": "Gevraagde opleiding", "f.degree.title": "De minimale opleiding die de vacature vraagt. Hbo telt als bachelor; \"hbo of wo\" telt als hbo.",
       "deg.bachelor": "Bachelor (hbo / wo)", "deg.master": "Master", "deg.phd": "PhD", "deg.mbo": "Mbo", "deg.unstated": "niet vermeld",
-      "exp.none": "geen ervaring gevraagd (starter)", "exp.1": "≤ 1 jaar", "exp.2-3": "2–3 jaar", "exp.4-5": "4–5 jaar", "exp.6+": "6+ jaar", "exp.unspecified": "niet vermeld",
+      "exp.none": "geen ervaring gevraagd (starter)", "exp.1": "≤ 1 jaar", "exp.2-3": "2-3 jaar", "exp.4-5": "4-5 jaar", "exp.6+": "6+ jaar", "exp.unspecified": "niet vermeld",
       "co.back": "← Markt", "co.skills": "Gevraagde skills", "co.level": "Niveau", "co.lang": "Taal van de vacature", "co.roles": "Open techvacatures",
       "co.kpi.roles": "open techvacatures", "co.kpi.cities": "steden", "co.kpi.en": "zonder Nederlands", "co.kpi.visa": "noemen visumsponsoring", "co.kpi.new": "nieuw in 30 dagen",
       "co.none": "Op dit moment geen open techvacatures.", "co.title": "{c}: techvacatures", "co.permalink": "Vaste pagina", "co.all": "Alle werkgevers",
@@ -351,7 +351,7 @@
   let jobFilters = null;
 
   // ---------- helpers ----------
-  function fmt(n) { return n == null ? "–" : Number(n).toLocaleString(LANG === "nl" ? "nl-NL" : "en-GB"); }
+  function fmt(n) { return n == null ? "-" : Number(n).toLocaleString(LANG === "nl" ? "nl-NL" : "en-GB"); }
   function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
   async function api(path, params) {
     const url = params ? `${path}?${params.toString()}` : path;
@@ -420,7 +420,7 @@
   function graph(el, data, onClick) {
     el.innerHTML = "";
     const w = el.clientWidth, h = el.clientHeight;
-    if (!data.nodes.length) { el.innerHTML = `<p class="muted">–</p>`; return; }
+    if (!data.nodes.length) { el.innerHTML = `<p class="muted">-</p>`; return; }
     const svg = d3.select(el).append("svg").attr("viewBox", `0 0 ${w} ${h}`);
     const max = d3.max(data.nodes, (d) => d.count) || 1;
     const r = d3.scaleSqrt().domain([0, max]).range([4, 26]);
@@ -529,7 +529,7 @@
   }
   function renderHeader() {
     const o = state.overview; if (!o) return;
-    const last = o.last_crawl_at ? fmtDate(o.last_crawl_at + "Z") : "–";
+    const last = o.last_crawl_at ? fmtDate(o.last_crawl_at + "Z") : "-";
     $("#kpis").innerHTML = [
       [fmt(o.live_tech_postings), t("kpi.live")], [fmt(o.companies), t("kpi.employers")],
       [`${fmt(o.sources_ok)}/${fmt(o.sources_total)}`, t("kpi.sources")], [last, t("kpi.crawl")],
@@ -701,7 +701,7 @@
       <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}${i.also_in && i.also_in.length ? ` <span class="more-cities" title="${esc(t("also.in", { c: i.also_in.map(cityLabel).join(", ") }))}">+${i.also_in.length}</span>` : ""}</td>
       <td>${levelCell(i)}</td>
       <td><div class="chips">${i.skills.slice(0, 6).map((s) => `<span class="chip${have.includes(s) ? " have" : ""}">${esc(s)}</span>`).join("")}${i.skills.length > 6 ? `<span class="chip more">+${i.skills.length - 6}</span>` : ""}</div></td>
-      <td>${i.match != null ? `<span class="match-bar" title="${Math.round(i.match * 100)}%"><i style="width:${Math.round(i.match * 100)}%"></i></span>` : '<span class="muted">–</span>'}</td>
+      <td>${i.match != null ? `<span class="match-bar" title="${Math.round(i.match * 100)}%"><i style="width:${Math.round(i.match * 100)}%"></i></span>` : '<span class="muted">-</span>'}</td>
       <td>${langCell(i)}</td>
       <td>${i.visa === true ? `<span class="ok">${t("visa.yes")}</span>` : i.visa === false ? `<span class="bad">${t("visa.no")}</span>` : `<span class="muted">${t("visa.unknown")}</span>`}</td>
     </tr>`).join("");

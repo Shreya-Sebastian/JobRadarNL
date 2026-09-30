@@ -185,9 +185,9 @@ def render_company(name: str, rows: list[Row], lang: str = "en") -> str:
                  else '<meta name="robots" content="noindex, follow">') \
         .replace("{{COUNT}}", str(len(mine))) \
         .replace("{{EMPLOYEES_KPI}}", emp_kpi) \
-        .replace("{{CITIES}}", escape(", ".join(f"{c} ({n})" for c, n in cities.most_common(6))) or "–") \
+        .replace("{{CITIES}}", escape(", ".join(f"{c} ({n})" for c, n in cities.most_common(6))) or "-") \
         .replace("{{SKILLS}}", "".join(f"<span class=\"chip\">{escape(s)} <span class=\"muted\">{n}</span></span>"
-                                      for s, n in skills.most_common(15)) or "–") \
+                                      for s, n in skills.most_common(15)) or "-") \
         .replace("{{ENGLISH}}", str(english)).replace("{{VISA}}", str(visa)) \
         .replace("{{ROWS}}", rows_html or f"<tr><td colspan=\"6\" class=\"muted\">{escape(t['empty'])}</td></tr>") \
         .replace("{{DESCRIPTION}}", escape(desc)) \
