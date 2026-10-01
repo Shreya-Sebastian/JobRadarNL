@@ -65,19 +65,23 @@ resource "aws_security_group" "radar" {
   description = "Tech Jobs Radar: web to everyone, SSH and Kubernetes API to the admin only"
   vpc_id      = data.aws_vpc.default.id
 
+  # web traffic only from Cloudflare (cloudflare.tf); Let's Encrypt's HTTP challenge also arrives through Cloudflare.
+  # The group's description is left as it was: changing it would make AWS replace the group.
   ingress {
-    description = "HTTP (Lets Encrypt challenge and redirect)"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description      = "HTTP from Cloudflare (Lets Encrypt challenge and redirect)"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = local.cloudflare_ipv4
+    ipv6_cidr_blocks = local.cloudflare_ipv6
   }
   ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    description      = "HTTPS from Cloudflare"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = local.cloudflare_ipv4
+    ipv6_cidr_blocks = local.cloudflare_ipv6
   }
   ingress {
     description = "SSH from the admin"
@@ -187,7 +191,7 @@ output "dns_records" {
       { type = "TXT", name = "_dmarc", value = "v=DMARC1; p=none;" },
     ],
     [for t in aws_sesv2_email_identity.domain.dkim_signing_attributes[0].tokens :
-      { type = "CNAME", name = "${t}._domainkey", value = "${t}.dkim.amazonses.com" }]
+    { type = "CNAME", name = "${t}._domainkey", value = "${t}.dkim.amazonses.com" }]
   )
 }
 
