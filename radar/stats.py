@@ -159,8 +159,10 @@ class Filters:
             wanted = {int(i) for i in self.ids.split(",") if i.strip().isdigit()}
             out = [r for r in out if r.id in wanted]
         if self.days:
+            # the employer's posting date where the board gives one, as in the Age column; the day the radar first
+            # saw a posting says little (every posting looked new in the radar's first weeks)
             cutoff = datetime.utcnow() - timedelta(days=self.days)
-            out = [r for r in out if r.first_seen >= cutoff]
+            out = [r for r in out if (r.posted_at or r.first_seen) >= cutoff]
         if self.since:
             try:
                 cutoff = datetime.fromisoformat(self.since.replace("Z", ""))
@@ -251,6 +253,7 @@ class _Cache:
         self._at = 0.0
         self._version = ""
         self._lock = threading.Lock()
+        self.loads = 0  # counts reloads: part of the cache key of pages built from these rows
 
     def rows(self, session: Session) -> list[Row]:
         from radar.cache import data_version
@@ -264,6 +267,7 @@ class _Cache:
                 # first request in this process: nothing to serve yet, load synchronously
                 self._rows = load_rows(session)
                 self._at = time.monotonic()
+                self.loads += 1
                 self._version = version
                 return self._rows
             if not self._refreshing:
@@ -283,6 +287,7 @@ class _Cache:
             with self._lock:
                 self._rows = rows
                 self._at = time.monotonic()
+                self.loads += 1
                 self._version = version
         finally:
             session.close()

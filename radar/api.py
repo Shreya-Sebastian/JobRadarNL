@@ -12,6 +12,7 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from pydantic import BaseModel, Field
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from radar import auth, feedback, stats
 from radar.cache import cached
@@ -79,6 +80,34 @@ async def _throttle_middleware(request: Request, call_next):
         return Response(reason + "\n", status_code=status, media_type="text/plain",
                         headers={"Retry-After": "60"} if status == 429 else None)
     return await call_next(request)
+
+
+_NOT_FOUND = {
+    "en": ("Page not found", "This page does not exist, or the vacancy has been taken down.", "/", "Back to the jobs"),
+    "nl": ("Pagina niet gevonden", "Deze pagina bestaat niet, of de vacature is offline gehaald.", "/nl/",
+           "Terug naar de vacatures"),
+}
+
+
+@app.exception_handler(StarletteHTTPException)
+async def _http_error(request: Request, exc: StarletteHTTPException):
+    from fastapi.exception_handlers import http_exception_handler
+
+    path = request.url.path
+    if exc.status_code != 404 or path.startswith("/api/") or "text/html" not in request.headers.get("accept", ""):
+        return await http_exception_handler(request, exc)  # API clients keep the JSON error
+    from html import escape
+
+    lang = "nl" if path.startswith("/nl/") or path == "/nl" else "en"
+    title, text, home, back = _NOT_FOUND[lang]
+    page = (f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">'
+            f'<title>{escape(title)} · {escape(settings.site_name)}</title>'
+            '<link rel="stylesheet" href="/static/app.css?v=3"></head><body>'
+            f'<main class="wrap" style="padding-top:4rem;padding-bottom:4rem"><h1>{escape(title)}</h1>'
+            f'<p class="muted">{escape(text)}</p>'
+            f'<p><a class="btn primary" href="{home}">{escape(back)}</a></p></main></body></html>')
+    return Response(page, status_code=404, media_type="text/html")
 
 
 def db() -> Iterator[Session]:
@@ -564,12 +593,16 @@ if WEB_DIR.exists():
 
     @app.get("/", include_in_schema=False)
     def index(session: Session = Depends(db)):
-        return Response(cached("page:index:en", lambda: _render_index(session, "en"), ttl=300), media_type="text/html")
+        stats.CACHE.rows(session)  # the title carries the live count: cache the page per load of the rows
+        return Response(cached(f"page:index:en:{stats.CACHE.loads}", lambda: _render_index(session, "en"), ttl=300),
+                        media_type="text/html")
 
     @app.get("/nl/", include_in_schema=False)
     @app.get("/nl", include_in_schema=False)
     def index_nl(session: Session = Depends(db)):
-        return Response(cached("page:index:nl", lambda: _render_index(session, "nl"), ttl=300), media_type="text/html")
+        stats.CACHE.rows(session)
+        return Response(cached(f"page:index:nl:{stats.CACHE.loads}", lambda: _render_index(session, "nl"), ttl=300),
+                        media_type="text/html")
 
     @app.get("/login", include_in_schema=False)
     @app.get("/nl/inloggen", include_in_schema=False)

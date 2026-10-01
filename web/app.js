@@ -48,21 +48,21 @@
      
      
       // dynamic strings
-      "kpi.live": "live tech postings", "kpi.employers": "employers", "kpi.sources": "sources healthy", "kpi.crawl": "last crawl",
+      "kpi.live": "live tech postings", "kpi.employers": "employers", "kpi.crawl": "last crawl",
       "title": "{n} tech jobs in the Netherlands",
      
       
      
       "match.none": "No live posting fits all your profile filters. Loosen a level or city under Profile.",
       "li.match": "match {p}%", "li.have": "you have {s}", "li.missing": "missing {s}", "agency": "agency", "closed": "closed",
-      "jobs.match": "{n} jobs match", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", 
+      "jobs.match": "{n} jobs match", "jobs.match.one": "1 job matches", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Dutch required, no English needed", "lang.en.title": "No Dutch required", "lang.both.title": "Dutch and English both required",
       "visa.yes": "yes", "visa.no": "no", "visa.unknown": "?", "save": "save", "remove": "remove",
       "salary.none": "No posting in this selection states a salary.", "salary.n": "postings state a salary", "salary.median": "median", "salary.p25": "lower quarter", "salary.p75": "upper quarter",
       "lang.chart.en": "English", "lang.chart.nl": "Dutch", "lang.chart.other": "Other",
       "remote.remote": "Remote", "remote.hybrid": "Hybrid", "remote.onsite": "On-site", "remote.unknown": "Not stated",
       "trend.all": "all new postings",
-      "p.saved.empty": "Star a job in the Jobs tab to keep it here.", "p.saved.status": "Saved. Personalised view is on.", "p.imported": "Imported.",
+      "p.saved.empty": "Star a job in the Jobs tab to keep it here.", "p.saved.status": "Saved. The Jobs tab now opens with these filters.", "p.imported": "Imported.",
       "p.import.fail": "Could not read that file.", "p.more.text": "Paste a bit more text first.", "p.extracting": "Extracting…",
       "p.extracted": "{n} skills found; press Save profile to keep them.", "p.add.skills": "Add some skills first.", "p.analysing": "Analysing…",
       "p.considered": "{n} postings considered", "p.coverage": "Your skills cover {p}% of all skill mentions in these postings. The most demanded skills you do not list:",
@@ -155,14 +155,14 @@
      
      
      
-      "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.sources": "bronnen gezond", "kpi.crawl": "laatste crawl",
+      "kpi.live": "open techvacatures", "kpi.employers": "werkgevers", "kpi.crawl": "laatste crawl",
       "title": "{n} ICT en tech vacatures in Nederland",
      
       
      
       "match.none": "Geen open vacature past bij al je profielfilters. Versoepel een niveau of stad onder Profiel.",
       "li.match": "match {p}%", "li.have": "je hebt {s}", "li.missing": "mist {s}", "agency": "bureau", "closed": "gesloten",
-      "jobs.match": "{n} vacatures gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", 
+      "jobs.match": "{n} vacatures gevonden", "jobs.match.one": "1 vacature gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Nederlands vereist, geen Engels nodig", "lang.en.title": "Geen Nederlands vereist", "lang.both.title": "Nederlands en Engels allebei vereist",
       "visa.yes": "ja", "visa.no": "nee", "visa.unknown": "?", "save": "bewaren", "remove": "verwijderen",
       "salary.none": "Geen vacature in deze selectie noemt een salaris.", "salary.n": "vacatures noemen een salaris", "salary.median": "mediaan", "salary.p25": "onderste kwart", "salary.p75": "bovenste kwart",
@@ -523,7 +523,7 @@
   async function loadHeader() {
     const [o, f] = await Promise.all([api("/api/overview"), api("/api/filters")]);
     state.overview = o;
-    state.options.roles = f.roles; state.options.cities = f.cities.filter((c) => c !== "Unknown"); state.options.skills = f.skills;
+    state.options.roles = [...f.roles.filter((r) => r !== "other"), ...f.roles.filter((r) => r === "other")]; state.options.cities = f.cities.filter((c) => c !== "Unknown"); state.options.skills = f.skills;
     renderHeader();
   }
   function renderHeader() {
@@ -531,7 +531,7 @@
     const last = o.last_crawl_at ? fmtDate(o.last_crawl_at + "Z") : "-";
     $("#kpis").innerHTML = [
       [fmt(o.live_tech_postings), t("kpi.live")], [fmt(o.companies), t("kpi.employers")],
-      [`${fmt(o.sources_ok)}/${fmt(o.sources_total)}`, t("kpi.sources")], [last, t("kpi.crawl")],
+      [last, t("kpi.crawl")],
     ].map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
     document.title = `${document.title.split(":")[0]}: ${t("title", { n: fmt(o.live_tech_postings) })}`;
   }
@@ -573,6 +573,11 @@
       api("/api/skills", withParams(p, { top: 1, sponsorship: "true" })), api("/api/skills", withParams(p, { top: 1, days: 30 })),
     ]);
     const items = jobs.items;
+    for (let page = 2; items.length < jobs.total && page <= 10; page++) {
+      const more = await api("/api/postings", withParams(p, { size: 200, page, skills_have: state.profile.skills.join(",") || null }));
+      if (!more.items.length) break;
+      items.push(...more.items);
+    }
     const nCities = cities.items.filter((i) => i.key !== "Unknown" && i.key !== "Remote").length;
     $("#co-kpis").innerHTML = [[fmt(jobs.total), t("co.kpi.roles")], [fmt(nCities), t("co.kpi.cities")], [fmt(en.n), t("co.kpi.en")], [fmt(visa.n), t("co.kpi.visa")], [fmt(fresh.n), t("co.kpi.new")]]
       .map(([v, l]) => `<div class="kpi"><b>${v}</b><span>${esc(l)}</span></div>`).join("");
@@ -683,7 +688,7 @@
     if (state.sort !== "match" || have.length) p.set("sort", state.sort);
     const d = await api("/api/postings", p);
     const pages = Math.max(1, Math.ceil(d.total / d.size));
-    $("#count").textContent = t("jobs.match", { n: fmt(d.total) });
+    $("#count").textContent = d.total === 1 ? t("jobs.match.one") : t("jobs.match", { n: fmt(d.total) });
     $("#page-info").textContent = t("page", { p: d.page, t: pages });
     $("#prev").disabled = d.page <= 1; $("#next").disabled = d.page >= pages;
     $("#postings tbody").innerHTML = d.items.map((i) => `<tr>
