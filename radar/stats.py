@@ -300,8 +300,13 @@ CACHE = _Cache()
 def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
     """Tech, non-duplicate postings: all live ones plus those closed in the last N days (for trends)."""
     cutoff = datetime.utcnow() - timedelta(days=include_closed_days)
+    # only the columns a Row keeps: loading whole postings (descriptions included) made every reload pull well over
+    # 100 MB through the API process, enough to push it past its memory limit
+    cols = (Posting.id, Posting.title, Posting.company, Posting.city, Posting.remote, Posting.url, Posting.posted_at,
+            Posting.first_seen, Posting.closed_at, Posting.extraction, Posting.last_seen, Posting.link_checked_at,
+            Posting.link_status, Posting.valid_through, Posting.also_in)
     stmt = (
-        select(Posting, Source.ats, Source.kind)
+        select(*cols, Source.ats, Source.kind)
         .join(Source, Source.id == Posting.source_id)
         .where(Posting.is_tech.is_(True), Posting.duplicate_of.is_(None))
         .where((Posting.closed_at.is_(None)) | (Posting.closed_at >= cutoff))
@@ -314,7 +319,8 @@ def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
         .group_by(Posting.company)
     ).all())
     rows: list[Row] = []
-    for p, ats, kind in session.execute(stmt):
+    for p in session.execute(stmt):
+        ats, kind = p.ats, p.kind
         rows.append(
             Row(
                 p.id,
