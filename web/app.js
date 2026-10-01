@@ -601,9 +601,10 @@
     return { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", savedOnly: false, exclude: [...p.exclude] };
   }
   const emptyJobFilters = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false, exclude: [] });
-  // the Jobs tab opens with the saved profile's filters; "Reset filters" clears them, "Use my profile" brings them back
+  // the Jobs tab opens with the saved profile's filters. "Reset filters" turns that off for this browser (it is
+  // remembered, so a reload does not bring them back); "Use my profile" and saving the profile turn it on again.
   function currentJobFilters() {
-    if (!jobFilters) jobFilters = hasProfileFilters() ? profileJobFilters() : emptyJobFilters();
+    if (!jobFilters) jobFilters = hasProfileFilters() && store.get("jobsUseProfile", true) ? profileJobFilters() : emptyJobFilters();
     return jobFilters;
   }
   function jobParams() {
@@ -652,8 +653,8 @@
       $("#f-sort").addEventListener("change", (e) => { state.sort = e.target.value; refreshJobs(true); });
       let tm; $("#f-q").addEventListener("input", (e) => { clearTimeout(tm); tm = setTimeout(() => { currentJobFilters().q = e.target.value.trim(); refreshJobs(true); }, 350); });
       $("#clear-skill").addEventListener("click", () => { state.skill = null; refreshJobs(true); });
-      $("#f-reset").addEventListener("click", () => { jobFilters = emptyJobFilters(); state.skill = null; state.sort = "newest"; buildJobsFilters(); refreshJobs(true); });
-      $("#f-profile").addEventListener("click", () => { jobFilters = profileJobFilters(); state.skill = null; buildJobsFilters(); refreshJobs(true); });
+      $("#f-reset").addEventListener("click", () => { store.set("jobsUseProfile", false); jobFilters = emptyJobFilters(); state.skill = null; state.sort = "newest"; buildJobsFilters(); refreshJobs(true); });
+      $("#f-profile").addEventListener("click", () => { store.set("jobsUseProfile", true); jobFilters = profileJobFilters(); state.skill = null; buildJobsFilters(); refreshJobs(true); });
       $("#prev").addEventListener("click", () => { state.page--; refreshJobs(); });
       $("#next").addEventListener("click", () => { state.page++; refreshJobs(); });
       $("#postings tbody").addEventListener("click", (e) => { const b = e.target.closest(".star"); if (b) toggleSaved(Number(b.dataset.id), b); });
@@ -753,7 +754,7 @@
     $("#p-save").addEventListener("click", () => {
       p.language = $("#p-language").value; p.visa = $("#p-visa").checked; p.agencies = $("#p-agencies").checked; p.noenrol = $("#p-noenrol").checked;
       delete p.english;
-      store.set("profile", p); jobFilters = null; beacon("profile_save");
+      store.set("profile", p); store.set("jobsUseProfile", true); jobFilters = null; beacon("profile_save");
       $("#p-status").textContent = t("p.saved.status"); setTimeout(() => $("#p-status").textContent = "", 3000);
       loadHeader();
     });
@@ -868,7 +869,13 @@
       $("#acct-alerts-status").textContent = r.ok ? t(e.target.value !== "off" && empty ? "alerts.noprofile" : "alerts.saved") : t("acct.fail");
     });
     $("#acct-logout").addEventListener("click", async () => {
-      await account.post("/api/auth/logout"); account.me = null; renderAccount(); toast(t("acct.loggedout"));
+      await account.post("/api/auth/logout"); account.me = null;
+      // the profile and saved jobs belong to the account (it keeps them for the next login): forget this browser's copy,
+      // so the next person on this computer does not get them, or their filters, on the Jobs tab
+      state.profile = emptyProfile(); state.saved.splice(0, state.saved.length);
+      try { localStorage.removeItem("radar.profile"); localStorage.removeItem("radar.saved"); } catch { /* private mode */ }
+      jobFilters = null; state.skill = null;
+      renderAccount(); toast(t("acct.loggedout"));
     });
     $("#acct-delete").addEventListener("click", async () => {
       if (!confirm(t("acct.delete.confirm"))) return;
