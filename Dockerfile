@@ -18,6 +18,9 @@ RUN python scripts/build_css.py
 FROM python:3.12-slim
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 RADAR_LOG_JSON=1
+# glibc gives every thread its own malloc arena and rarely hands the memory back; with the request threads and the
+# row-cache reloads that let the API's memory creep up until the pod limit killed it. Two arenas are plenty here.
+ENV MALLOC_ARENA_MAX=2
 RUN useradd --create-home --uid 10001 radar
 COPY --from=build /install /usr/local
 COPY radar ./radar

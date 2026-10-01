@@ -44,6 +44,9 @@ def _visible_text(html: str) -> str:
     return re.sub(r"<[^>]+>", " ", html)
 
 
+_MAX_PAGE_BYTES = 512_000
+
+
 def _check_url(url: str, title: str | None = None) -> str:
     """ok | gone | redirected | error"""
     try:
@@ -52,8 +55,15 @@ def _check_url(url: str, title: str | None = None) -> str:
             follow_redirects=True,
             event_hooks={"request": [throttle_request]},
             headers={"User-Agent": settings.user_agent},
-        ) as c:
-            r = c.get(url)
+        ) as c, c.stream("GET", url) as r:
+            # read at most the first part of the page: a link that turns out to be a large file or an endless page
+            # must not fill the worker's memory (eight of these run at once)
+            body = bytearray()
+            if r.status_code < 400 and r.headers.get("content-type", "").startswith("text/html"):
+                for chunk in r.iter_bytes():
+                    body += chunk
+                    if len(body) >= _MAX_PAGE_BYTES:
+                        break
     except Exception:
         return "error"
     if r.status_code in (404, 410):
@@ -69,7 +79,7 @@ def _check_url(url: str, title: str | None = None) -> str:
     ):
         return "redirected"
     if r.headers.get("content-type", "").startswith("text/html"):
-        html = r.text or ""
+        html = bytes(body).decode(r.encoding or "utf-8", errors="replace")
         page_title = re.search(r"<title[^>]*>(.*?)</title>", html[:5000], re.I | re.S)
         visible = _visible_text(html[:60000])
         # the posting's own title on the page is the strongest sign that it is still live
