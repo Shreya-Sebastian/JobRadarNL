@@ -7,13 +7,16 @@ from radar.crawler import fetch_source, ingest, known_urls_for
 from radar.db import session_scope
 from radar.models import Posting, Source
 
+# a realistic posting text: pages stored with only a line or two are read again on the next crawl
+_TEXT = "You build data services in Python and SQL with a small team in Utrecht. " * 6
+
 
 def _job(title, url, city="Utrecht"):
     ident = url.rsplit("/", 1)[-1]
     return ('<html><body><script type="application/ld+json">{"@type":"JobPosting","title":"' + title + '","url":"' + url
             + '","identifier":{"value":"' + ident + '"},"hiringOrganization":{"name":"Ex"},'
             '"jobLocation":{"address":{"addressLocality":"' + city + '","addressCountry":"NL"}},'
-            '"description":"Python and SQL"}</script></body></html>')
+            '"description":"' + _TEXT + '"}</script></body></html>')
 
 
 @respx.mock
@@ -180,3 +183,54 @@ def test_homerun_boards_become_sitemap_sources(fresh_db):
         added = register_discovery(s, "Avy", {"candidates": [("homerun", "avy")], "careers_url": None, "jsonld": False})
         src = s.query(Source).one()
         assert added == 1 and src.ats == "jsonld" and src.slug == "https://avy.homerun.co/sitemap.xml" and src.active
+
+
+@respx.mock
+def test_page_text_is_used_when_the_structured_data_has_no_description():
+    robots.reset()
+    respx.get("https://site.example/robots.txt").mock(return_value=httpx.Response(404))
+    page = ('<html><body><nav>Home Jobs Contact</nav><main><h1>PCB Lay-Out Engineer</h1>'
+            '<p>You design printed circuit boards for radar systems in Altium.</p>'
+            '<script type="application/ld+json">{"@type":"JobPosting","title":"PCB Lay-Out Engineer",'
+            '"jobLocation":{"address":{"addressLocality":"Hengelo","addressCountry":"NL"}}}</script>'
+            '</main><footer>Cookie settings</footer></body></html>')
+    respx.get("https://site.example/vacatures/pcb-engineer").mock(
+        return_value=httpx.Response(200, text=page, headers={"content-type": "text/html"}))
+    (raw,) = JsonLdAdapter(httpx.Client()).fetch("https://site.example/vacatures/pcb-engineer")
+    assert "printed circuit boards" in raw.description_text
+    assert "Home Jobs Contact" not in raw.description_text and "Cookie settings" not in raw.description_text
+    robots.reset()
+
+
+def test_a_response_without_text_keeps_the_stored_description(fresh_db):
+    from radar.adapters.base import RawPosting
+
+    full = "You build data services in Python and SQL with a small team in Utrecht. " * 6
+    with session_scope() as s:
+        src = Source(company="Ex", ats="smartrecruiters", slug="ex", url="https://ex", active=True)
+        s.add(src)
+        s.flush()
+        raw = dict(external_id="1", title="Data Engineer", url="https://ex/1", location="Utrecht, Netherlands",
+                   country="NL")
+        ingest(s, src, [RawPosting(**raw, description_text=full)])
+        ingest(s, src, [RawPosting(**raw, description_html=None)])  # the detail request failed this time
+        assert s.query(Posting).one().description.startswith("You build data services")
+
+
+@respx.mock
+def test_smartrecruiters_skips_details_it_already_has():
+    from radar.adapters.smartrecruiters import SmartRecruitersAdapter
+
+    base = "https://api.smartrecruiters.com/v1/companies/ex/postings"
+    respx.get(base).mock(return_value=httpx.Response(200, json={"totalFound": 2, "content": [
+        {"id": "1", "name": "Data Engineer", "location": {"city": "Utrecht", "country": "nl"}},
+        {"id": "2", "name": "ML Engineer", "location": {"city": "Delft", "country": "nl"}}]}))
+    known = respx.get(f"{base}/1").mock(return_value=httpx.Response(200, json={}))
+    new = respx.get(f"{base}/2").mock(return_value=httpx.Response(200, json={"jobAd": {"sections": {
+        "jobDescription": {"title": "Role", "text": "<p>You train models in PyTorch.</p>"}}}}))
+    adapter = SmartRecruitersAdapter(httpx.Client())
+    adapter.known_urls = {"1": "1"}
+    adapter.REFRESH_EVERY = 10**9  # no refresh due in this test
+    raws = adapter.fetch("ex")
+    assert [r.external_id for r in raws] == ["2"] and adapter.still_listed == {"1"}
+    assert not known.called and new.called

@@ -8,6 +8,7 @@ like job pages, up to a cap.
 
 from __future__ import annotations
 
+import copy
 import html
 import json
 import re
@@ -133,6 +134,12 @@ class JsonLdAdapter(Adapter):
             found = False
             for obj in _jobpostings(soup):
                 p = _to_raw(obj, url)
+                if p and len(p.description_text or "") < 300:
+                    # the structured data has no description (Thales, many SuccessFactors sites) though the page
+                    # shows the vacancy: read the page's own text so the posting is classified on more than its title
+                    text = _page_text(soup)
+                    if len(text) > len(p.description_text or ""):
+                        p.description_text = text
                 if p:
                     found_all.append(p)
                     found = True
@@ -174,6 +181,21 @@ class JsonLdAdapter(Adapter):
         # application forms repeat the job's data and would show up as a second copy of every posting
         locs = [u for u in locs if not _APPLY_PAGE.search(u)]
         return [u for u in locs if _JOB_LINK.search(u)] or locs
+
+
+def _page_text(soup: BeautifulSoup, limit: int = 20000) -> str:
+    """The visible text of a vacancy page's main content, without menus, headers, footers, forms and scripts."""
+    root = soup.find("main") or soup.find(attrs={"role": "main"}) or soup.find("article") or soup.body
+    if root is None:
+        return ""
+    root = copy.copy(root)  # the caller still reads links from the original page
+    for el in root.find_all(["script", "style", "noscript", "nav", "header", "footer", "form", "aside", "svg",
+                             "iframe", "button"]):
+        el.decompose()
+    for el in root.find_all(attrs={"class": re.compile(r"cookie|consent|breadcrumb|share|related", re.I)}):
+        el.decompose()
+    lines = [ln.strip() for ln in root.get_text("\n").splitlines()]
+    return "\n".join(ln for ln in lines if ln)[:limit]
 
 
 def _unique_ids(raws: list[RawPosting]) -> list[RawPosting]:

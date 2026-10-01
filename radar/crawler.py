@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from urllib.parse import urlparse
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from radar.adapters import get_adapter
@@ -58,14 +58,22 @@ def _domain_for(source: Source) -> str:
 
 
 def known_urls_for(session: Session, source: Source) -> dict[str, str]:
-    """Page-URL key -> external id of every live posting of a JSON-LD source, for incremental sitemap crawls."""
-    if source.ats != "jsonld":
+    """Live postings an incremental adapter need not read again: page-URL key -> external id for a JSON-LD source,
+    external id -> external id for SmartRecruiters (whose text costs one request per posting). Postings stored
+    with little or no text are left out, so the next crawl reads them again."""
+    if source.ats not in ("jsonld", "smartrecruiters"):
         return {}
+    rows = session.execute(select(Posting.url, Posting.external_id)
+                           .where(Posting.source_id == source.id, Posting.closed_at.is_(None),
+                                  func.length(func.coalesce(Posting.description, "")) >= MIN_TEXT)).all()
+    if source.ats == "smartrecruiters":
+        return {ext: ext for _, ext in rows}
     from radar.adapters.jsonld import _url_key
 
-    rows = session.execute(select(Posting.url, Posting.external_id)
-                           .where(Posting.source_id == source.id, Posting.closed_at.is_(None))).all()
     return {_url_key(url): ext for url, ext in rows}
+
+
+MIN_TEXT = 300  # shorter than this, a stored description is a stub (a title line, a link) worth fetching again
 
 
 def fetch_source(source: Source, throttle: _DomainThrottle,
@@ -161,7 +169,10 @@ def ingest(session: Session, source: Source, raws: list[RawPosting], extractor_n
             p.last_seen = now
             if p.closed_at is not None:
                 p.closed_at = None  # reopened
-            if p.content_hash != fields["content_hash"]:
+            # a response without the text (a failed detail request, an empty field this time) is not a change:
+            # keep the text already stored rather than wiping it
+            lost_text = len((fields.get("description") or "").strip()) < 50 <= len((p.description or "").strip())
+            if p.content_hash != fields["content_hash"] and not lost_text:
                 for k, v in fields.items():
                     setattr(p, k, v)
                 p.is_tech = is_tech(p.title, p.description)
