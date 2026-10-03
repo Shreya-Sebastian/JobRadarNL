@@ -209,8 +209,10 @@ def _pretty(slug_or_name: str) -> str:
 
 
 def rename_employers(session: Session) -> int:
-    """Recompute display names for employer sources and their postings. Returns number of sources renamed."""
+    """Recompute display names for employer sources and their postings, then apply the curated names
+    (data/company_names.tsv) to every source and posting. Returns the number of sources and postings renamed."""
     from radar.models import Posting
+    from radar.normalize import company_names
 
     renamed = 0
     for src in session.scalars(select(Source).where(Source.kind == "employer")):
@@ -219,6 +221,14 @@ def rename_employers(session: Session) -> int:
             for p in session.scalars(select(Posting).where(Posting.source_id == src.id)):
                 p.company = new
             src.company = new
+            renamed += 1
+    names = company_names()
+    if names:
+        for src in session.scalars(select(Source).where(Source.company.in_(list(names)))):
+            src.company = names[src.company]
+            renamed += 1
+        for p in session.scalars(select(Posting).where(Posting.company.in_(list(names)))):
+            p.company = names[p.company]
             renamed += 1
     session.flush()
     return renamed

@@ -68,3 +68,12 @@ def test_alerts_use_position_and_sector_from_the_profile():
     f = profile_filters({"positions": ["data_engineer"], "sectors": ["finance"], "cities": ["Utrecht"]},
                         datetime(2026, 10, 1))
     assert (f.position, f.sector, f.city) == ("data_engineer", "finance", "Utrecht")
+
+
+def test_curated_company_names_join_one_organisation():
+    from radar.normalize import dedup_key, norm_company
+
+    assert norm_company("Metyisag") == norm_company("Metyis") == "Metyis"
+    assert norm_company("Werkenbijadesso") == "adesso"
+    assert dedup_key("Metyisag", "AI Solutions Engineer", "Amsterdam") == dedup_key("Metyis", "AI Solutions Engineer",
+                                                                                    "Amsterdam")

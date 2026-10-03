@@ -1,0 +1,377 @@
+# company	display	note  (employer names as the radar first read them -> the organisation's own name; one name per
+# organisation, so its postings from different sources are matched as duplicates; applied by radar/normalize.py
+# at ingest and by `radar rename` to stored data. Checked against each board's own published name, 4 Oct 2026)
+Fridayrecruitment	Friday Recruitment
+Bjakcareer	BJAK
+Personeel com	Personeel.com
+Interstellargroup	Interstellar
+vidaXL Services	vidaXL
+Igh	IG&H
+Werkenbijadesso	adesso
+Clickhouse	ClickHouse
+Ogdictdiensten	OGD ict-diensten
+Detronzetacom	Esprit ICT	board slug detronzetacomgroep, host werkenbijespritict.recruitee.com, board name Esprit ICT
+IMC	IMC Trading	same as IMC Trading
+Airapps	Air Apps
+Datasnipper	DataSnipper
+Metyisag	Metyis	same as Metyis (Metyis AG board)
+Spie Nederland	SPIE Nederland
+Socialdeal	Social Deal
+Superp	SUPERP
+Wefabricate HR	Wefabricate
+Quint	Eraneos	Quint is now Eraneos; board host eraneos.recruitee.com
+Just Eat Takeaway	Just Eat Takeaway.com
+BigData Republic	Conflux	board conflux.recruitee.com, postings say Conflux Consulting; BigData Republic merged into Conflux
+Bearingpoint	BearingPoint
+Freshminds	FreshMinds
+Handpickedagenciesbv	Handpicked Agencies
+Royalihc	Royal IHC
+FixedToday 52	FixedToday
+Togetherai	Together AI
+Werkenbijhotitem	Hot ITem
+Topdesk	TOPdesk
+Aidence	DeepHealth	Aidence merged into DeepHealth; board host deephealth.recruitee.com
+Experience	Conclusion Experience
+Bdo	BDO
+Werkenbijhiltermann	Hiltermann Lease
+Antea	Antea Group
+Elevenlabs	ElevenLabs
+Optics	Optics11
+Ipsoftinc	IPsoft
+Adversitement	Digital Power	postings come from digital-power.com; Adversitement merged into Digital Power
+Scalian Germany	Scalian
+Lefebvresdu	Lefebvre Sdu
+Cowmanager	CowManager
+Prijsvrijvakanties	Prijsvrij Vakanties
+Vanmossel	Van Mossel
+Ifs	IFS
+Doitintl	DoiT
+Werkenbijbrabantwater	Brabant Water
+Emergo	E-mergo
+Plukon Food	Plukon Food Group
+Philips Electronics	Philips	same as Philips
+Budgetthuis	Budget Thuis
+Indg	INDG
+Planetlabs	Planet Labs
+SendCloud Global	Sendcloud	same as Sendcloud
+Dept	DEPT
+Valleifinance	Vallei Finance Group
+Werkenbijnlr	Royal NLR
+Huaweidusseldorf	Huawei
+Deltaelectronics	Delta Electronics
+Duravermeer	Dura Vermeer
+On2it	ON2IT
+Vionfood	Vion
+Teamblue	team.blue
+Radixuniversity	Radix Trading	same as Radixexperienced (both Radix Trading boards)
+Mijndomein	The Sharing Group	board host tsg.careers covers several brands (Mijndomein, EnergyZero); unsure whether to keep Mijndomein
+Aerovect	AeroVect
+Allyourbi	All Your BI
+Bearingpointnl	BearingPoint	same as Bearingpoint
+Dtx	DTX
+Icuitservices	ICU IT Services
+Micompany	Rewire	MIcompany is now Rewire; board host rewire.recruitee.com
+Proximusnxt	Proximus NXT
+Werkenbijdeafm	AFM
+Quberesearchandtechnologies	Qube Research & Technologies
+Framnaaps	Framna
+Rituals Cosmetics E-commerce	Rituals
+Destinus NL	Destinus
+Wolfpackit	Wolfpack
+Wetravel	WeTravel
+Enzazaden	Enza Zaden
+Jobs	Tellent
+Vandervalkdienstencentrum	Valk Service Center
+Mooremkw	Moore MKW
+Waes	WAES
+Almavivadebelgique	AlmavivA de Belgique
+Cuspai	CuspAI
+I3d	i3D.net
+Citonl	Cito
+Cleverit	CleverIT
+Creativeclicks	Creative Clicks
+Incoresolutions	Incore Solutions
+Nextenergy	NextEnergy
+Opennl	OPEN	board name OPEN.nl Software Group
+Sidn	SIDN
+Techbiz	TechBiz Global
+Vxcompanydevelopmentpartnerbv	VX Company
+Werkenbijmig	Mobility Invest Group
+Mytomorrows	myTomorrows
+Drweng	DRW
+Schipholcareers	Royal Schiphol Group	same as Royal Schiphol Group
+Project	project44
+Flow Serve	Flowserve
+Radixexperienced	Radix Trading	same as Radixuniversity
+Workatbackbase	Backbase
+Universiteit van Amsterdam (UvA)	University of Amsterdam (UvA)	same as University of Amsterdam (UvA)
+Testendouble	ACT Group	board slug testendouble, board name ACT Group, host careers.actgroup.com
+IReckon	iReckonU
+Axelera	Axelera AI
+Agriplace	Simvia	board host simvia.recruitee.com, board name Simvia (AgriPlace rebrand)
+Bas	BAS Group
+Crop	CROP
+Duxdata	Dux Group	board name Dux Group
+Headfirst	Vertage	HeadFirst Group is now Vertage; board host vertage.recruitee.com
+Heuschenschrouff	Heuschen & Schrouff
+Interforcenetworksbv	Interforce Networks
+Mercesbv	Merces
+Nts	NTS
+Sound	Sound People
+Spheremall	SphereMall
+Stjansdal	Ziekenhuis St Jansdal
+Topicsoftwaredevelopment	Topic Software Development
+Ventiontechnologies	Vention
+Mazedesign	Maze
+Inpost	InPost
+Paconsulting	PA Consulting
+Rijksuniversiteit Groningen (RUG)	University of Groningen	same as University of Groningen
+Mavensecuritiesholdingltd	Maven Securities
+Mujininc	Mujin
+Sambatv	Samba TV
+Ennatuurlijkbv	Ennatuurlijk
+Pbwebmedia	PB Web Media
+Normecfcnl	Normec Foodcare
+NS Ecure	Nsecure
+Arhs	ARHS
+Denieuwezaak	De Nieuwe Zaak
+Cyclomediatechnology	Cyclomedia
+Elan	ELAN Languages
+Rhe	Rhenus	Workday tenant rhe (Rhenus Logistics); fairly sure, postings are logistics/customs brokerage
+Globalfoundries	GlobalFoundries
+Thenextchapter	The Next Chapter
+Air Energi	Airswift	postings from airswift.com; Air Energi merged into Airswift
+Shippingtechnology	Shipping Technology
+Strictbv	Strict
+Thefactory	The Factory
+Young	Young Group
+Sungrow Emea	Sungrow
+CBOE	Cboe
+Cerbaresearchnl	Cerba Research
+Surepay	SurePay
+Wizinc	Wiz
+Averydennison	Avery Dennison
+Antonivanleeuwenhoek	Antoni van Leeuwenhoek
+Engflow	EngFlow
+Campusdelft	Pinewood	board slug campusdelft, board name and postings say Pinewood
+Cb	CB
+Ccsconnects	CCS
+Eternalsungroupbv	Eternal Sun Group
+Stravito AB	Stravito	same as Stravito
+Hunkemoller	Hunkemöller
+Infinitaslearning	Infinitas Learning
+Ism	valantic	ISM is now valantic; board host werkenbijvalantic.nl
+Multitankcard	MultiTankcard
+Processit	Process-it
+Puurdata	Puur Data
+Regionaljetcenter	Regional Jet Center
+Seederdeboer	SeederDeBoer
+Tiledmediaoperationsbv	Tiledmedia
+Twynstragudde	Twynstra Gudde
+Outpostnow	Outpost
+Roompricegenie	RoomPriceGenie
+Jobsforhumanity	Jobs for Humanity
+Proctorexam	ProctorExam
+Rbllabs	RBL Labs
+Sqli	SQLI
+Bol	bol
+3redpartners	3Red Partners
+Andurilindustries	Anduril Industries
+Sonyinteractiveentertainment	Sony Interactive Entertainment
+Dlremote	DL Remote
+Dash	Dash0
+L Oreal	L'Oréal
+Atc Driving Forward	ATC Computer Transport & Logistics
+Brooksrunning	Brooks Running
+Lessonup	LessonUp
+Bridgefund	BridgeFund
+Swapsupport	Swap Support
+Abbvie	AbbVie
+Universiteit Leiden	Leiden University	same as Leiden University
+Abf	ABF
+Archipelacademybv	Archipel Academy
+Cloudbilling	CloudBilling
+S4d	S4D
+Driveconsulting	Drive Consulting
+Healthyworkers	Healthy Workers
+Wearebit	Bit
+Scholt Energy Sourcing	Scholt Energy
+Servicenow	ServiceNow
+Loyensloeff	Loyens & Loeff
+Heydayfm	Draaijer Heyday
+Werkenbijfivoor	Fivoor
+Universiteit Twente (UT)	University of Twente (UT)	same as University of Twente (UT)
+Clearbank	ClearBank
+Nvm	NVM
+Nos	NOS
+Endurance	Sompo International	Workday tenant endurance, site SompoInternational (Endurance is the former name)
+Springernature	Springer Nature
+Rentokilinitial	Rentokil Initial
+Toeslagen	Dienst Toeslagen
+Jysk	JYSK
+Tweede Kamer der Staten Generaal	Tweede Kamer der Staten-Generaal
+Werkenbijovsoftware	OVSoftware
+Reson	Reson8
+Cmcom	CM.com
+Aecom	AECOM
+Pqshield	PQShield
+Energy	Eneve	same as Eneve (Energy21 board, host eneve.recruitee.com)
+Gigastorage	Giga Storage
+Matt	Matt Sleeps
+Supermetricsoy	Supermetrics
+Omroepbrabant	Omroep Brabant
+Vluchtelingenwerkvrijwilligers	VluchtelingenWerk Nederland
+Viktor	VIKTOR
+Werkenbijons	TFH Holland	board name TFH Holland Beheer BV (umbrella of several care/service brands)
+Bartimeus	Bartiméus
+IQVIA Solutions	IQVIA
+Zeekreu	Zeekr
+Werkenbijvigo	VIGO Groep
+Vmlenterprisesolutions	VML Enterprise Solutions
+Werkenbijp	P1	board name P1 On- en Offstreet Management B.V.
+Surf	SURF	same as SURF
+Rtl	RTL
+Agas	A-Gas
+Amfbakerysystems	AMF Bakery Systems
+Andersrecruitmentservices	Anders Recruitment Services
+Horizon3ai	Horizon3.ai
+Biqh	BIQH
+Bosmanvanzaal	Bosman Van Zaal
+Careexpert	Care Expert
+Diegrenze	Die Grenze
+Giaura	Skytree	board slug giaura, host skytree.recruitee.com, postings say Skytree
+Ggzingeest	GGZ inGeest	same as GGZ inGeest
+Goedemiddag	Goedemiddag!
+Greenflux	GreenFlux
+Harmonyinsurance	Harmony Insurance
+Hgg	HGG
+Hittechmultin	Hittech Multin
+Inretail	INretail
+Ixonbv	IXON
+Karsteninternational	Karsten International
+Extremenetworks	Extreme Networks
+Lumc	LUMC
+Livezoku	Zoku
+Mitsubishielevator	Mitsubishi Elevator Europe
+Momomedicalbv	Momo Medical
+Newdayatwork	Workspace 365
+Railinnovators	Rail Innovators Group
+Skygeo	SkyGeo
+Societycollege	Society College
+Spinninrecordsandwmg	Warner Music Benelux	board covers Spinnin' Records and Warner Music Benelux (board name Amsterdam Music Harbour)
+Tabledusud	Table du Sud
+Thermo Traffichollandbv	Thermotraffic
+Volkerrail	VolkerRail
+Werkenbijp1amsterdam	P1 Amsterdam
+Werkenbijpsyned	Psyned
+Werkenbijyouvia	Youvia
+Langchain	LangChain
+Lilt Production	LILT
+Motherduck	MotherDuck
+Beumer	BEUMER Group
+NoblesseRecruitment	Noblesse Recruitment
+Redbull	Red Bull
+Rolandberger	Roland Berger
+Sgs	SGS
+Tessenderlo	Tessenderlo Group
+Topconeuropepositioningbv	Topcon
+Vusiongroupsa	VusionGroup
+Akqa	AKQA
+Altanaai	Altana
+Banyansoftware	Banyan Software
+Braincorporation	Brain Corp
+Creativefabrica	Creative Fabrica
+Diligentcorporation	Diligent
+Highmetric	NewRocket	board name and host newrocket.com (HighMetric acquired by NewRocket)
+Mediabrands	Omnicom Media	greenhouse board name is Omnicom Media (IPG Mediabrands now part of Omnicom)
+Nozominetworks	Nozomi Networks
+Onetrust	OneTrust
+Purestorage	Everpure	greenhouse board name is Everpure (formerly Pure Storage)
+Tenableinc	Tenable
+Vectranetworks	Vectra AI
+Veeamsoftware	Veeam
+Mag	MAG45
+Passivelogic	PassiveLogic
+Thenew	TheNewJob
+Dassault Systemes	Dassault Systèmes
+Armadamusic	Armada Music
+Print com	Print.com
+Channelenginecom	ChannelEngine
+Customssupport	Customs Support
+Turnertownsend	Turner & Townsend
+Radboudumc	Radboud University Medical Center (Radboudumc)	same as Radboud University Medical Center (Radboudumc)
+Gemeentelansingerland	Gemeente Lansingerland
+Ichoosr	iChoosr
+Werkenbijbrandnewday	Brand New Day
+Innovativebeauty	Innovative Beauty Group
+Adj	A. de Jong Groep
+Castellumsecurity	Castellum Security
+Source	Source.ag
+Werkenbijflagshipamsterdam	Flagship Amsterdam
+Sonicwall	SonicWall
+Radboud Universiteit	Radboud University	same as Radboud University
+Kingfish Company	The Kingfish Company
+Stolwijkkennisnetwerk	Stolwijk Kennisnetwerk
+LANXESS Chemical	LANXESS
+Jacobsdouweegberts	Jacobs Douwe Egberts
+Platformscience	Platform Science
+Pum	PUM
+Rift	RIFT
+ViaSat	Viasat
+Savantzorg	Savant Zorg
+Vbk	VBK
+Vicompany	VI Company
+Nioz	NIOZ
+Rojointegrations	Rojo Integrations
+Movexm	moveXM
+Skyteam	SkyTeam
+Pwrpackinternational	PWR Pack
+Sdworx	SD Worx	same as Sdworxnv
+Blueprintautomation	BluePrint Automation
+Lightspeedhq	Lightspeed
+Colliersinternationalemea	Colliers
+Bexerhamstra	BexerHamstra
+Jacklinksproteinsnacks	Jack Link's
+Omroepgelderland	Omroep Gelderland
+Omrt	OMRT
+Achmea Innovationhub	Achmea	same as Achmea (board name ACHMEA B.V.)
+Adinternationalbv	AD International
+Werkenbijqterminals	QTerminals
+4cee	4CEE
+Werkenbijvnoncwmkb	VNO-NCW en MKB-Nederland
+By	433
+Zerotier	ZeroTier
+1global	1GLOBAL
+Ntrs	Northern Trust
+Cybermason	Cyber & Mason
+Monolithicpower	Monolithic Power Systems
+Retailsolutions	Retail Solutions
+Ennovationhub	EnnovationHUB
+Webfleet Solutions	Webfleet
+Eventix	Weeztix	Eventix is now Weeztix; board host weeztix.recruitee.com
+Werkenbijintercept	Intercept
+Focushomeinteractive	Pullup Entertainment	Focus Home Interactive / Focus Entertainment renamed Pullup Entertainment; board name says so
+Technische Universiteit Delft (TU Delft)	Delft University of Technology (TU Delft)	same as Delft University of Technology (TU Delft)
+Werkenbijxonar	XONAR
+Wtgroup	W.T. Group
+Nabucasa	Nabu Casa
+Uvsmart	UV Smart
+Vbt	vb&t
+Kb	Koninklijke Bibliotheek	same as Koninklijke Bibliotheek (board name KB nationale bibliotheek)
+Stellarentertainment	Stellar Entertainment
+Intersnacknederlandbv	Intersnack Nederland
+Tkelevator	TK Elevator
+Wearekeen	WeAreKeen
+Walibi	Walibi Holland
+Matresearch	MAT Research
+Sdworxnv	SD Worx	same as Sdworx
+Aihr	AIHR
+Oba	OBA
+Devrev	DevRev
+Qfin	Q-Fin
+Tweedekamer	Tweede Kamer der Staten-Generaal	same as Tweede Kamer der Staten Generaal
+Nice	NICE
+Socotec	SOCOTEC
+Legionelladossier	LegionellaDossier
+Insiderone	Insider One
+Kruitbosch Zwolle	Kruitbosch

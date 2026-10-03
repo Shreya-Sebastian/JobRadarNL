@@ -760,7 +760,7 @@
     const p = new URLSearchParams();
     const [city, sen, role, comp, sal, lang, remote, exp, sector, pos] = await Promise.all([
       api("/api/breakdown/city", withParams(p, { top: 12 })), api("/api/breakdown/seniority", p),
-      api("/api/breakdown/role_family", p), api("/api/breakdown/company", withParams(p, { top: 20 })),
+      api("/api/breakdown/role_family", p), api("/api/breakdown/company", withParams(p, { top: 20, exclude_agencies: "true" })),
       api("/api/salary", p), api("/api/breakdown/posting_language", p), api("/api/breakdown/remote_policy", p),
       api("/api/breakdown/experience", p), api("/api/breakdown/sector", p),
       api("/api/breakdown/position", withParams(p, { top: 21 })),

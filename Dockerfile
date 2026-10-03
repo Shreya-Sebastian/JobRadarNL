@@ -30,7 +30,7 @@ COPY web ./web
 COPY --from=css /app/web/app.css ./web/app.css
 COPY data/golden ./data/golden
 COPY data/seeds ./data/seeds
-COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml data/company_sizes.tsv data/company_sectors.tsv ./data/
+COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml data/company_sizes.tsv data/company_sectors.tsv data/company_names.tsv ./data/
 RUN mkdir -p /app/data/enumerated /app/data/raw && chown -R radar:radar /app
 USER radar
 # the commit the image was built from, reported by /healthz so a deploy can be confirmed from outside

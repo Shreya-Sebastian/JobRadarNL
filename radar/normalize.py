@@ -179,10 +179,34 @@ def norm_title(title: str) -> str:
     return " ".join(t.split())
 
 
+_NAMES: dict[str, str] | None = None
+
+
+def company_names() -> dict[str, str]:
+    """Curated employer names (data/company_names.tsv): the name a board or careers site gave -> the organisation's
+    own name, one per organisation."""
+    global _NAMES
+    if _NAMES is None:
+        from pathlib import Path
+
+        from radar.config import settings
+
+        _NAMES = {}
+        try:
+            for line in (Path(settings.data_dir) / "company_names.tsv").read_text(encoding="utf-8").splitlines():
+                if line.strip() and not line.startswith("#"):
+                    parts = line.split("	")
+                    if len(parts) >= 2 and parts[1].strip():
+                        _NAMES[parts[0].strip()] = parts[1].strip()
+        except FileNotFoundError:
+            pass
+    return _NAMES
+
+
 def norm_company(company: str) -> str:
     c = company.strip()
-    c = re.sub(r"\s+(b\.?v\.?|n\.?v\.?|inc\.?|ltd\.?|gmbh|holding)$", "", c, flags=re.I)
-    return c.strip()
+    c = re.sub(r"\s+(b\.?v\.?|n\.?v\.?|inc\.?|ltd\.?|gmbh|holding)$", "", c, flags=re.I).strip()
+    return company_names().get(c, c)
 
 
 def dedup_key(company: str, title: str, city: str | None) -> str:

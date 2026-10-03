@@ -220,12 +220,19 @@ def cmd_verify_sources(args: argparse.Namespace) -> None:
 
 def cmd_rename(_: argparse.Namespace) -> None:
     """Recompute employer display names from board slugs (data/registry name rules)."""
+    from radar.cache import bump_data_version
+    from radar.crawler import mark_duplicates
     from radar.db import init_db, session_scope
     from radar.registry import rename_employers
+    from radar.sectors import refresh
 
     init_db()
     with session_scope() as s:
-        print(f"renamed {rename_employers(s)} employer sources")
+        print(f"renamed {rename_employers(s)} sources and postings")
+        # one name per organisation: its copies on different sources now match as duplicates
+        print(f"duplicates marked: {mark_duplicates(s)}")
+        print(f"employer sectors: {refresh(s)}")
+    bump_data_version()
 
 
 def cmd_top100(args: argparse.Namespace) -> None:

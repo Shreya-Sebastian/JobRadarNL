@@ -357,7 +357,8 @@ def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
                 p.closed_at,
                 ats,
                 p.extraction or {},
-                kind or "employer",
+                # recruiters and staffing firms count as agencies wherever they were found (sector list or source)
+                "agency" if sector_of.get(p.company) == "staffing" else (kind or "employer"),
                 open_roles.get(p.company, 0),
                 p.last_seen,
                 p.link_checked_at,
