@@ -34,7 +34,7 @@
       "th.sector": "Sector", "th.status": "Status", "th.livetech": "Live tech postings", "th.platform": "Platform", "th.kind": "Kind", "th.postings": "Postings",
       "pager.prev": "‹ Prev", "pager.next": "Next ›",
       "mk.trend": "New postings per week", "mk.trend.hint": "and the skills you follow", "mk.cities": "Cities", "mk.seniority": "Seniority",
-      "mk.roles": "Role family", "mk.salary": "Stated salaries", "mk.salary.hint": "per year",
+      "mk.roles": "Role family", "mk.hiring": "Who is hiring", "mk.salary": "Stated salaries", "mk.salary.hint": "per year",
       "mk.lang": "Posting language", "mk.remote": "Remote policy",
       "p.looking": "Job preferences",
       "p.roles": "Roles", "p.levels": "Levels", "p.exclude": "Employers to hide", "p.language": "Posting language",
@@ -142,7 +142,7 @@
       "th.sector": "Sector", "th.status": "Status", "th.livetech": "Open techvacatures", "th.platform": "Platform", "th.kind": "Soort", "th.postings": "Vacatures",
       "pager.prev": "‹ Vorige", "pager.next": "Volgende ›",
       "mk.trend": "Nieuwe vacatures per week", "mk.trend.hint": "en de skills die je volgt", "mk.cities": "Steden", "mk.seniority": "Niveau",
-      "mk.roles": "Rolfamilie", "mk.salary": "Vermelde salarissen", "mk.salary.hint": "per jaar",
+      "mk.roles": "Rolfamilie", "mk.hiring": "Wie neemt aan", "mk.salary": "Vermelde salarissen", "mk.salary.hint": "per jaar",
       "mk.lang": "Taal van de vacature", "mk.remote": "Thuiswerkbeleid",
       "p.looking": "Voorkeuren",
       "p.roles": "Rollen", "p.levels": "Niveaus", "p.exclude": "Werkgevers verbergen", "p.language": "Taal van de vacature",
@@ -737,9 +737,9 @@
   // ---------- MARKET ----------
   async function renderMarket() {
     const p = new URLSearchParams();
-    const [city, sen, role, sal, lang, remote, exp, sector, pos] = await Promise.all([
+    const [city, sen, role, comp, sal, lang, remote, exp, sector, pos] = await Promise.all([
       api("/api/breakdown/city", withParams(p, { top: 12 })), api("/api/breakdown/seniority", p),
-      api("/api/breakdown/role_family", p),
+      api("/api/breakdown/role_family", p), api("/api/breakdown/company", withParams(p, { top: 20 })),
       api("/api/salary", p), api("/api/breakdown/posting_language", p), api("/api/breakdown/remote_policy", p),
       api("/api/breakdown/experience", p), api("/api/breakdown/sector", p),
       api("/api/breakdown/position", withParams(p, { top: 21 })),
@@ -753,6 +753,7 @@
     barChart("mk-sector", sector.items.map((i) => sectorLabel(i.key)), sector.items.map((i) => i.count), { color: palette[4] });
     const top = pos.items.filter((i) => i.key !== "other").slice(0, 20);
     barChart("mk-position", top.map((i) => positionLabel(i.key)), top.map((i) => i.count), { color: palette[0], onClick: (l) => openJobsWithPosition(top.find((i) => positionLabel(i.key) === l).key) });
+    $("#mk-companies tbody").innerHTML = comp.items.map((i) => `<tr><td>${companyLink(i.key)}</td><td>${i.count}</td><td>${Math.round(i.share * 100)}%</td></tr>`).join("");
     $("#mk-salary").innerHTML = sal.n
       ? [[t("salary.n"), fmt(sal.n)], [t("salary.p25"), "€" + fmt(sal.p25)], [t("salary.median"), "€" + fmt(sal.median)], [t("salary.p75"), "€" + fmt(sal.p75)]].map(([l, v]) => `<div class="kpi"><b>${v}</b><span>${esc(l)}</span></div>`).join("")
       : `<p class="muted">${t("salary.none")}</p>`;
