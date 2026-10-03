@@ -1,6 +1,7 @@
 # The production release. Flux renders deploy/helm/radar with the production values and upgrades the release
-# whenever this file, the chart or the values change on main. .github/workflows/deploy.yml sets image.tag after the
-# tests pass and the image is built; a release whose pods never get ready is rolled back to the last good one.
+# whenever this file, the chart or the values change on the `deploy` branch. .github/workflows/deploy.yml sets
+# image.tag there after the tests pass and the image is built (on main the tag below is not updated); a release
+# whose pods never get ready is rolled back to the last good one.
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:

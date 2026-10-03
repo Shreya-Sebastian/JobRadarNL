@@ -1,4 +1,5 @@
-# Flux watches this repository and applies deploy/flux (itself included). The cluster pulls; nothing outside it
+# Flux watches this repository's `deploy` branch (main's last tested commit plus the image tag, written by
+# .github/workflows/deploy.yml) and applies deploy/flux, itself included. The cluster pulls; nothing outside it
 # needs access to the Kubernetes API.
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
@@ -9,7 +10,7 @@ spec:
   interval: 1m
   url: https://github.com/Shreya-Sebastian/JobRadarNL
   ref:
-    branch: main
+    branch: deploy
   # only the deployment files and the chart: a small artifact, and app-only commits do not touch the cluster
   ignore: |
     /*

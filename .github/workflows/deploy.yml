@@ -1,9 +1,10 @@
 name: deploy
 
 # Continuous delivery, GitOps style. Every push to main: the full test suite and evaluation gates (ci.yml), then an
-# image tagged with the commit, then a commit that points deploy/flux/radar.yaml at that image. Flux, running in the
-# cluster, picks the change up from Git and upgrades the Helm release (rolling back if the new pods never get
-# ready). The last job waits until the live site reports the new build. Nothing here can reach the cluster.
+# image tagged with the commit, then the `deploy` branch is set to that exact commit plus one commit that points
+# deploy/flux/radar.yaml at the image. Flux, running in the cluster, follows the `deploy` branch and upgrades the
+# Helm release (rolling back if the new pods never get ready). The last job waits until the live site reports the
+# new build. Nothing here can reach the cluster, and main only ever holds people's own commits.
 on:
   push:
     branches: [main]
@@ -55,12 +56,12 @@ jobs:
     needs: image
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # the commit that tells Flux which image to run
+      contents: write  # the deploy branch that tells Flux what to run
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
-      - name: Point the release at the new image
+          ref: ${{ github.sha }}  # exactly the commit that passed the tests
+      - name: Point the deploy branch at this commit and its image
         env:
           TAG: ${{ needs.image.outputs.tag }}
         run: |
@@ -68,11 +69,10 @@ jobs:
           grep -q "tag: ${TAG}" deploy/flux/radar.yaml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git diff --quiet && { echo "already at ${TAG}"; exit 0; }
-          git commit -am "Deploy ${TAG}"
-          # a push with this token starts no new workflow run, so the commit cannot loop
-          for _ in 1 2 3; do git push && exit 0; git pull --rebase; done
-          exit 1
+          git commit -am "Deploy ${TAG}" || true
+          # the deploy branch is main's tested commit plus this one; deploys run one at a time (concurrency above),
+          # and a push with this token starts no new workflow run
+          git push --force origin HEAD:refs/heads/deploy
 
   verify:
     needs: release
