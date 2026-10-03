@@ -75,6 +75,13 @@ class Row:
         return experience_band(self.ex, self.title)
 
     @property
+    def position(self) -> str:
+        """The position type the title names (radar/positions.py): "data_engineer", "product_owner", ..."""
+        from radar.positions import position
+
+        return position(self.title)
+
+    @property
     def degree(self) -> str:
         """Minimum degree asked, grouped: phd, master, bachelor (hbo or a university bachelor), mbo, unstated."""
         return _DEGREE_GROUP.get(self.ex.get("degree_required") or "", "unstated")
@@ -152,6 +159,7 @@ class Filters:
     degree: str | None = None  # comma list of DEGREE_GROUPS: the minimum degree the posting asks for
     employees: str | None = None  # comma list of radar.sizes.EMPLOYEE_BANDS: headcount of the organisation
     sector: str | None = None  # comma list of radar.sectors.SECTORS: the employer's sector
+    position: str | None = None  # comma list of radar.positions.POSITIONS: the position type of the title
 
     def apply(self, rows: list[Row]) -> list[Row]:
         out = rows
@@ -189,6 +197,9 @@ class Filters:
         sectors = _csv(self.sector)
         if sectors:
             out = [r for r in out if r.sector in sectors]
+        positions = _csv(self.position)
+        if positions:
+            out = [r for r in out if r.position in positions]
         if self.confirmed_days:
             since = datetime.utcnow() - timedelta(days=self.confirmed_days)
             out = [r for r in out if r.confirmed_at and r.confirmed_at >= since]
@@ -483,6 +494,8 @@ def breakdown(rows: list[Row], key: str, top: int = 20) -> list[dict[str, Any]]:
             v = r.ats
         elif key == "sector":
             v = r.sector
+        elif key == "position":
+            v = r.position
         else:
             v = str(r.ex.get(key, "unknown"))
         c[v] += 1

@@ -137,6 +137,7 @@
   .hint { @apply ml-1.5 text-xs font-normal text-muted; }
   .chart { @apply relative h-[260px]; }
   .chart.tall { @apply h-[360px] md:h-[440px]; }
+  .chart.xtall { @apply h-[620px]; }
   .chart.short { @apply h-40; }
   .muted { @apply text-muted; }
   .small { @apply text-[13px]; }

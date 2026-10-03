@@ -16,7 +16,7 @@
 {{VERIFY}}
 <script type="application/ld+json">{{SITE_JSONLD}}</script>
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/static/app.css?v=4">
+<link rel="stylesheet" href="/static/app.css?v=5">
 <script src="/static/vendor/chart.umd.min.js"></script>
 <script src="/static/vendor/d3.min.js"></script>
 </head>
@@ -88,6 +88,9 @@
       <div class="field"><label data-i18n="f.role">Role</label><div class="chips toggles" id="f-roles"></div></div>
     </div>
     <div class="filter-row">
+      <div class="field grow"><label data-i18n="f.position">Position</label><div class="chipinput" id="f-position"></div></div>
+    </div>
+    <div class="filter-row">
       <div class="field"><label data-i18n="f.level">Level</label><div class="chips toggles" id="f-levels"></div></div>
       <div class="field"><label data-i18n="f.exp">Experience asked</label><div class="chips toggles" id="f-exp"></div></div>
       <div class="field"><label data-i18n="f.degree">Degree asked</label><div class="chips toggles" id="f-degree"></div></div>
@@ -140,6 +143,7 @@
       <div id="mk-salary" class="salary"></div>
     </div>
     <div class="card"><h2 data-i18n="mk.sector">Sectors</h2><div class="chart tall"><canvas id="mk-sector"></canvas></div></div>
+    <div class="card"><h2 data-i18n="mk.position">Most common positions</h2><div class="chart xtall"><canvas id="mk-position"></canvas></div></div>
   </div>
 </section>
 
@@ -150,6 +154,7 @@
     <div class="card">
       <h2 data-i18n="p.looking">Job preferences</h2>
       <div class="field"><label data-i18n="p.roles">Roles</label><div class="chips toggles" id="p-roles"></div></div>
+      <div class="field"><label data-i18n="f.position">Position</label><div class="chipinput" id="p-position"></div></div>
       <div class="field"><label data-i18n="p.levels">Levels</label><div class="chips toggles" id="p-levels"></div></div>
       <div class="field"><label data-i18n="p.exp">Experience asked</label><div class="chips toggles" id="p-exp"></div></div>
       <div class="field"><label data-i18n="f.degree">Degree asked</label><div class="chips toggles" id="p-degree"></div></div>
@@ -272,6 +277,6 @@
   <p class="mt-6 border-t border-line pt-6"><a href="{{PRIVACY_PATH}}" data-i18n="privacy">Privacy</a> · <a href="{{FEEDBACK_PATH}}" data-i18n="feedback">Feedback</a>{{SOURCE_LINK}}</p>
  </div>
 </footer>
-<script src="/static/app.js?v=71"></script>
+<script src="/static/app.js?v=72"></script>
 </body>
 </html>

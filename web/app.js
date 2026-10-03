@@ -107,7 +107,7 @@
      
       "f.exp": "Experience asked", "p.exp": "Experience asked", "mk.exp": "Experience asked", "yrs": "yrs",
       "f.size": "Hiring activity (open roles)", "f.sort.small": "Smaller organisations first", "f.sort.large": "Larger organisations first",
-      "f.emp": "Company size (employees)", "f.sector": "Sector", "mk.sector": "Sectors", "sector.software": "Software & internet", "sector.consultancy": "Consultancy & IT services", "sector.hardware": "Semiconductors & hardware", "sector.finance": "Banking, finance & insurance", "sector.pharma": "Pharma & life sciences", "sector.health": "Healthcare", "sector.government": "Government & public sector", "sector.education": "Education & research", "sector.energy": "Energy & utilities", "sector.transport": "Transport & logistics", "sector.engineering": "Engineering & construction", "sector.industry": "Industry & manufacturing", "sector.retail": "Retail & consumer goods", "sector.telecom_media": "Telecom & media", "sector.staffing": "Recruitment agencies", "sector.other": "Other",
+      "f.emp": "Company size (employees)", "f.sector": "Sector", "mk.sector": "Sectors", "f.position": "Position", "mk.position": "Most common positions", "ph.position": "position, e.g. data engineer…", "pos.unknown": "Pick a position from the list", "pos.phd_research": "PhD / research", "pos.product_manager": "Product manager", "pos.product_owner": "Product owner", "pos.scrum_agile": "Scrum master / agile coach", "pos.project_manager": "IT project / programme manager", "pos.engineering_manager": "Engineering manager", "pos.ux_designer": "UX / UI designer", "pos.security_officer": "Security officer / GRC", "pos.security_engineer": "Security engineer / analyst", "pos.data_scientist": "Data scientist", "pos.ml_engineer": "AI / ML engineer", "pos.data_consultant": "Data / AI consultant", "pos.data_architect": "Data architect", "pos.bi_analyst": "BI / data analyst", "pos.data_engineer": "Data engineer", "pos.business_analyst": "Business / IT analyst", "pos.architect": "Solution / enterprise architect", "pos.sales_engineer": "Solutions / sales engineer", "pos.low_code": "Low-code developer", "pos.embedded": "Embedded / firmware engineer", "pos.plc_automation": "PLC / industrial automation engineer", "pos.hardware": "Hardware / electronics engineer", "pos.simulation": "Simulation / modelling engineer", "pos.qa_test": "QA / test engineer", "pos.devops": "DevOps engineer", "pos.platform_sre": "Platform / SRE engineer", "pos.cloud": "Cloud engineer", "pos.network": "Network engineer", "pos.systems": "Systems / infrastructure engineer", "pos.app_admin": "Application administrator", "pos.it_support": "IT support / workplace", "pos.it_consultant": "IT / ERP consultant", "pos.mobile": "Mobile developer", "pos.frontend": "Frontend developer", "pos.fullstack": "Full-stack developer", "pos.software_engineer": "Software engineer / developer", "pos.other": "Other", "sector.software": "Software & internet", "sector.consultancy": "Consultancy & IT services", "sector.hardware": "Semiconductors & hardware", "sector.finance": "Banking, finance & insurance", "sector.pharma": "Pharma & life sciences", "sector.health": "Healthcare", "sector.government": "Government & public sector", "sector.education": "Education & research", "sector.energy": "Energy & utilities", "sector.transport": "Transport & logistics", "sector.engineering": "Engineering & construction", "sector.industry": "Industry & manufacturing", "sector.retail": "Retail & consumer goods", "sector.telecom_media": "Telecom & media", "sector.staffing": "Recruitment agencies", "sector.other": "Other",
       "emp.1-49": "under 50", "emp.50-249": "50-249", "emp.250-4999": "250-4,999", "emp.5000+": "5,000+", "emp.unknown": "unknown",
      
       "size.small": "a few openings (under 10)", "size.medium": "10-99 openings", "size.large": "100+ openings",
@@ -214,7 +214,7 @@
      
       "f.exp": "Gevraagde ervaring", "p.exp": "Gevraagde ervaring", "mk.exp": "Gevraagde ervaring", "yrs": "jr",
       "f.size": "Wervingsactiviteit (open vacatures)", "f.sort.small": "Kleinere organisaties eerst", "f.sort.large": "Grotere organisaties eerst",
-      "f.emp": "Bedrijfsgrootte (medewerkers)", "f.sector": "Sector", "mk.sector": "Sectoren", "sector.software": "Software & internet", "sector.consultancy": "Consultancy & IT-dienstverlening", "sector.hardware": "Halfgeleiders & hardware", "sector.finance": "Bank, financiën & verzekeringen", "sector.pharma": "Farma & life sciences", "sector.health": "Zorg", "sector.government": "Overheid & publieke sector", "sector.education": "Onderwijs & onderzoek", "sector.energy": "Energie & nutsbedrijven", "sector.transport": "Transport & logistiek", "sector.engineering": "Ingenieursdiensten & bouw", "sector.industry": "Industrie & productie", "sector.retail": "Retail & consumentengoederen", "sector.telecom_media": "Telecom & media", "sector.staffing": "Werving & detachering", "sector.other": "Overig",
+      "f.emp": "Bedrijfsgrootte (medewerkers)", "f.sector": "Sector", "mk.sector": "Sectoren", "f.position": "Functie", "mk.position": "Meest voorkomende functies", "ph.position": "functie, bijv. data engineer…", "pos.unknown": "Kies een functie uit de lijst", "pos.phd_research": "PhD / onderzoek", "pos.product_manager": "Productmanager", "pos.product_owner": "Product owner", "pos.scrum_agile": "Scrum master / agile coach", "pos.project_manager": "IT-project- / programmamanager", "pos.engineering_manager": "Engineering manager", "pos.ux_designer": "UX- / UI-designer", "pos.security_officer": "Security officer / GRC", "pos.security_engineer": "Security engineer / analist", "pos.data_scientist": "Data scientist", "pos.ml_engineer": "AI- / ML-engineer", "pos.data_consultant": "Data- / AI-consultant", "pos.data_architect": "Data-architect", "pos.bi_analyst": "BI- / data-analist", "pos.data_engineer": "Data engineer", "pos.business_analyst": "Business- / IT-analist", "pos.architect": "Solution- / enterprise-architect", "pos.sales_engineer": "Solutions- / sales engineer", "pos.low_code": "Low-code developer", "pos.embedded": "Embedded- / firmware-engineer", "pos.plc_automation": "PLC- / industriële automatisering", "pos.hardware": "Hardware- / elektronica-engineer", "pos.simulation": "Simulatie- / modelleringsengineer", "pos.qa_test": "QA- / testengineer", "pos.devops": "DevOps-engineer", "pos.platform_sre": "Platform- / SRE-engineer", "pos.cloud": "Cloud-engineer", "pos.network": "Netwerkengineer", "pos.systems": "Systeem- / infrastructuurengineer", "pos.app_admin": "Applicatie- / functioneel beheerder", "pos.it_support": "IT-support / werkplek", "pos.it_consultant": "IT- / ERP-consultant", "pos.mobile": "Mobiele developer", "pos.frontend": "Frontend developer", "pos.fullstack": "Full-stack developer", "pos.software_engineer": "Software engineer / developer", "pos.other": "Overig", "sector.software": "Software & internet", "sector.consultancy": "Consultancy & IT-dienstverlening", "sector.hardware": "Halfgeleiders & hardware", "sector.finance": "Bank, financiën & verzekeringen", "sector.pharma": "Farma & life sciences", "sector.health": "Zorg", "sector.government": "Overheid & publieke sector", "sector.education": "Onderwijs & onderzoek", "sector.energy": "Energie & nutsbedrijven", "sector.transport": "Transport & logistiek", "sector.engineering": "Ingenieursdiensten & bouw", "sector.industry": "Industrie & productie", "sector.retail": "Retail & consumentengoederen", "sector.telecom_media": "Telecom & media", "sector.staffing": "Werving & detachering", "sector.other": "Overig",
       "emp.1-49": "minder dan 50", "emp.50-249": "50-249", "emp.250-4999": "250-4.999", "emp.5000+": "5.000+", "emp.unknown": "onbekend",
      
       "size.small": "enkele vacatures (minder dan 10)", "size.medium": "10-99 vacatures", "size.large": "100+ vacatures",
@@ -302,6 +302,14 @@
   const sizeLabel = (z) => t("size." + z);
   const empLabel = (e) => t("emp." + e);
   const sectorLabel = (s) => t("sector." + s);
+  const positionLabel = (s) => t("pos." + s);
+  // typed text becomes the position whose name it matches; anything else is not added
+  const positionPick = (v) => {
+    const q = v.trim().toLowerCase();
+    const hit = state.options.positions.find((k) => k === v) || state.options.positions.find((k) => positionLabel(k).toLowerCase() === q)
+      || state.options.positions.find((k) => positionLabel(k).toLowerCase().includes(q));
+    return hit ? { value: hit } : { value: null, note: t("pos.unknown") };
+  };
   // NL: Dutch is enough; EN: no Dutch needed; NL + EN: both asked for
   const langKey = (i) => (i.english_only ? "en" : i.english_required === false ? "nl" : "both");
   const langCell = (i) => `<span class="lang-${langKey(i)}" title="${t("lang." + langKey(i) + ".title")}">${t("lang." + langKey(i))}</span>`;
@@ -322,13 +330,13 @@
   }
 
   // ---------- state ----------
-  const emptyProfile = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sectors: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
+  const emptyProfile = () => ({ roles: [], positions: [], levels: [], exp: [], degrees: [], emps: [], sectors: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
     language: "", visa: false, agencies: false, noenrol: false });
   const state = {
     tab: "overview", page: 1, size: 40, sort: "newest", skill: null,
     profile: Object.assign(emptyProfile(), store.get("profile", {})),
     saved: store.get("saved", []),
-    options: { roles: [], cities: [], skills: [] },
+    options: { roles: [], positions: [], cities: [], skills: [] },
     charts: {}, overview: null,
   };
   if (state.profile.english && !state.profile.language) state.profile.language = "en";  // older profiles
@@ -355,6 +363,7 @@
     if (p.degrees.length) q.set("degree", p.degrees.join(","));
     if (p.emps.length) q.set("employees", p.emps.join(","));
     if (p.sectors && p.sectors.length) q.set("sector", p.sectors.join(","));
+    if (p.positions && p.positions.length) q.set("position", p.positions.join(","));
     if (p.sizes.length) q.set("org_size", p.sizes.join(","));
     if (p.remote.length) q.set("remote", p.remote.join(","));
     if (p.cities.length) q.set("city", p.cities.join(","));
@@ -503,6 +512,7 @@
     };
     const add = async (v) => {
       if (transform) { const r = await transform(v); if (r.note) showNote(el, r.note); v = r.value; }
+      if (!v) return;
       if (!values.includes(v)) values.push(v);
       render(); onChange && onChange(values); $("input", el).focus();
     };
@@ -527,6 +537,7 @@
     state.overview = o;
     state.options.roles = [...f.roles.filter((r) => r !== "other"), ...f.roles.filter((r) => r === "other")]; state.options.cities = f.cities.filter((c) => c !== "Unknown"); state.options.skills = f.skills;
     state.options.sectors = [...(f.sectors || []).filter((s) => s !== "other"), ...(f.sectors || []).filter((s) => s === "other")];
+    state.options.positions = [...(f.positions || []).filter((s) => s !== "other"), ...(f.positions || []).filter((s) => s === "other")];
     renderHeader();
   }
   function renderHeader() {
@@ -562,6 +573,7 @@
     return `<li><a href="${jobPath(i)}" data-pid="${i.id}" target="_blank">${esc(i.title)}</a> · ${companyLink(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${m}</div></li>`;
   }
   function openJobsWithSkill(skill) { state.skill = skill; state.page = 1; location.hash = "#jobs"; }
+  function openJobsWithPosition(key) { currentJobFilters().positions = [key]; state.page = 1; location.hash = "#jobs"; }
   // the listing's page on this site (/job/<id>/<slug>): the employer's text with what the radar read from it
   const slugify = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "company";
   const jobPath = (i) => (LANG === "nl" ? "/nl/vacature/" : "/job/") + i.id + "/" + slugify(i.title);
@@ -609,9 +621,9 @@
   // ---------- JOBS ----------
   function profileJobFilters() {
     const p = state.profile;
-    return { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sectors: [...(p.sectors || [])], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", savedOnly: false, exclude: [...p.exclude] };
+    return { roles: [...p.roles], positions: [...(p.positions || [])], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sectors: [...(p.sectors || [])], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", savedOnly: false, exclude: [...p.exclude] };
   }
-  const emptyJobFilters = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sectors: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false, exclude: [] });
+  const emptyJobFilters = () => ({ roles: [], positions: [], levels: [], exp: [], degrees: [], emps: [], sectors: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false, exclude: [] });
   // the Jobs tab opens with the saved profile's filters. "Reset filters" turns that off for this browser (it is
   // remembered, so a reload does not bring them back); "Use my profile" and saving the profile turn it on again.
   function currentJobFilters() {
@@ -627,6 +639,7 @@
     if (f.degrees.length) q.set("degree", f.degrees.join(","));
     if (f.emps.length) q.set("employees", f.emps.join(","));
     if (f.sectors && f.sectors.length) q.set("sector", f.sectors.join(","));
+    if (f.positions && f.positions.length) q.set("position", f.positions.join(","));
     if (f.sizes.length) q.set("org_size", f.sizes.join(","));
     if (f.remote.length) q.set("remote", f.remote.join(","));
     if (f.cities.length) q.set("city", f.cities.join(","));
@@ -646,6 +659,8 @@
   function buildJobsFilters() {
     const f = currentJobFilters();
     toggles($("#f-roles"), state.options.roles, f.roles, roleLabel, () => refreshJobs(true));
+    if (!f.positions) f.positions = [];
+    chipInput($("#f-position"), f.positions, state.options.positions, () => refreshJobs(true), t("ph.position"), positionPick, positionLabel);
     toggles($("#f-levels"), LEVELS, f.levels, levelLabel, () => refreshJobs(true));
     toggles($("#f-exp"), EXP, f.exp, expLabel, () => refreshJobs(true));
     toggles($("#f-degree"), DEGREES, f.degrees, degreeLabel, () => refreshJobs(true));
@@ -722,11 +737,12 @@
   // ---------- MARKET ----------
   async function renderMarket() {
     const p = new URLSearchParams();
-    const [city, sen, role, comp, sal, lang, remote, exp, sector] = await Promise.all([
+    const [city, sen, role, comp, sal, lang, remote, exp, sector, pos] = await Promise.all([
       api("/api/breakdown/city", withParams(p, { top: 12 })), api("/api/breakdown/seniority", p),
       api("/api/breakdown/role_family", p), api("/api/breakdown/company", withParams(p, { top: 20 })),
       api("/api/salary", p), api("/api/breakdown/posting_language", p), api("/api/breakdown/remote_policy", p),
       api("/api/breakdown/experience", p), api("/api/breakdown/sector", p),
+      api("/api/breakdown/position", withParams(p, { top: 21 })),
     ]);
     const order = (k) => EXP.indexOf(k);
     exp.items.sort((a, b) => order(a.key) - order(b.key));
@@ -735,6 +751,8 @@
     doughnut("mk-seniority", sen.items.map((i) => levelLabel(i.key)), sen.items.map((i) => i.count));
     barChart("mk-role", role.items.map((i) => roleLabel(i.key)), role.items.map((i) => i.count), { color: palette[3] });
     barChart("mk-sector", sector.items.map((i) => sectorLabel(i.key)), sector.items.map((i) => i.count), { color: palette[4] });
+    const top = pos.items.filter((i) => i.key !== "other").slice(0, 20);
+    barChart("mk-position", top.map((i) => positionLabel(i.key)), top.map((i) => i.count), { color: palette[0], onClick: (l) => openJobsWithPosition(top.find((i) => positionLabel(i.key) === l).key) });
     $("#mk-companies tbody").innerHTML = comp.items.map((i) => `<tr><td>${companyLink(i.key)}</td><td>${i.count}</td><td>${Math.round(i.share * 100)}%</td></tr>`).join("");
     $("#mk-salary").innerHTML = sal.n
       ? [[t("salary.n"), fmt(sal.n)], [t("salary.p25"), "€" + fmt(sal.p25)], [t("salary.median"), "€" + fmt(sal.median)], [t("salary.p75"), "€" + fmt(sal.p75)]].map(([l, v]) => `<div class="kpi"><b>${v}</b><span>${esc(l)}</span></div>`).join("")
@@ -748,6 +766,8 @@
   function renderProfile() {
     const p = state.profile;
     toggles($("#p-roles"), state.options.roles, p.roles, roleLabel);
+    if (!p.positions) p.positions = [];
+    chipInput($("#p-position"), p.positions, state.options.positions, null, t("ph.position"), positionPick, positionLabel);
     toggles($("#p-levels"), LEVELS, p.levels, levelLabel);
     toggles($("#p-exp"), EXP, p.exp, expLabel);
     toggles($("#p-degree"), DEGREES, p.degrees, degreeLabel);

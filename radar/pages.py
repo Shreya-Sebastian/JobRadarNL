@@ -305,6 +305,12 @@ def render_job(p, lang: str = "en", sector: str | None = None) -> str:
         from radar.sectors import LABELS
 
         facts.insert(0, LABELS[lang][sector])
+    from radar.positions import LABELS as POSITION_LABELS
+    from radar.positions import position
+
+    kind = position(p.title)
+    if kind != "other":
+        facts.insert(0, POSITION_LABELS[lang][kind])
     facts_html = "".join(f'<span class="chip">{escape(f)}</span>' for f in facts if f)
 
     req, nice = ex.get("skills_required") or [], ex.get("skills_nice") or []
