@@ -23,7 +23,7 @@ class LeverAdapter(Adapter):
                     location=cats.get("location") or ", ".join(cats.get("allLocations") or []) or None,
                     country=job.get("country"),
                     remote=True if workplace == "remote" else None,
-                    description_html=job.get("description"),
+                    description_html=_lever_html(job),
                     description_text=_lever_text(job),
                     posted_at=parse_dt(job.get("createdAt")),
                     raw={"team": cats.get("team"), "commitment": cats.get("commitment"), "workplace": workplace},
@@ -34,6 +34,18 @@ class LeverAdapter(Adapter):
     def probe(self, slug: str) -> bool:
         resp = self.client.get(self.BASE.format(slug=slug), params={"mode": "json", "limit": 1})
         return resp.status_code == 200
+
+
+def _lever_html(job: dict) -> str | None:
+    parts = [job.get("description") or ""]
+    for lst in job.get("lists") or []:
+        if lst.get("text"):
+            parts.append(f"<h3>{lst['text']}</h3>")
+        if lst.get("content"):
+            parts.append(f"<ul>{lst['content']}</ul>")
+    parts.append(job.get("additional") or "")
+    html = "\n".join(p for p in parts if p).strip()
+    return html or None
 
 
 def _lever_text(job: dict) -> str | None:

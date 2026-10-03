@@ -21,7 +21,7 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
 from radar import robots
-from radar.adapters.base import Adapter, AdapterError, RawPosting, html_to_text, parse_dt
+from radar.adapters.base import Adapter, AdapterError, RawPosting, parse_dt
 
 _JOB_LINK = re.compile(r"(job|jobs|career|careers|vacature|vacatures|vacancy|vacancies|position|opening)", re.I)
 
@@ -134,12 +134,12 @@ class JsonLdAdapter(Adapter):
             found = False
             for obj in _jobpostings(soup):
                 p = _to_raw(obj, url)
-                if p and len(p.description_text or "") < 300:
+                if p and len(p.text()) < 300:
                     # the structured data has no description (Thales, many SuccessFactors sites) though the page
                     # shows the vacancy: read the page's own text so the posting is classified on more than its title
                     text = _page_text(soup)
-                    if len(text) > len(p.description_text or ""):
-                        p.description_text = text
+                    if len(text) > len(p.text()):
+                        p.description_text, p.description_html = text, None
                 if p:
                     found_all.append(p)
                     found = True
@@ -379,7 +379,7 @@ def _to_raw(obj: dict[str, Any], page_url: str) -> RawPosting | None:
         city=cities[0] if cities else None,
         country=country.upper() if country else None,
         remote=True if "TELECOMMUTE" in str(jlt).upper() else None,
-        description_text=html_to_text(obj.get("description") or ""),
+        description_html=obj.get("description") or None,
         posted_at=parse_dt(obj.get("datePosted")),
         raw={
             "employment_type": obj.get("employmentType"),

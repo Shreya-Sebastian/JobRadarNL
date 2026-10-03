@@ -211,6 +211,8 @@ def _valid_through(raw: RawPosting):
 
 
 def normalize(raw: RawPosting, company: str) -> dict:
+    from radar.htmlclean import clean_html
+
     text = scrub_contact(raw.text())
     city = raw.city if raw.city in NL_CITIES else detect_city(raw.location) or detect_city(raw.city)
     country = detect_country(raw.location, raw.country)
@@ -234,6 +236,7 @@ def normalize(raw: RawPosting, company: str) -> dict:
         "remote": remote,
         "url": raw.url[:1000],
         "description": text,
+        "description_html": clean_html(raw.description_html) if raw.description_html else "",
         "posted_at": _plausible_posted(raw.posted_at),
         "valid_through": _valid_through(raw),
         "content_hash": content_hash(raw.title, text),

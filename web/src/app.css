@@ -320,5 +320,12 @@
   .job-page .job-credit { @apply mt-0 mb-4; }
   .job-page .job-text { @apply max-w-3xl leading-relaxed text-ink; }
   .job-page .job-text p { @apply mt-0 mb-4; }
+  .job-page .job-text h3 { @apply mt-6 mb-2 text-lg font-semibold text-ink; }
+  .job-page .job-text h4 { @apply mt-5 mb-2 text-base font-semibold text-ink; }
+  .job-page .job-text ul, .job-page .job-text ol { @apply mt-0 mb-4 pl-6; }
+  .job-page .job-text ul { @apply list-disc; }
+  .job-page .job-text ol { @apply list-decimal; }
+  .job-page .job-text li { @apply mb-1.5; }
+  .job-page .job-text strong { @apply font-semibold text-ink; }
   .job-page .card.bad { @apply text-bad; }
 }

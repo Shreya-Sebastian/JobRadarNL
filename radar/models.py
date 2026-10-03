@@ -54,6 +54,9 @@ class Posting(Base):
     remote: Mapped[bool] = mapped_column(Boolean, default=False)
     url: Mapped[str] = mapped_column(String(1000))
     description: Mapped[str] = mapped_column(Text, default="")
+    # the description with its formatting, cleaned to an allowlist (radar/htmlclean.py); "" when the source gives
+    # none, NULL when not read since this column was added
+    description_html: Mapped[str | None] = mapped_column(Text, nullable=True)
     posted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     first_seen: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     last_seen: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

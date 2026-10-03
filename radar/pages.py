@@ -243,10 +243,12 @@ _JOB_TEXT = {
 }
 
 
-def _paragraphs(text: str) -> str:
-    """The stored plain text (blank line between blocks, line breaks inside) as escaped HTML paragraphs."""
-    blocks = [b.strip() for b in re.split(r"\n\s*\n", text or "") if b.strip()]
-    return "".join("<p>" + "<br>".join(escape(line) for line in b.splitlines()) + "</p>" for b in blocks)
+def _body(p) -> str:
+    """The description as HTML: the employer's formatting when the source gave it (cleaned again here, so nothing
+    stored can bypass the allowlist), else paragraphs, lists and headings made from the plain text."""
+    from radar.htmlclean import clean_html, text_to_html
+
+    return clean_html(p.description_html) or text_to_html(p.description or "")
 
 
 def render_job(p, lang: str = "en") -> str:
@@ -323,7 +325,7 @@ def render_job(p, lang: str = "en") -> str:
     if not closed and text:
         posting = {
             "@context": "https://schema.org", "@type": "JobPosting", "title": p.title,
-            "description": _paragraphs(text), "datePosted": when.date().isoformat() if when else None,
+            "description": _body(p), "datePosted": when.date().isoformat() if when else None,
             "hiringOrganization": {"@type": "Organization", "name": p.company},
             "jobLocation": {"@type": "Place", "address": {"@type": "PostalAddress", "addressCountry": "NL",
                                                           **({"addressLocality": p.city} if p.city else {})}},
@@ -367,7 +369,7 @@ def render_job(p, lang: str = "en") -> str:
         .replace("{{COMPANY_PATH}}", company_path(slugify(p.company), lang)) \
         .replace("{{COMPANY}}", escape(p.company)) \
         .replace("{{CREDIT}}", credit) \
-        .replace("{{TEXT}}", _paragraphs(text) or f'<p class="muted">{escape(t["no_text"])}</p>')
+        .replace("{{TEXT}}", _body(p) or f'<p class="muted">{escape(t["no_text"])}</p>')
 
 
 def render_companies(rows: list[Row]) -> str:

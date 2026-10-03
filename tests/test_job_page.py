@@ -71,3 +71,22 @@ def test_sitemap_lists_job_pages(fresh_db):
     pid, _ = _setup()
     sm = TestClient(app).get("/sitemap.xml").text
     assert f"/job/{pid}/senior-backend-engineer" in sm and f"/nl/vacature/{pid}/senior-backend-engineer" in sm
+
+
+def test_job_page_keeps_the_employers_formatting(fresh_db):
+    from radar.api import app
+
+    with session_scope() as s:
+        src = Source(company="Adyen", ats="greenhouse", slug="adyen")
+        s.add(src)
+        s.flush()
+        ingest(s, src, [RawPosting(external_id="9", title="Data Engineer", url="https://careers.adyen.com/j/9",
+                                   location="Amsterdam, Netherlands",
+                                   description_html="<h2>What you do</h2><p>Build <b>Spark</b> pipelines in Python "
+                                                    "and SQL on AWS.</p><ul><li>Kafka</li><li>Airflow</li></ul>")])
+        p = s.query(Posting).filter_by(external_id="9").one()
+        pid, stored = p.id, p.description_html
+    assert stored == "<h3>What you do</h3><p>Build <strong>Spark</strong> pipelines in Python and SQL on AWS.</p>" \
+                     "<ul><li>Kafka</li><li>Airflow</li></ul>"
+    html = TestClient(app).get(f"/job/{pid}/data-engineer", headers=BROWSER).text
+    assert "<h3>What you do</h3>" in html and "<ul><li>Kafka</li><li>Airflow</li></ul>" in html

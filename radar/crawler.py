@@ -65,6 +65,7 @@ def known_urls_for(session: Session, source: Source) -> dict[str, str]:
         return {}
     rows = session.execute(select(Posting.url, Posting.external_id)
                            .where(Posting.source_id == source.id, Posting.closed_at.is_(None),
+                                  Posting.description_html.is_not(None),  # read once more to keep the formatting
                                   func.length(func.coalesce(Posting.description, "")) >= MIN_TEXT)).all()
     if source.ats == "smartrecruiters":
         return {ext: ext for _, ext in rows}
@@ -172,6 +173,8 @@ def ingest(session: Session, source: Source, raws: list[RawPosting], extractor_n
             # a response without the text (a failed detail request, an empty field this time) is not a change:
             # keep the text already stored rather than wiping it
             lost_text = len((fields.get("description") or "").strip()) < 50 <= len((p.description or "").strip())
+            if p.description_html is None and not lost_text:
+                p.description_html = fields.get("description_html")  # formatting for postings read before it was kept
             if p.content_hash != fields["content_hash"] and not lost_text:
                 for k, v in fields.items():
                     setattr(p, k, v)
