@@ -21,6 +21,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 RADAR_LOG_JSON=1
 # glibc gives every thread its own malloc arena and rarely hands the memory back; with the request threads and the
 # row-cache reloads that let the API's memory creep up until the pod limit killed it. Two arenas are plenty here.
 ENV MALLOC_ARENA_MAX=2
+# the data files live next to the app, also for the installed `radar` command (it would look in site-packages)
+ENV RADAR_DATA_DIR=/app/data
 RUN useradd --create-home --uid 10001 radar
 COPY --from=build /install /usr/local
 COPY radar ./radar
@@ -28,7 +30,7 @@ COPY web ./web
 COPY --from=css /app/web/app.css ./web/app.css
 COPY data/golden ./data/golden
 COPY data/seeds ./data/seeds
-COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml data/company_sizes.tsv ./data/
+COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml data/company_sizes.tsv data/company_sectors.tsv ./data/
 RUN mkdir -p /app/data/enumerated /app/data/raw && chown -R radar:radar /app
 USER radar
 EXPOSE 8000 9100
