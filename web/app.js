@@ -315,7 +315,7 @@
   const langCell = (i) => `<span class="lang-${langKey(i)}" title="${t("lang." + langKey(i) + ".title")}">${t("lang." + langKey(i))}</span>`;
   const levelCell = (i) => {
     const lvl = i.seniority === "unknown" || !i.seniority ? "" : levelLabel(i.seniority);
-    const yrs = i.years != null ? `${i.years}+ ${t("yrs")}` : "";
+    const yrs = i.years_text ? `${i.years_text.replace("-", "–")} ${t("yrs")}` : i.years != null ? `${i.years}+ ${t("yrs")}` : "";
     const enrol = i.seniority === "intern" && i.enrollment_required === true ? t("enrol.required")
       : i.seniority === "intern" && i.enrollment_required === false ? t("enrol.open") : "";
     return esc([lvl, yrs, enrol].filter(Boolean).join(" · "));

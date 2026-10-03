@@ -640,3 +640,14 @@ def test_minimum_degree():
     ]
     for title, text, want in cases:
         assert extract_rules(title, text).degree_required == want, (title, text)
+
+
+def test_years_text_keeps_the_wording():
+    from radar.extract.rules import years_text
+
+    assert years_text("Qualifications: 2–5 years of experience in IT support") == "2-5"
+    assert years_text("7+ years of professional backend experience") == "7+"
+    assert years_text("minimaal 2 jaar werkervaring") == "2+"
+    assert years_text("1,5 jaar ervaring") == "1.5"
+    assert years_text("3 years of relevant experience") == "3"
+    assert years_text("€3k after 2 years and a 30% bonus") is None

@@ -210,7 +210,9 @@ _JOB_TEXT = {
         "level": {"intern": "Internship", "trainee": "Trainee / graduate programme", "junior": "Junior",
                   "medior": "Medior", "senior": "Senior", "lead": "Lead", "staff": "Staff / principal",
                   "manager": "Manager"},
-        "years": "{n}+ years of experience", "no_exp": "No experience asked",
+        "years": "{n}+ years of experience", "years_text": "{n} years of experience",
+        "one_year": "1 year of experience",
+        "no_exp": "No experience asked",
         "degree": {"phd": "PhD", "msc": "Master's degree", "bsc": "Bachelor's degree", "hbo": "HBO degree",
                    "mbo": "MBO", "none": "No degree asked"},
         "english": "English, no Dutch required", "dutch": "Dutch required",
@@ -231,7 +233,8 @@ _JOB_TEXT = {
         "level": {"intern": "Stage", "trainee": "Traineeship / starterprogramma", "junior": "Junior",
                   "medior": "Medior", "senior": "Senior", "lead": "Lead", "staff": "Staff / principal",
                   "manager": "Manager"},
-        "years": "{n}+ jaar ervaring", "no_exp": "Geen ervaring gevraagd",
+        "years": "{n}+ jaar ervaring", "years_text": "{n} jaar ervaring", "one_year": "1 jaar ervaring",
+        "no_exp": "Geen ervaring gevraagd",
         "degree": {"phd": "PhD", "msc": "Master", "bsc": "Bachelor", "hbo": "Hbo", "mbo": "Mbo",
                    "none": "Geen opleiding gevraagd"},
         "english": "Engels, geen Nederlands nodig", "dutch": "Nederlands vereist",
@@ -282,7 +285,10 @@ def render_job(p, lang: str = "en", sector: str | None = None) -> str:
     if ex.get("seniority") in t["level"]:
         facts.append(t["level"][ex["seniority"]])
     years = ex.get("years_experience")
-    if years:
+    label = ex.get("years_experience_text")
+    if years and label:
+        facts.append(t["one_year"] if label == "1" else t["years_text"].format(n=label.replace("-", "–")))
+    elif years:
         facts.append(t["years"].format(n=years))
     elif experience_band(ex, p.title) == "none":
         facts.append(t["no_exp"])

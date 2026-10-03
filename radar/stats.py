@@ -586,6 +586,7 @@ def posting_dicts(
             "role": r.ex.get("role_family"),
             "seniority": r.ex.get("seniority"),
             "years": r.ex.get("years_experience"),
+            "years_text": r.ex.get("years_experience_text"),
             "experience": r.experience,
             "degree": r.degree,
             "employees": r.employees,

@@ -27,6 +27,7 @@ class Extraction(BaseModel):
     english_only: bool = True  # no Dutch required
     english_required: bool = True  # posted in English or asks for English; False = Dutch is enough
     years_experience: int | None = None
+    years_experience_text: str | None = None  # as worded: "1-3", "5+", "1.5", "3"
     salary_min_eur: int | None = None
     salary_max_eur: int | None = None
     visa_sponsorship: bool | None = None

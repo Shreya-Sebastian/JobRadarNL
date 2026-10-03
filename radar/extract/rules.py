@@ -9,7 +9,7 @@ from radar.extract.schema import Extraction
 from radar.extract.sections import job_text
 from radar.taxonomy import find_skills
 
-RULES_VERSION = "rules-v17"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
+RULES_VERSION = "rules-v18"  # bump whenever the taxonomy or the rules change, so `radar extract` re-runs
 
 # words only one of the languages uses: "in", "is", "we", "team", "over" and "of" are both Dutch and English,
 # "die" and "er" are also German
@@ -205,7 +205,7 @@ _YEARS = re.compile(
     # (a digit may follow a letter: "Your profile3-6 years", which the source glued together)
     r"(?<![\d.,])(?:(?=\d)|\b)(\d{1,2}\s*(?:months?|maanden)\s*(?:to|tot|[-–—])\s*)?"
     r"((?:een |a )?half(?: a)?|" + _NUM + r")(?:\s*\(\d{1,2}\+?\))?"
-    r"\s*(?:\+|plus|or more|of meer|(?:[-–—]|to|till|until|tot|t/m|à|and|en|or|of)\s*" + _NUM + r"\+?)?"
+    r"\s*(?:(\+|plus|or more|of meer)|(?:[-–—]|to|till|until|tot|t/m|à|and|en|or|of)\s*(" + _NUM + r")\+?)?"
     r"(?:\s*\([^()]{0,25}\))?[\s-]*(?:years?|yrs?|jaren|jaar)\b",
     re.I,
 )
@@ -254,6 +254,38 @@ def _years_value(m: re.Match) -> int:
 def find_years(text: str) -> int | None:
     """Minimum years of experience asked for, or None. Requires experience wording nearby and rejects
     contract durations, benefits ("after 2 years"), company history, ages, "less than 2 years" and the like."""
+    m = _years_match(text)
+    return _years_value(m) if m else None
+
+
+_AT_LEAST = re.compile(r"(?:at least|minimum(?: of)?|min\.?|minimaal|ten ?minste|minstens|more than|over|meer dan)\W*$",
+                       re.I)
+_HALVES = {"half": 0.5, "een half": 0.5, "a half": 0.5, "half a": 0.5, "anderhalf": 1.5}
+
+
+def _num_text(raw: str) -> str:
+    raw = raw.lower()
+    v = float(raw.replace(",", ".")) if raw[0].isdigit() else _HALVES.get(raw, _NUMBER_WORDS.get(raw, 0))
+    return f"{v:g}"
+
+
+def years_text(text: str) -> str | None:
+    """The experience asked for as the posting words it: "1-3" (a range), "5+" (at least), "1.5" or "3"."""
+    m = _years_match(text)
+    if not m or m.group(1):  # "6 months to 3 years" has no tidy short form
+        return None
+    lo = _num_text(m.group(2))
+    if m.group(4):
+        hi = _num_text(m.group(4))
+        if float(hi) > float(lo):
+            return f"{lo}-{hi}"
+    if m.group(3) or _AT_LEAST.search(text[max(0, m.start() - 25) : m.start()]):
+        return f"{lo}+"
+    return lo
+
+
+def _years_match(text: str) -> re.Match | None:
+    """The first years-of-experience phrase that is a requirement (see `find_years`)."""
     for m in _YEARS.finditer(text or ""):
         before = text[max(0, m.start() - 40) : m.start()]
         after = text[m.end() : m.end() + 60]
@@ -270,7 +302,7 @@ def find_years(text: str) -> int | None:
         if _YEARS_CONTEXT.search(after) or _YEARS_CONTEXT.search(before):
             years = _years_value(m)
             if 0 < years < 20:  # "20 years" is nearly always company history, not a requirement
-                return years
+                return m
     return None
 
 
@@ -1355,9 +1387,9 @@ def extract_rules(title: str, description: str) -> Extraction:
     visa = detect_visa(text)
 
     # requirements usually sit before the benefits section, but not always: fall back to the whole text
-    years = find_years(core)
+    years, years_label = find_years(core), years_text(core)
     if years is None:
-        years = find_years(text)
+        years, years_label = find_years(text), years_text(text)
     seniority = detect_seniority(title, text if years is None else f"{years} years of experience")
     if seniority == "unknown":
         # "We are looking for a Senior Information Security Officer ..." in the first lines
@@ -1380,6 +1412,7 @@ def extract_rules(title: str, description: str) -> Extraction:
         english_only=english_only,
         english_required=english_required,
         years_experience=years,
+        years_experience_text=years_label,
         salary_min_eur=lo,
         salary_max_eur=hi,
         visa_sponsorship=visa,
