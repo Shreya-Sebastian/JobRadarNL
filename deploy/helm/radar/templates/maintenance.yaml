@@ -1,0 +1,90 @@
+{{- if and .Values.ingress.enabled .Values.maintenance.enabled }}
+{{- /*
+A maintenance page for the moments the API cannot answer (a deploy restarting it, a crash, a release being rolled
+back): Traefik's errors middleware on the ingress replaces a 502/503/504 with this static page, keeping the status
+code, so visitors and crawlers see a temporary outage instead of a gateway error. Needs Traefik with
+allowEmptyServices (the k3s default), so a service without ready pods still has a router that answers 503.
+*/}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "radar.fullname" . }}-maintenance
+  labels: {{- include "radar.labels" . | nindent 4 }}
+data:
+  index.html: |-
+{{ .Files.Get "files/maintenance.html" | indent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "radar.fullname" . }}-maintenance
+  labels: {{- include "radar.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "radar.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: maintenance
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "radar.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: maintenance
+      annotations:
+        checksum/page: {{ .Files.Get "files/maintenance.html" | sha256sum | trunc 16 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: page
+          image: {{ .Values.maintenance.image }}
+          command: ["httpd", "-f", "-p", "8080", "-h", "/www"]
+          ports:
+            - {name: http, containerPort: 8080}
+          readinessProbe:
+            tcpSocket: {port: http}
+            periodSeconds: 10
+          resources: {{- toYaml .Values.maintenance.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts:
+            - {name: page, mountPath: /www, readOnly: true}
+      volumes:
+        - name: page
+          configMap:
+            name: {{ include "radar.fullname" . }}-maintenance
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "radar.fullname" . }}-maintenance
+  labels: {{- include "radar.labels" . | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "radar.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: maintenance
+  ports:
+    - {name: http, port: 80, targetPort: http}
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ include "radar.fullname" . }}-maintenance
+  labels: {{- include "radar.labels" . | nindent 4 }}
+spec:
+  errors:
+    status: ["502-504"]
+    query: /index.html
+    service:
+      name: {{ include "radar.fullname" . }}-maintenance
+      port: 80
+{{- end }}

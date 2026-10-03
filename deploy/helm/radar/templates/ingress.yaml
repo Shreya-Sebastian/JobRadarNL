@@ -8,6 +8,9 @@ metadata:
     {{- if .Values.ingress.tls }}
     cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer }}
     {{- end }}
+    {{- if .Values.maintenance.enabled }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ .Release.Namespace }}-{{ include "radar.fullname" . }}-maintenance@kubernetescrd
+    {{- end }}
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
