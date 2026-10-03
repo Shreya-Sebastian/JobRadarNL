@@ -250,9 +250,10 @@ _JOB_TEXT = {
 def _body(p) -> str:
     """The description as HTML: the employer's formatting when the source gave it (cleaned again here, so nothing
     stored can bypass the allowlist), else paragraphs, lists and headings made from the plain text."""
-    from radar.htmlclean import clean_html, text_to_html
+    from radar.htmlclean import clean_html, drop_leading, text_to_html
 
-    return clean_html(p.description_html) or text_to_html(p.description or "")
+    body = clean_html(p.description_html) or text_to_html(p.description or "")
+    return drop_leading(body, (p.title, p.company))
 
 
 def render_job(p, lang: str = "en", sector: str | None = None) -> str:

@@ -22,6 +22,7 @@ from bs4 import BeautifulSoup
 
 from radar import robots
 from radar.adapters.base import Adapter, AdapterError, RawPosting, parse_dt
+from radar.htmlclean import clean_html
 
 _JOB_LINK = re.compile(r"(job|jobs|career|careers|vacature|vacatures|vacancy|vacancies|position|opening)", re.I)
 
@@ -139,7 +140,8 @@ class JsonLdAdapter(Adapter):
                     # shows the vacancy: read the page's own text so the posting is classified on more than its title
                     text = _page_text(soup)
                     if len(text) > len(p.text()):
-                        p.description_text, p.description_html = text, None
+                        # the page's own markup keeps its lists and headings for the listing page
+                        p.description_text, p.description_html = text, _page_html(soup)
                 if p:
                     found_all.append(p)
                     found = True
@@ -183,19 +185,44 @@ class JsonLdAdapter(Adapter):
         return [u for u in locs if _JOB_LINK.search(u)] or locs
 
 
-def _page_text(soup: BeautifulSoup, limit: int = 20000) -> str:
-    """The visible text of a vacancy page's main content, without menus, headers, footers, forms and scripts."""
-    root = soup.find("main") or soup.find(attrs={"role": "main"}) or soup.find("article") or soup.body
+def _page_root(soup: BeautifulSoup):
+    """A copy of the vacancy page's main content, without menus, headers, footers, forms, dialogs and scripts."""
+    root = soup.find("main") or soup.find(attrs={"role": "main"}) or soup.find("article")
+    if root is None and soup.body is not None:
+        # no main element: the smallest block around the vacancy's title that holds a real amount of text, so the
+        # site's menus, other vacancies and cookie banner stay out
+        h1 = soup.body.find("h1")
+        root = h1
+        while root is not None and root is not soup.body and len(root.get_text(" ", strip=True)) < 1500:
+            root = root.parent
+        if root is None or root is soup.body or h1 is None:
+            root = soup.body
     if root is None:
-        return ""
+        return None
     root = copy.copy(root)  # the caller still reads links from the original page
     for el in root.find_all(["script", "style", "noscript", "nav", "header", "footer", "form", "aside", "svg",
-                             "iframe", "button"]):
+                             "iframe", "button", "dialog"]):
         el.decompose()
-    for el in root.find_all(attrs={"class": re.compile(r"cookie|consent|breadcrumb|share|related", re.I)}):
+    for el in root.find_all(attrs={"role": re.compile(r"dialog|navigation", re.I)}):
         el.decompose()
+    for el in root.find_all(attrs={"class": re.compile(r"cookie|consent|breadcrumb|share|related|modal", re.I)}):
+        el.decompose()
+    return root
+
+
+def _page_text(soup: BeautifulSoup, limit: int = 20000) -> str:
+    """The visible text of a vacancy page's main content."""
+    root = _page_root(soup)
+    if root is None:
+        return ""
     lines = [ln.strip() for ln in root.get_text("\n").splitlines()]
     return "\n".join(ln for ln in lines if ln)[:limit]
+
+
+def _page_html(soup: BeautifulSoup, limit: int = 60000) -> str | None:
+    """The main content's markup, reduced to the formatting the listing page keeps (radar/htmlclean.py)."""
+    root = _page_root(soup)
+    return (clean_html(str(root)[:limit * 3])[:limit] or None) if root is not None else None
 
 
 def _unique_ids(raws: list[RawPosting]) -> list[RawPosting]:
