@@ -27,6 +27,17 @@ from radar.stats import Filters, Row, breakdown
     ("PhD position in robotics", "phd_research"),
     ("Fullstack Developer", "fullstack"),
     ("Frontend Developer React", "frontend"),
+    ("Servicedeskmedewerker", "it_support"),
+    ("Senior Oracle Ontwikkelaar", "software_engineer"),
+    ("SAP FICO Consultant", "it_consultant"),
+    ("Information Security Consultant", "security_officer"),
+    ("Data Engineering Consultant", "data_engineer"),
+    ("Medior Automation engineer (PowerPlatform & UiPath)", "low_code"),
+    ("Automation Engineer", "plc_automation"),
+    ("SAP (S4/HANA) Projectmanager", "project_manager"),
+    ("Front-end developer met passie voor DevOps", "frontend"),
+    ("Technisch Support Engineer bij M2Beveiliging", "it_support"),
+    ("Technical Lead", "software_engineer"),
 ])
 def test_position(title, kind):
     assert position(title) == kind

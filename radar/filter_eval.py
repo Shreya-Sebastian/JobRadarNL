@@ -116,6 +116,20 @@ def run_filter_eval(path: str | Path = "data/golden/filters.jsonl", split: str =
         rep.add(name, k, n, note)
 
     exact("role family", "role_family", note="Role filter")
+    from radar.positions import position
+
+    k = n = 0
+    for it, _ex in tech_items:
+        want = it["labels"].get("position")
+        if want is None:
+            continue
+        got = position(it["title"])
+        n += 1
+        if want == got:
+            k += 1
+        else:
+            miss("position", it, want, got)
+    rep.add("position", k, n, "Position filter")
     exact("level", "seniority", note="Level filter")
     exact("years of experience", "years_experience", note="exact minimum years")
     k = n = 0
