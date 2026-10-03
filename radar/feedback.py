@@ -1,4 +1,4 @@
-"""The feedback page: visitors report a bug, a wrong or missing listing, or an idea.
+"""The feedback page: visitors report a bug, a wrong or missing listing, or make a suggestion.
 
 Each message is stored and e-mailed to the site owner (RADAR_ALERT_EMAIL) with the sender as Reply-To when they
 left an address. A hidden field catches bots, and each visitor can send a few messages an hour. Messages are
@@ -28,7 +28,7 @@ KEEP_DAYS = 365
 MAX_PER_HOUR = 5
 _hits: dict[str, deque] = {}
 _lock = threading.Lock()
-_KINDS = {"bug": "Something does not work", "listing": "Wrong or missing listing", "idea": "Idea",
+_KINDS = {"bug": "Something does not work", "listing": "Wrong or missing listing", "idea": "Suggestion",
           "other": "Other"}
 
 
