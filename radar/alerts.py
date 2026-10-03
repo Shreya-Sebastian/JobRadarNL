@@ -42,6 +42,7 @@ def profile_filters(profile: dict, since: datetime) -> stats.Filters:
     return stats.Filters(
         role=csv("roles"), seniority=csv("levels"), experience=csv("exp"), degree=csv("degrees"),
         employees=csv("emps"), org_size=csv("sizes"), remote=csv("remote"), city=csv("cities"),
+        sector=csv("sectors"), position=csv("positions"),
         exclude_companies=csv("exclude"), language=profile.get("language") or None,
         sponsorship=True if profile.get("visa") else None, exclude_agencies=bool(profile.get("agencies")),
         enrollment="open" if profile.get("noenrol") else None, since=since.isoformat(),

@@ -58,3 +58,13 @@ def test_filter_and_breakdown():
     rows = [_row(1, "Data Engineer"), _row(2, "Data Engineer II"), _row(3, "Product Owner")]
     assert [r.id for r in Filters(position="product_owner").apply(rows)] == [3]
     assert breakdown(rows, "position")[0] == {"key": "data_engineer", "count": 2, "share": 0.6667}
+
+
+def test_alerts_use_position_and_sector_from_the_profile():
+    from datetime import datetime
+
+    from radar.alerts import profile_filters
+
+    f = profile_filters({"positions": ["data_engineer"], "sectors": ["finance"], "cities": ["Utrecht"]},
+                        datetime(2026, 10, 1))
+    assert (f.position, f.sector, f.city) == ("data_engineer", "finance", "Utrecht")
