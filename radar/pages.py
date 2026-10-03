@@ -138,8 +138,7 @@ def render_company(name: str, rows: list[Row], lang: str = "en") -> str:
     headcount = next((r.employees for r in mine if r.employees), None)
     rows_html = "".join(
         f"<tr><td class=\"muted\">{_age(r, lang)}</td>"
-        f"<td><a href=\"{escape(r.url)}\" rel=\"noopener\">{escape(r.title)}</a> "
-        f"<a class=\"info\" href=\"{job_path(r.id, r.title, lang)}\">Info</a></td>"
+        f"<td><a href=\"{job_path(r.id, r.title, lang)}\">{escape(r.title)}</a></td>"
         f"<td>{escape(city(r.city) or ('Remote' if r.remote else ''))}</td>"
         f"<td>{escape(r.ex.get('seniority') or '') if r.ex.get('seniority') != 'unknown' else ''}</td>"
         f"<td>{escape(', '.join(r.skills[:6]))}</td>"
@@ -158,7 +157,8 @@ def render_company(name: str, rows: list[Row], lang: str = "en") -> str:
         "about": {"@type": "Organization", "name": name,
                   **({"numberOfEmployees": {"@type": "QuantitativeValue", "value": headcount}} if headcount else {})},
         "mainEntity": {"@type": "ItemList", "numberOfItems": len(mine), "itemListElement": [
-            {"@type": "ListItem", "position": i + 1, "url": r.url, "name": r.title} for i, r in enumerate(mine[:50])
+            {"@type": "ListItem", "position": i + 1, "url": base + job_path(r.id, r.title, lang), "name": r.title}
+            for i, r in enumerate(mine[:50])
         ]},
     }
     sep = "." if lang == "nl" else ","

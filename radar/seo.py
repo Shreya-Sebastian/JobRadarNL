@@ -259,7 +259,7 @@ def _entry(r: stats.Row) -> bool:
 
 
 def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> str:
-    from radar.pages import company_path, slugify
+    from radar.pages import company_path, job_path, slugify
 
     T = _T[lang]
     base = settings.site_url.rstrip("/")
@@ -331,7 +331,7 @@ def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> s
         return T["today"] if d == 0 else T["days"].format(d=d)
 
     rows_html = "".join(
-        f'<tr><td><a href="{escape(r.url)}" rel="noopener">{escape(r.title)}</a></td>'
+        f'<tr><td><a href="{job_path(r.id, r.title, lang)}">{escape(r.title)}</a></td>'
         f'<td><a href="{company_path(slugify(r.company), lang)}">{escape(r.company)}</a></td>'
         f"<td>{escape(city_nl(r.city) if lang == 'nl' and r.city else (r.city or ''))}</td>"
         f"<td>{escape(level(r))}</td><td>{'EN' if r.ex.get('english_only') else 'NL'}</td>"
@@ -380,7 +380,8 @@ def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> s
                     "@type": "ItemList",
                     "numberOfItems": n,
                     "itemListElement": [
-                        {"@type": "ListItem", "position": i + 1, "url": r.url, "name": r.title}
+                        {"@type": "ListItem", "position": i + 1, "url": base + job_path(r.id, r.title, lang),
+                         "name": r.title}
                         for i, r in enumerate(mine[:30])
                     ],
                 },

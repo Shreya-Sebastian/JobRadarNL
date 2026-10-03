@@ -321,6 +321,4 @@
   .job-page .job-text { @apply max-w-3xl leading-relaxed text-ink; }
   .job-page .job-text p { @apply mt-0 mb-4; }
   .job-page .card.bad { @apply text-bad; }
-  /* the "Info" link next to each listing's title */
-  a.info { @apply ml-1.5 rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted no-underline hover:border-accent hover:text-accent; }
 }

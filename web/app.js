@@ -55,7 +55,7 @@
      
       "match.none": "No live posting fits all your profile filters. Loosen a level or city under Profile.",
       "li.match": "match {p}%", "li.have": "you have {s}", "li.missing": "missing {s}", "agency": "agency", "closed": "closed",
-      "jobs.match": "{n} jobs match", "info": "Info", "info.title": "Job details and the employer's description on this site", "jobs.match.one": "1 job matches", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", 
+      "jobs.match": "{n} jobs match", "jobs.match.one": "1 job matches", "page": "page {p} of {t}", "today": "today", "yesterday": "yesterday", "days.ago": "{d}d ago", "old": "old", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Dutch required, no English needed", "lang.en.title": "No Dutch required", "lang.both.title": "Dutch and English both required",
       "visa.yes": "yes", "visa.no": "no", "visa.unknown": "?", "save": "save", "remove": "remove",
       "salary.none": "No posting in this selection states a salary.", "salary.n": "postings state a salary", "salary.median": "median", "salary.p25": "lower quarter", "salary.p75": "upper quarter",
@@ -162,7 +162,7 @@
      
       "match.none": "Geen open vacature past bij al je profielfilters. Versoepel een niveau of stad onder Profiel.",
       "li.match": "match {p}%", "li.have": "je hebt {s}", "li.missing": "mist {s}", "agency": "bureau", "closed": "gesloten",
-      "jobs.match": "{n} vacatures gevonden", "info": "Info", "info.title": "Vacaturedetails en de tekst van de werkgever op deze site", "jobs.match.one": "1 vacature gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", 
+      "jobs.match": "{n} vacatures gevonden", "jobs.match.one": "1 vacature gevonden", "page": "pagina {p} van {t}", "today": "vandaag", "yesterday": "gisteren", "days.ago": "{d}d geleden", "old": "oud", 
       "lang.nl": "NL", "lang.en": "EN", "lang.both": "NL + EN", "lang.nl.title": "Nederlands vereist, geen Engels nodig", "lang.en.title": "Geen Nederlands vereist", "lang.both.title": "Nederlands en Engels allebei vereist",
       "visa.yes": "ja", "visa.no": "nee", "visa.unknown": "?", "save": "bewaren", "remove": "verwijderen",
       "salary.none": "Geen vacature in deze selectie noemt een salaris.", "salary.n": "vacatures noemen een salaris", "salary.median": "mediaan", "salary.p25": "onderste kwart", "salary.p75": "bovenste kwart",
@@ -556,13 +556,12 @@
     const m = i.match != null
       ? [t("li.match", { p: Math.round(i.match * 100) }), i.matched.length ? t("li.have", { s: esc(i.matched.join(", ")) }) : "", i.missing.length ? t("li.missing", { s: esc(i.missing.slice(0, 4).join(", ")) }) : ""].filter(Boolean).join(" · ")
       : (i.skills || []).slice(0, 5).join(", ");
-    return `<li><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>${infoLink(i)} · ${companyLink(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${m}</div></li>`;
+    return `<li><a href="${jobPath(i)}" data-pid="${i.id}" target="_blank">${esc(i.title)}</a> · ${companyLink(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${m}</div></li>`;
   }
   function openJobsWithSkill(skill) { state.skill = skill; state.page = 1; location.hash = "#jobs"; }
   // the listing's page on this site (/job/<id>/<slug>): the employer's text with what the radar read from it
   const slugify = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "company";
   const jobPath = (i) => (LANG === "nl" ? "/nl/vacature/" : "/job/") + i.id + "/" + slugify(i.title);
-  const infoLink = (i) => ` <a class="info" href="${jobPath(i)}" title="${esc(t("info.title"))}">${t("info")}</a>`;
   function companyLink(name) { return `<a class="co" href="#company=${encodeURIComponent(name)}">${esc(name)}</a>`; }
 
   // ---------- COMPANY ----------
@@ -595,7 +594,7 @@
     document.title = `${document.title.split(":")[0]}: ${t("co.title", { c: name })}`;
     $("#co-jobs tbody").innerHTML = items.length ? items.map((i) => `<tr>
       <td class="muted" title="${esc(i.posted_at)}">${age(i)}</td>
-      <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>${infoLink(i)}</td>
+      <td><a href="${jobPath(i)}" data-pid="${i.id}" target="_blank">${esc(i.title)}</a></td>
       <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}${i.also_in && i.also_in.length ? ` <span class="more-cities" title="${esc(t("also.in", { c: i.also_in.map(cityLabel).join(", ") }))}">+${i.also_in.length}</span>` : ""}</td>
       <td>${levelCell(i)}</td>
       <td><div class="chips">${i.skills.slice(0, 6).map((sk) => `<span class="chip${have.has(sk) ? " have" : ""}">${esc(sk)}</span>`).join("")}</div></td>
@@ -698,7 +697,7 @@
     $("#postings tbody").innerHTML = d.items.map((i) => `<tr>
       <td><button class="star${state.saved.includes(i.id) ? " on" : ""}" data-id="${i.id}" title="${t("save")}">${state.saved.includes(i.id) ? "★" : "☆"}</button></td>
       <td class="muted" title="${esc(i.posted_at)}">${age(i)}${i.age_days > 90 ? `<span class="badge stale">${t("old")}</span>` : ""}</td>
-      <td><a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener" title="${esc(trustText(i))}">${esc(i.title)}</a>${trustBadge(i)}${infoLink(i)}</td>
+      <td><a href="${jobPath(i)}" data-pid="${i.id}" target="_blank" title="${esc(trustText(i))}">${esc(i.title)}</a>${trustBadge(i)}</td>
       <td>${companyLink(i.company)}${i.via_agency ? ` <span class="chip more">${t("agency")}</span>` : ""}</td>
       <td>${esc(i.city ? cityLabel(i.city) : (i.remote ? "Remote" : ""))}${i.also_in && i.also_in.length ? ` <span class="more-cities" title="${esc(t("also.in", { c: i.also_in.map(cityLabel).join(", ") }))}">+${i.also_in.length}</span>` : ""}</td>
       <td>${levelCell(i)}</td>
@@ -807,7 +806,7 @@
     $("#p-saved-count").textContent = `${state.saved.length}`;
     if (!state.saved.length) { $("#p-saved").innerHTML = `<li class="muted">${t("p.saved.empty")}</li>`; return; }
     const d = await api("/api/postings", new URLSearchParams({ ids: state.saved.join(","), size: 200, include_closed: "true", skills_have: state.profile.skills.join(",") }));
-    $("#p-saved").innerHTML = d.items.map((i) => `<li><button class="star on" data-id="${i.id}" title="${t("remove")}">★</button> <a href="${esc(i.url)}" data-pid="${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>${infoLink(i)} · ${esc(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.closed ? ` <span class="chip more">${t("closed")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${(i.skills || []).slice(0, 6).join(", ")}</div></li>`).join("");
+    $("#p-saved").innerHTML = d.items.map((i) => `<li><button class="star on" data-id="${i.id}" title="${t("remove")}">★</button> <a href="${jobPath(i)}" data-pid="${i.id}" target="_blank">${esc(i.title)}</a> · ${esc(i.company)}${i.city ? " · " + esc(cityLabel(i.city)) : ""}${i.closed ? ` <span class="chip more">${t("closed")}</span>` : ""}<div class="m">${esc(i.posted_at)} · ${(i.skills || []).slice(0, 6).join(", ")}</div></li>`).join("");
   }
 
   function renderAccount() {
