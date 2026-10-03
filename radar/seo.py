@@ -217,7 +217,7 @@ _T = {
         "stated": "vacatures die een bedrag noemen",
         "newest": "Nieuwste vacatures",
         "related": "Ook bekijken",
-        "interactive": "Open de interactieve weergave",
+        "interactive": "Bekijk alle {n} vacatures",
         "lang_other": "English",
         "home": "Alle tech vacatures",
         "intro": "{n} open vacatures bij {m} werkgevers, rechtstreeks gelezen van hun eigen carrièresites en elke paar "
@@ -242,7 +242,7 @@ _T = {
         "stated": "postings that state an amount",
         "newest": "Newest openings",
         "related": "See also",
-        "interactive": "Open the interactive view",
+        "interactive": "See all {n} jobs",
         "lang_other": "Nederlands",
         "home": "All tech jobs",
         "intro": "{n} open roles at {m} employers, read directly from their own career sites and refreshed every few "
@@ -256,6 +256,17 @@ _T = {
 
 def _entry(r: stats.Row) -> bool:
     return r.ex.get("seniority") in ("intern", "trainee", "junior") or r.experience in ("none", "1")
+
+
+def jobs_link(page: Page, lang: str) -> str:
+    """The site's Jobs tab with this page's filters applied (web/app.js reads `#jobs?<filters>`)."""
+    from urllib.parse import urlencode
+
+    params = {k: ("true" if v is True else v) for k, v in page.filters.items() if v not in (None, False, "")}
+    if page.city:
+        params["city"] = page.city
+    home = "/nl/" if lang == "nl" else "/"
+    return f"{home}#jobs?{urlencode(params, safe=',')}" if params else f"{home}#jobs"
 
 
 def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> str:
@@ -426,7 +437,8 @@ def render(page: Page, lang: str, rows: list[stats.Row], pages: list[Page]) -> s
         "{{TH}}": "".join(f"<th>{h}</th>" for h in T["th"]),
         "{{RELATED_H}}": T["related"],
         "{{RELATED}}": rel_html,
-        "{{INTERACTIVE}}": T["interactive"],
+        "{{INTERACTIVE}}": T["interactive"].format(n=f"{n:,}".replace(",", "." if lang == "nl" else ",")),
+        "{{JOBS_LINK}}": escape(jobs_link(page, lang)),
         "{{HOME}}": ("/nl/" if lang == "nl" else "/"),
         "{{HOME_LABEL}}": T["home"],
         "{{UPDATED}}": f"{T['updated']} {datetime.utcnow():%Y-%m-%d}",

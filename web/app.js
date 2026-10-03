@@ -630,6 +630,26 @@
     if (!jobFilters) jobFilters = hasProfileFilters() && store.get("jobsUseProfile", true) ? profileJobFilters() : emptyJobFilters();
     return jobFilters;
   }
+  function filtersFromParams(q) {
+    const list = (k) => (q.get(k) || "").split(",").map((s) => s.trim()).filter(Boolean);
+    return Object.assign(emptyJobFilters(), {
+      roles: list("role"), positions: list("position"), levels: list("seniority"), exp: list("experience"), degrees: list("degree"),
+      emps: list("employees"), sectors: list("sector"), sizes: list("org_size"), remote: list("remote"), cities: list("city"),
+      exclude: list("exclude_companies"), language: q.get("language") || "", visa: q.get("sponsorship") === "true",
+      agencies: q.get("exclude_agencies") === "true", noenrol: q.get("enrollment") === "open", confirmed: !!q.get("confirmed_days"),
+      q: q.get("q") || "", days: q.get("days") || "", savedOnly: q.get("saved") === "1",
+    });
+  }
+  // the current search as a link, so it can be bookmarked or shared (saved jobs stay out of it: they are personal)
+  function syncJobsUrl() {
+    const q = jobParams();
+    q.delete("ids");
+    if (currentJobFilters().savedOnly) q.set("saved", "1");
+    if (state.sort !== "newest") q.set("sort", state.sort);
+    const s = q.toString().replace(/%2C/g, ",");
+    const want = "#jobs" + (s ? "?" + s : "");
+    if (location.hash !== want) history.replaceState(null, "", location.pathname + location.search + want);
+  }
   function jobParams() {
     const f = currentJobFilters();
     const q = new URLSearchParams();
@@ -709,6 +729,7 @@
     const have = state.profile.skills;
     if (have.length) p.set("skills_have", have.join(","));
     if (state.sort !== "match" || have.length) p.set("sort", state.sort);
+    syncJobsUrl();
     const d = await api("/api/postings", p);
     const pages = Math.max(1, Math.ceil(d.total / d.size));
     $("#count").textContent = d.total === 1 ? t("jobs.match.one") : t("jobs.match", { n: fmt(d.total) });
@@ -990,7 +1011,17 @@
   async function route() {
     if (!firstRoute) beacon("nav");
     firstRoute = false;
-    const raw = (location.hash || "#overview").slice(1);
+    let raw = (location.hash || "#overview").slice(1);
+    const qi = raw.indexOf("?");
+    if (qi >= 0) {
+      const q = new URLSearchParams(raw.slice(qi + 1));
+      raw = raw.slice(0, qi);
+      if (raw === "jobs") {  // a search from a link: these filters for this visit, the saved preference is untouched
+        jobFilters = filtersFromParams(q);
+        state.skill = q.get("skill") || null; state.page = 1;
+        if (["newest", "match", "size_small", "size_large"].includes(q.get("sort"))) state.sort = q.get("sort");
+      }
+    }
     const eq = raw.indexOf("=");
     const tab = eq >= 0 ? raw.slice(0, eq) : raw;
     state.routeArg = eq >= 0 ? decodeURIComponent(raw.slice(eq + 1)) : null;
