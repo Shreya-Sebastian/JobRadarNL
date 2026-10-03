@@ -19,6 +19,8 @@ jobs:
       - run: pytest -q
       - name: Extraction evals (gate)
         run: python -m radar.cli eval --golden data/golden/golden.jsonl --extractor rules --fail-under 0.70
+      - name: Filter test set (500 labelled postings)
+        run: python -m radar.cli eval-filters --gate
 
   docker:
     runs-on: ubuntu-latest

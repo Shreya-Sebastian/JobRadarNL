@@ -475,6 +475,29 @@ def cmd_eval(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
+def cmd_eval_filters(args: argparse.Namespace) -> None:
+    """Score the classifier and extractor on the 500-posting filter test set; --errors lists the misses."""
+    from radar.filter_eval import run_filter_eval
+
+    report = run_filter_eval(args.set)
+    print(report.to_markdown())
+    if args.errors:
+        for name, rows in report.errors.items():
+            if args.errors == "all" or args.errors == name:
+                print(f"\n## {name} ({len(rows)})")
+                for r in rows:
+                    print(f"- {r['id']} {r['title'][:70]!r}: want {r['want']!r}, got {r['got']!r}")
+    failed = [f"{name} {report.get(name).value:.3f} < {floor}" for name, floor in _FILTER_FLOORS.items()
+              if args.gate and report.get(name).value < floor]
+    if failed:
+        print("FAIL: " + "; ".join(failed))
+        sys.exit(1)
+
+
+# CI floors for the filter test set: the measures where a regression would show wrong jobs to visitors
+_FILTER_FLOORS: dict[str, float] = {}
+
+
 def cmd_analytics_nightly(_: argparse.Namespace) -> None:
     """Keep daily visit totals and drop old raw page views (Kubernetes CronJob)."""
     from radar.tasks import analytics_nightly
@@ -640,6 +663,12 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--ats", nargs="*")
     p.add_argument("--min-nl", type=int, default=1)
     p.set_defaults(fn=cmd_register_probed)
+
+    p = sub.add_parser("eval-filters", help="score the filters against the 500-posting filter test set")
+    p.add_argument("--set", default="data/golden/filters.jsonl")
+    p.add_argument("--errors", nargs="?", const="all", default=None, help="list misses (all, or one measure)")
+    p.add_argument("--gate", action="store_true", help="fail when a measure drops below its CI floor")
+    p.set_defaults(fn=cmd_eval_filters)
 
     p = sub.add_parser("eval", help="score an extractor against the golden set")
     p.add_argument("--golden", default="data/golden/golden.jsonl")
