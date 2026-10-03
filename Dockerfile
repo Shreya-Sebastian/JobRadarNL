@@ -33,6 +33,9 @@ COPY data/seeds ./data/seeds
 COPY data/sources.yaml data/source_kinds.yaml data/top100.yaml data/company_sizes.tsv data/company_sectors.tsv ./data/
 RUN mkdir -p /app/data/enumerated /app/data/raw && chown -R radar:radar /app
 USER radar
+# the commit the image was built from, reported by /healthz so a deploy can be confirmed from outside
+ARG GIT_SHA=dev
+ENV RADAR_BUILD=${GIT_SHA}
 EXPOSE 8000 9100
 HEALTHCHECK --interval=30s --timeout=5s CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz').status==200 else 1)" || exit 1
 CMD ["python", "-m", "radar.cli", "serve", "--host", "0.0.0.0", "--port", "8000"]

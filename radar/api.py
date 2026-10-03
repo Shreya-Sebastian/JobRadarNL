@@ -413,8 +413,10 @@ def admin_status(request: Request):
 
 @app.get("/healthz")
 def healthz():
-    """Liveness: the process is up."""
-    return {"ok": True}
+    """Liveness: the process is up, and which build it runs (the commit, set at image build)."""
+    import os
+
+    return {"ok": True, "build": os.environ.get("RADAR_BUILD", "dev")[:12]}
 
 
 @app.get("/readyz")

@@ -43,8 +43,9 @@ workers instead. Configuration is through `RADAR_*` environment variables (see `
 ## Deployment
 
 Production runs on k3s on a single AWS EC2 instance, deployed with the Helm chart in `deploy/helm/radar`. The AWS
-resources are defined in Terraform (`deploy/aws`), and GitHub Actions runs the checks and builds the container image
-on every push.
+resources are defined in Terraform (`deploy/aws`). Every push to main runs the tests and evaluation gates in GitHub
+Actions, builds an image tagged with the commit and points `deploy/flux/radar.yaml` at it; Flux in the cluster then
+upgrades the release from Git and rolls it back if the new pods do not become ready.
 
 ## Evaluation
 

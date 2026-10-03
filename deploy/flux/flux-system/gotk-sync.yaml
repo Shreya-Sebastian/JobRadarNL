@@ -1,0 +1,30 @@
+# Flux watches this repository and applies deploy/flux (itself included). The cluster pulls; nothing outside it
+# needs access to the Kubernetes API.
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://github.com/Shreya-Sebastian/JobRadarNL
+  ref:
+    branch: main
+  # only the deployment files and the chart: a small artifact, and app-only commits do not touch the cluster
+  ignore: |
+    /*
+    !/deploy/
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  interval: 10m
+  path: ./deploy/flux
+  prune: true
+  wait: false
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

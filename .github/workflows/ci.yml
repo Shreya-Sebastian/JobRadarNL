@@ -1,9 +1,10 @@
 name: ci
 
+# Pull requests run it here; pushes to main run it as the first stage of deploy.yml, which only ships when it passes.
 on:
-  push:
-    branches: [main]
   pull_request:
+  workflow_call:
+  workflow_dispatch:
 
 jobs:
   test:

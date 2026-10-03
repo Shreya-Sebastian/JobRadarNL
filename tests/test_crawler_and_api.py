@@ -112,7 +112,7 @@ def test_api_endpoints(fresh_db):
     from radar.api import app
 
     client = TestClient(app)
-    assert client.get("/healthz").json() == {"ok": True}
+    assert client.get("/healthz").json() == {"ok": True, "build": "dev"}
     home = client.get("/").text
     assert "{{" not in home and "<h1>Tech Jobs Radar</h1>" in home and "TechJobsNL" in home
     assert '"@type": "WebSite"' in home

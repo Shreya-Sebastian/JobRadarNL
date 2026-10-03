@@ -1,10 +1,8 @@
 name: image
 
-# Builds the container image on every push to main and publishes it to GitHub Packages (ghcr.io).
-# Deploying it is a separate, manual step (deploy.yml, or helm from a laptop).
+# Builds and publishes the container image by hand (GitHub Packages, ghcr.io). Pushes to main build it as part of
+# deploy.yml, after the tests and before the deploy.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

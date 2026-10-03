@@ -1,18 +1,31 @@
 name: deploy
 
-# Manual until a production cluster exists; then restore the push trigger:
-#   push:
-#     branches: [main]
+# Continuous delivery, GitOps style. Every push to main: the full test suite and evaluation gates (ci.yml), then an
+# image tagged with the commit, then a commit that points deploy/flux/radar.yaml at that image. Flux, running in the
+# cluster, picks the change up from Git and upgrades the Helm release (rolling back if the new pods never get
+# ready). The last job waits until the live site reports the new build. Nothing here can reach the cluster.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: production
+  cancel-in-progress: false  # never stop a deploy halfway; the next push waits its turn
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
-  build:
+  test:
+    uses: ./.github/workflows/ci.yml
+
+  image:
+    needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     outputs:
       tag: ${{ steps.meta.outputs.tag }}
     steps:
@@ -24,38 +37,55 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - id: meta
-        run: echo "tag=sha-${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "repo=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "tag=sha-${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
+          build-args: GIT_SHA=${{ github.sha }}
           tags: |
-            ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.tag }}
-            ghcr.io/${{ github.repository }}:latest
+            ${{ steps.meta.outputs.repo }}:${{ steps.meta.outputs.tag }}
+            ${{ steps.meta.outputs.repo }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  deploy:
+  release:
+    needs: image
     runs-on: ubuntu-latest
-    needs: build
-    environment: production
+    permissions:
+      contents: write  # the commit that tells Flux which image to run
     steps:
       - uses: actions/checkout@v4
-      - uses: azure/setup-helm@v4
-      - name: Write kubeconfig
+        with:
+          ref: main
+      - name: Point the release at the new image
+        env:
+          TAG: ${{ needs.image.outputs.tag }}
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
-          chmod 600 ~/.kube/config
-      - name: Helm upgrade
+          sed -i -E "s/^( +tag: )sha-[0-9a-f]{12}/\1${TAG}/" deploy/flux/radar.yaml
+          grep -q "tag: ${TAG}" deploy/flux/radar.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git diff --quiet && { echo "already at ${TAG}"; exit 0; }
+          git commit -am "Deploy ${TAG}"
+          # a push with this token starts no new workflow run, so the commit cannot loop
+          for _ in 1 2 3; do git push && exit 0; git pull --rebase; done
+          exit 1
+
+  verify:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Live site runs the new build
         run: |
-          helm upgrade --install radar deploy/helm/radar \
-            --namespace radar --create-namespace \
-            --set image.repository=ghcr.io/${{ github.repository }} \
-            --set image.tag=${{ needs.build.outputs.tag }} \
-            --set ingress.host=${{ vars.RADAR_HOST }} \
-            --set config.corsOrigins=https://${{ vars.RADAR_HOST }} \
-            --set database.existingSecret=radar-db \
-            --wait --timeout 10m
-      - name: Smoke test
-        run: curl -fsS https://${{ vars.RADAR_HOST }}/readyz
+          want="${GITHUB_SHA::12}"
+          for _ in $(seq 1 60); do
+            got="$(curl -fsS -A "TechJobsRadar-deploy-check" https://techjobsradar.nl/healthz | jq -r '.build // empty' || true)"
+            [ "$got" = "$want" ] && { echo "live: $got"; exit 0; }
+            echo "live: ${got:-?}, waiting for $want"
+            sleep 20
+          done
+          echo "the site did not switch to $want within 20 minutes (Flux rolls back a release that fails)"
+          exit 1

@@ -1,0 +1,20 @@
+# Flux itself (only the source, kustomize and helm controllers) and the radar release.
+# Bootstrap once with `kubectl apply -k deploy/flux` (twice: the first run creates the CRDs); after that Flux keeps
+# this directory applied from main.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - flux-system/gotk-components.yaml
+  - flux-system/gotk-sync.yaml
+  - radar.yaml
+patches:
+  # the node has 2 GB in all: small requests and a hard cap per controller instead of the 1 GiB default limit
+  - target:
+      kind: Deployment
+      namespace: flux-system
+    patch: |
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: {cpu: 20m, memory: 48Mi}
+          limits: {cpu: 500m, memory: 256Mi}
