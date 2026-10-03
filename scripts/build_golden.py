@@ -67,6 +67,7 @@ OVERRIDES: dict[int, dict] = {
     32: {"degree_required": "bsc", **rm("UX/Design")},
     33: {"role_family": "it_support", **add("Windows Server/AD"),  # "Active Directory, Exchange, MDM"
          **add_nice("Endpoint Management", "ITIL/ITSM", "Virtualization")},  # Intune, ITIL, virtualization
+    27: {"role_family": "ml"},  # "GenAI Python Engineer": AI engineering is ML
     35: {"role_family": "other", "remote_policy": "unknown", "degree_required": "mbo"},  # gym only; "MBO/4 to HBO"
     39: {"dutch_required": False, "english_only": True, "seniority": "senior", **add("Networking")},  # firewalls
 }
@@ -74,7 +75,11 @@ OVERRIDES: dict[int, dict] = {
 # corrections to records added later (scripts/add_golden.py), by posting id
 LATER: dict[int, dict] = {
     23411: add("Networking"),  # "working knowledge of ... networking"
-    23412: add("ITIL/ITSM"),  # "ITSM tooling (e.g. ServiceNow)"
+    # "ITSM tooling (e.g. ServiceNow)"; a technical program manager is a product role (role definitions, Oct 2026)
+    23412: {**add("ITIL/ITSM"), "role_family": "product"},
+    23744: {"role_family": "data"},  # "Data & AI" internships are data, like the filter test set
+    23322: {"role_family": "data"},  # data-labelling work for an AI team
+    23323: {"role_family": "data"},
 }
 
 
@@ -102,7 +107,9 @@ def main() -> None:
     later = [json.loads(line) for line in DST.read_text(encoding="utf-8").splitlines()
              if line.strip() and json.loads(line)["id"] not in mine] if DST.exists() else []
     for r in later:
-        _apply_skills(r["expected"], LATER.get(r["id"], {}))
+        fix = LATER.get(r["id"], {})
+        _apply_skills(r["expected"], fix)
+        r["expected"].update({k: v for k, v in fix.items() if not k.startswith("_")})
     out += later
     DST.write_text("\n".join(json.dumps(o, ensure_ascii=False) for o in out) + "\n", encoding="utf-8")
     print(f"wrote {len(out)} golden postings to {DST} ({len(later)} kept from later batches)")

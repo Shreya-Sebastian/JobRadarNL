@@ -483,8 +483,23 @@ _SENIORITY = [
     ("senior", r"\bsenior\b|\bsr\.?\b"),
 ]
 _ROLE = [
-    ("product", r"product (owner|manager)|projectmanager|scrum master|agile coach|project manager|delivery manager|"
-                r"release train engineer"),
+    ("security", r"\bciso\b|chief information security"),
+    ("product", r"product (owner|manager|lead)|projectmanager|scrum master|agile coach|project manager|"
+                r"delivery manager|"
+                r"release train engineer|program(?:me|ma)? ?manager|programmamanager|projects? director|"
+                r"\bit[- ]project\w*|digital solution lead"),
+    # analysts of the business, the process or the requirements: "other" unless the title says data
+    ("other", r"^(?!.*\b(?:data|bi|analytics)\b).*\b(?:business|it[- ]business|functioneel|functional|"
+              r"requirements|process|proces) ?(?:analy(?:st|sts)|analist(?:en)?)\b|"
+              # ERP consultants, commercial IT advisers, business consultants and "Business IT" studies
+              r"\bsap\b(?!.*\b(?:developer|ontwikkelaar|abap|engineer|security|authori[sz]ations?)\b)|"
+              r"commerci(?:eel|ële) (?:ict[- ])?advis\w*|"
+              r"business consultant|business[- ]it\b"),
+    ("data", r"spotfire|\bqlik|power ?bi|tableau|looker\b"),
+    ("platform", r"\b(?:azure|aws|gcp) integrati\w*"),
+    ("backend", r"\b(?:cloud|azure|aws) (?:developer|ontwikkelaar)|uipath|\brpa\b"),
+    ("it_support", r"devices? (?:and|&) peripherals|end[- ]user|eindgebruiker|device management|"
+                   r"\bit[- ](?:diensten|afdeling|dienstverlening|servicedesk)"),
     # sales and pre-sales engineering is a sales job whatever the product: "Sales Engineer", "Solutions Engineer"
     ("other", r"\bsales\b(?! data| analy)|pre-?sales|business ?develop\w*|product develop\w*|"
           r"(?<!deployed )\bsolutions? engineer\w*|"
@@ -510,13 +525,15 @@ _ROLE = [
     ("backend", r"power ?(?:platform|apps)\b"),
     (
         "ml",
-        r"machine learning|\bml\b|\bai\b(?! infra)|deep learning|computer vision|\bnlp\b|llm|data scientist|"
-        r"research (scientist|engineer)|applied scientist|mlops|prompt engineer",
+        r"machine learning|\bml\b|deep learning|computer vision|\bnlp\b|llm|data scien\w*|reinforcement learning|"
+        r"research (scientist|engineer)|applied scientist|mlops|prompt engineer|artificial intelligence|"
+        r"\bai[- ](?:engineer|developer|specialist|consultant|architect|researcher|scientist|expert|lead)\b|"
+        r"\bgen ?ai\b|generative ai|intelligent automation|agentic|\bai agents?\b|^agents\b",
     ),
     (
         "simulation",
         r"simulat|\bcfd\b|computational|numerical model|finite[- ]element|\bfea\b|multiphysics|digital twin|"
-        r"modell?ing (?:engineer|scientist|specialist)",
+        r"modell?ing (?:engineer|scientist|specialist)|multi-?scale model\w*",
     ),
     ("security", r"security|cyber|\bsoc\b|penetration|\biam\b|\bgrc\b|informatiebeveilig\w*|(?<!ship )vulnerabilit\w*|"
                  r"\bit[- ]?(?:audit|assurance)\w*|technology risk|\bpki\b|threat|detection engineer"),
@@ -532,6 +549,7 @@ _ROLE = [
         r"systems? engineer|systeem ?engineer|network engineer|linux|\bdba\b|database administrator|"
         r"netwerk ?(?:engineer|beheer\w*|specialist|architect)|"
         r"network (?:administrator|specialist|architect|operations|automation|consultant)|\bnoc\b|\bhpc\b|"
+        r"netwerkautomatiser\w*|"
         r"observability",
     ),
     ("embedded", r"embedded|firmware|\bfpga\b|hardware|electronics|\basic\b|\brtl\b|\bsoc design\b|"
@@ -539,7 +557,7 @@ _ROLE = [
                  r"\bpcb\b|optoelectron\w*|gebouwautomati\w*|building automation|industri\w* automati\w*|"
                  r"procesautomati\w*|(?<!business )process automation|process control|meet[- ]? ?(?:en|"
                  r"&) ?regel\w*|motion control"),
-    ("mobile", r"\bios\b|android|mobile|flutter|react native"),
+    ("mobile", r"\bios\b|android|mobile|flutter|react native|\bapp\b(?! ?(?:support|beheer))"),
     ("qa", r"\bqa\b|\btest\b|tester|quality assurance|test ?automati\w*|testautomatiseerder|tosca|"
            r"\btest(?:engineer|analist|analyst|coördinator|coordinator|manager|specialist)\b|\btesting engineer|"
            r"software (?:testing|quality)|testing (?:&|and) verification"),
@@ -550,9 +568,11 @@ _ROLE = [
         r"back[- ]?end|software ?(?:engineer|developer|development|ontwikkel\w*)|developer|ontwikkelaar|"
         r"programm(?!es?\b|as?\b|[ae][- ]?(?:manag|lead|architect|director))|"
         r"python|java|\.net|golang|scala|kotlin|c\+\+|\bapi\b|\bphp\b|\bruby\b|\brust\b|elixir|mendix|outsystems|"
-        r"sitecore|software architect|\btech lead\b|integrati(?:e|on) ?specialist",
+        r"sitecore|software architect|\btech lead\b|integrati(?:e|on) ?specialist|\bdevelopment\b|"
+        r"(?<!gebieds)(?<!project)(?<!vastgoed)ontwikkeling\b",
     ),
     ("data", r"\bgis\b|geo[- ]?ict|geodata|geo[- ]?informati"),
+    ("ai", r"\bai\b(?! infra)"),  # a bare "AI": ML only when nothing more specific is named
     # ICT in general is the IT department once more specific families have had their say ("ICT Traineeship Java")
     (
         "platform",
@@ -564,7 +584,9 @@ _ROLE = [
         r"\bnetworking\b|\b(?:azure|aws|gcp)\b[\w\s]{0,20}?\b(?:architect|lead)\b|"
         r"\b(?:architect|lead)\b\W{1,4}(?:\w+\W+)?(?:azure|aws|gcp)\b",
     ),
-    ("it_support", r"\bict\b|managed services? engineer|\bit[- ]systems?\b|\bit (engineer|support|specialist)|"
+    # "IT" as the whole field ("Traineeship IT Leiden"), in capitals only so the English word "it" never counts
+    ("it_support", r"\bict\b|(?-i:\bIT\b)(?!-?\w)|managed services? engineer|\bit[- ]systems?\b|"
+                   r"\bit (engineer|support|specialist)|"
                    r"\bit[- ](?:medewerker|technician|coördinator|"
                    r"coordinator)|"
                    r"system technician|technisch beheer\w*|\bbeheerder\b"),
@@ -1172,11 +1194,110 @@ def detect_seniority(title: str, text: str = "") -> str:
     return "unknown"
 
 
-def detect_role(title: str) -> str:
+# the role is named before qualifiers ("Software Test Engineer met AI-focus", "Data Engineer (Python)"); after a
+# dash or bar comes either noise ("IT Business Analist | Amsterdam") or the specialism ("Software Architect - Mobile")
+_QUALIFIER = re.compile(r"\s*\([^)]*\)|\s+(?:met|with|voor|for)\s+.*$", re.I)
+_SEPARATOR = re.compile(r"\s+[-–|]\s+|,\s+")
+_BROAD = (None, "backend", "other", "it_support", "ai")  # families a title falls into when it names no specialism
+# the catch-all rules at the end of _ROLE: a title that only says "engineer" or "developer" names no family
+_GENERIC_ROLE_TITLE = re.compile(
+    r"^\W*(?:(?:junior|medior|senior|sr\.?|lead|staff|principal|zzp|freelance|young professional|starter|"
+    r"stagiair|stage|internship|intern|traineeship|trainee|afstudeer\w*|graduation|graduate|an?|at|in|bij|"
+    r"\w+ ?(?:track|programme|program)|hbo|wo|mbo|automation|solutions?)\W+){0,4}?"
+    r"(?:developer|ontwikkelaar|engineer|internship|stage|traineeship|trainee|"
+    r"afstudeer\w*|consultant)\b",
+    re.I)
+# the families a job's own text points to, by the tools and work it names
+_ROLE_TEXT = [(k, re.compile(rx, re.I)) for k, rx in [
+    ("frontend", r"\breact\b(?! native)|angular|\bvue\b|typescript|javascript|\bcss\b|front[- ]?end|next\.js"),
+    ("mobile", r"\bios\b|android|\bswift\b|flutter|react native|mobile app"),
+    ("backend", r"\bjava\b|\.net\b|\bc#|\bgolang\b|node\.?js|spring boot|django|\bphp\b|microservices|back[- ]?end|"
+                r"\brest(?:ful)? api|power ?(?:platform|apps|automate)|uipath|\brpa\b"),
+    ("data", r"\bsql\b|power ?bi|tableau|data ?warehouse|\betl\b|\bdbt\b|data engineer\w*|databricks|\bspark\b|"
+             r"dashboards?"),
+    ("ml", r"machine learning|deep learning|pytorch|tensorflow|\bllms?\b|\bnlp\b|computer vision|data scien\w*|"
+           r"reinforcement learning|neural"),
+    ("platform", r"kubernetes|\bdocker\b|terraform|devops|ci/cd|ansible|\blinux\b|netwerk|network(?:ing)?|"
+                 r"cloud infrastruct\w*|\bazure\b|\baws\b"),
+    ("embedded", r"embedded|firmware|microcontroller|\bfpga\b|\bplc\b|electronics|hardware|sensor|scada"),
+    ("simulation", r"simulat\w*|\bcfd\b|finite[- ]element|\bfea\b|multiphysics|numerical model\w*|"
+                   r"computational model\w*|digital twin"),
+    ("security", r"\bsecurity\b|\bsiem\b|\bsoc\b|pentest\w*|\biam\b|vulnerabilit\w*|threat"),
+    ("qa", r"test ?automati\w*|selenium|cypress|playwright|testing|testcases?"),
+    ("it_support", r"helpdesk|service ?desk|werkplek|active directory|intune|\bm365\b|microsoft 365|\bitil\b|"
+                   r"eindgebruikers|end users|systeembeheer|applicatiebeheer"),
+]]
+_SIMULATION_WORK = re.compile(r"simulat\w*|\bcfd\b|finite[- ]element|\bfea\b|multiphysics|numerical model\w*|"
+                              r"computational\w*|digital twin|\bmodell?ing\b", re.I)
+
+
+_LOW_CODE = re.compile(r"uipath|\brpa\b|blue ?prism|power ?(?:platform|automate|apps)", re.I)
+
+
+# "Software Engineer", "Senior Developer", "Stage Software Developer": software work of an unnamed kind
+_GENERAL_SOFTWARE = re.compile(
+    r"^\W*(?:(?:junior|medior|senior|sr\.?|lead|staff|principal|stage|stagiair|intern|young professional|"
+    r"graduate|zzp|freelance)\W+){0,3}(?:software\W+)?(?:engineer|developer|ontwikkelaar|programmeur)\W*$", re.I)
+
+
+def _software_kind(text: str) -> str | None:
+    """For a general software title: full-stack when the role text names both front- and back-end work clearly,
+    otherwise the family it clearly points to (embedded, mobile, ML, data, front-end), else None."""
+    focus = job_text(text) or text[:4000]
+    score = {k: len({m.group(0).lower() for m in rx.finditer(focus)}) for k, rx in _ROLE_TEXT}
+    if score["frontend"] >= 2 and score["backend"] >= 2:
+        return "fullstack"
+    kind = _text_role(text)
+    return kind if kind in ("embedded", "mobile", "ml", "data", "frontend") else None
+
+
+def _title_role(title: str) -> str | None:
     for key, rx in _ROLE_RX:
         if rx.search(title):
             return key
-    return "other"
+    return None
+
+
+def _text_role(text: str) -> str | None:
+    """The family the job's own text clearly points to (distinct tools and work named), or None when unclear."""
+    if not text:
+        return None
+    focus = job_text(text) or text[:4000]
+    scores = sorted(((len({m.group(0).lower() for m in rx.finditer(focus)}), k) for k, rx in _ROLE_TEXT),
+                    reverse=True)
+    (best, family), (second, _) = scores[0], scores[1]
+    return family if best >= 3 and best >= 2 * second else None
+
+
+def detect_role(title: str, text: str = "") -> str:
+    head, *rest = _SEPARATOR.split(_QUALIFIER.sub("", title or "").strip()) or [""]
+    rest += re.findall(r"\(([^)]*)\)", title or "")
+    role = _title_role(head)
+    if role == "backend":
+        # a general software title: the rule order over the whole title decides, so "Software Architect - Mobile"
+        # is mobile and "Staff Software Developer (IAM)" security, but "Software Engineer (Networking)" stays backend
+        role = _title_role(re.sub(r"\s+(?:met|with|voor|for)\s+.*$", "", title or "", flags=re.I)) or role
+    elif role in _BROAD:
+        # the specialism after the dash: "IT Internship - Cloud Engineer", "Software Architect - Mobile"
+        role = next((r for r in map(_title_role, rest) if r not in _BROAD), None) or role
+    if role is None:
+        role = _title_role(title or "")
+    if role == "backend" and _GENERAL_SOFTWARE.fullmatch(head.strip(" -,.")) and text:
+        role = _software_kind(text) or role
+    if role in (None, "backend", "other") and _GENERIC_ROLE_TITLE.fullmatch(head.strip(" -,.")):
+        # "Lead Developer", "An Internship at Xsens", "Automation Engineer": the title names no family
+        role = _text_role(text) or role
+    if role == "embedded" and _LOW_CODE.search((title or "") + " " + focus_text(text)):
+        # an automation engineer building RPA or Power Platform flows writes software, not machine control
+        role = "backend"
+    if role in (None, "other") and len(_SIMULATION_WORK.findall(focus_text(text))) >= 4:
+        # naval, structural or materials research whose work is modelling and simulation
+        role = "simulation"
+    return "ml" if role == "ai" else role or "other"
+
+
+def focus_text(text: str) -> str:
+    return (job_text(text) or (text or "")[:4000]) if text else ""
 
 
 def parse_salary(text: str) -> tuple[int | None, int | None]:
@@ -1250,7 +1371,7 @@ def extract_rules(title: str, description: str) -> Extraction:
 
     lo, hi = parse_salary(text)
     return Extraction(
-        role_family=detect_role(title),
+        role_family=detect_role(title, text),
         seniority=seniority,
         skills_required=skills_req,
         skills_nice=skills_nice,

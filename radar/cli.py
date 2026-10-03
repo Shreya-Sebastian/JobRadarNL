@@ -479,7 +479,7 @@ def cmd_eval_filters(args: argparse.Namespace) -> None:
     """Score the classifier and extractor on the 500-posting filter test set; --errors lists the misses."""
     from radar.filter_eval import run_filter_eval
 
-    report = run_filter_eval(args.set)
+    report = run_filter_eval(args.set, args.split)
     print(report.to_markdown())
     if args.errors:
         for name, rows in report.errors.items():
@@ -666,6 +666,8 @@ def main(argv: list[str] | None = None) -> None:
 
     p = sub.add_parser("eval-filters", help="score the filters against the 500-posting filter test set")
     p.add_argument("--set", default="data/golden/filters.jsonl")
+    p.add_argument("--split", default="all", choices=["all", "dev", "test"],
+                   help="dev: the postings rules are tuned on; test: held back, for honest scores")
     p.add_argument("--errors", nargs="?", const="all", default=None, help="list misses (all, or one measure)")
     p.add_argument("--gate", action="store_true", help="fail when a measure drops below its CI floor")
     p.set_defaults(fn=cmd_eval_filters)

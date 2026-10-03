@@ -2,7 +2,8 @@
 
 500 live postings sampled across sources, languages and levels, plus postings the classifier rejects although they
 mention tech words, labelled by reading each posting (definitions in planning/LABELLING.md, outside the repo). Where
-the labels and the rules disagreed, the posting was read again and the label settled.
+the labels and the rules disagreed, the posting was read again and the label settled. 300 postings are the "dev"
+split that rules may be tuned on; the other 200 ("test") are only scored, so their numbers stay an honest estimate.
 
 Each field is scored the way its filter is used: accuracy overall, and for the filters that hide or show postings,
 precision and recall of the value that matters (a Dutch-required job leaking into "English, no Dutch required" is
@@ -69,11 +70,14 @@ def _band(years, ex: dict, title: str) -> str:
 _DEGREE_GROUP = {"phd": "phd", "msc": "master", "bsc": "bachelor", "hbo": "bachelor", "mbo": "mbo"}
 
 
-def run_filter_eval(path: str | Path = "data/golden/filters.jsonl") -> Report:
+def run_filter_eval(path: str | Path = "data/golden/filters.jsonl", split: str = "all") -> Report:
+    """`split`: "dev" (300 postings rules are tuned on), "test" (200 held back to score honestly) or "all"."""
     from radar.classify import is_tech
     from radar.extract.rules import extract_rules
 
     items = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
+    if split != "all":
+        items = [it for it in items if it.get("split") == split]
     rep = Report()
     errs: dict[str, list[dict]] = {}
 
