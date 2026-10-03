@@ -309,3 +309,18 @@
 @media (max-width: 360px) {
   .tabs a { padding: .6rem .2rem; font-size: 12.5px; }
 }
+
+@layer components {
+  /* ---------- one listing: /job/<id>/<slug> ---------- */
+  .job-page .job-title { @apply mt-0 mb-2 text-2xl font-semibold text-ink; }
+  .job-page .job-meta { @apply mt-0 mb-4 text-muted; }
+  .job-page .job-meta a { @apply text-ink; }
+  .job-page .job-facts { @apply mb-4; }
+  .job-page .job-actions { @apply mt-5 mb-0 flex flex-wrap gap-2; }
+  .job-page .job-credit { @apply mt-0 mb-4; }
+  .job-page .job-text { @apply max-w-3xl leading-relaxed text-ink; }
+  .job-page .job-text p { @apply mt-0 mb-4; }
+  .job-page .card.bad { @apply text-bad; }
+  /* the "Info" link next to each listing's title */
+  a.info { @apply ml-1.5 rounded-md border border-line px-1.5 py-0.5 text-xs font-medium text-muted no-underline hover:border-accent hover:text-accent; }
+}

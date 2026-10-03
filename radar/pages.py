@@ -138,7 +138,8 @@ def render_company(name: str, rows: list[Row], lang: str = "en") -> str:
     headcount = next((r.employees for r in mine if r.employees), None)
     rows_html = "".join(
         f"<tr><td class=\"muted\">{_age(r, lang)}</td>"
-        f"<td><a href=\"{escape(r.url)}\" rel=\"noopener\">{escape(r.title)}</a></td>"
+        f"<td><a href=\"{escape(r.url)}\" rel=\"noopener\">{escape(r.title)}</a> "
+        f"<a class=\"info\" href=\"{job_path(r.id, r.title, lang)}\">Info</a></td>"
         f"<td>{escape(city(r.city) or ('Remote' if r.remote else ''))}</td>"
         f"<td>{escape(r.ex.get('seniority') or '') if r.ex.get('seniority') != 'unknown' else ''}</td>"
         f"<td>{escape(', '.join(r.skills[:6]))}</td>"
@@ -187,6 +188,186 @@ def render_company(name: str, rows: list[Row], lang: str = "en") -> str:
         .replace("{{DESCRIPTION}}", escape(desc)) \
         .replace("{{JSONLD}}", json.dumps(ld, ensure_ascii=False)) \
         .replace("{{COMPANY_URLENC}}", escape(name).replace(" ", "%20"))
+
+
+# ---------- one page per listing: /job/<id>/<slug> and /nl/vacature/<id>/<slug> ----------
+
+def job_path(posting_id: int, title: str, lang: str = "en") -> str:
+    return f"/nl/vacature/{posting_id}/{slugify(title)}" if lang == "nl" else f"/job/{posting_id}/{slugify(title)}"
+
+
+_JOB_TEXT = {
+    "en": {
+        "overview": "Overview", "jobs": "Jobs", "market": "Market", "employers": "Employers",
+        "back": "← All jobs", "apply": "View and apply on", "more_at": "More jobs at",
+        "description": "Job description",
+        "credit": "From {c}'s job posting, as published on {h}. The text belongs to {c}; read the original at {u}.",
+        "closed": "This vacancy is no longer open.", "posted": "posted {d}", "remote": "Remote",
+        "footer": "lists tech vacancies in the Netherlands read directly from employers' career sites.",
+        "title": "{t} at {c}", "in": " in {x}",
+        "no_text": "The employer's page has no description that could be read. See the original posting.",
+        "level": {"intern": "Internship", "trainee": "Trainee / graduate programme", "junior": "Junior",
+                  "medior": "Medior", "senior": "Senior", "lead": "Lead", "staff": "Staff / principal",
+                  "manager": "Manager"},
+        "years": "{n}+ years of experience", "no_exp": "No experience asked",
+        "degree": {"phd": "PhD", "msc": "Master's degree", "bsc": "Bachelor's degree", "hbo": "HBO degree",
+                   "mbo": "MBO", "none": "No degree asked"},
+        "english": "English, no Dutch required", "dutch": "Dutch required",
+        "policy": {"remote": "Remote", "hybrid": "Hybrid", "onsite": "On-site"},
+        "visa_yes": "Visa sponsorship mentioned", "visa_no": "No visa sponsorship",
+        "enrol": "For enrolled students", "salary": "€{lo} – €{hi} a year", "salary_from": "from €{lo} a year",
+        "skills": "Skills asked for", "nice": "Nice to have",
+    },
+    "nl": {
+        "overview": "Overzicht", "jobs": "Vacatures", "market": "Markt", "employers": "Werkgevers",
+        "back": "← Alle vacatures", "apply": "Bekijk en solliciteer op", "more_at": "Meer vacatures bij",
+        "description": "Vacaturetekst",
+        "credit": "Uit de vacature van {c}, zoals gepubliceerd op {h}. De tekst is van {c}; lees het origineel op {u}.",
+        "closed": "Deze vacature is niet meer open.", "posted": "geplaatst {d}", "remote": "Op afstand",
+        "footer": "toont techvacatures in Nederland, rechtstreeks van de carrièresites van werkgevers.",
+        "title": "{t} bij {c}", "in": " in {x}",
+        "no_text": "De pagina van de werkgever heeft geen leesbare vacaturetekst. Bekijk de originele vacature.",
+        "level": {"intern": "Stage", "trainee": "Traineeship / starterprogramma", "junior": "Junior",
+                  "medior": "Medior", "senior": "Senior", "lead": "Lead", "staff": "Staff / principal",
+                  "manager": "Manager"},
+        "years": "{n}+ jaar ervaring", "no_exp": "Geen ervaring gevraagd",
+        "degree": {"phd": "PhD", "msc": "Master", "bsc": "Bachelor", "hbo": "Hbo", "mbo": "Mbo",
+                   "none": "Geen opleiding gevraagd"},
+        "english": "Engels, geen Nederlands nodig", "dutch": "Nederlands vereist",
+        "policy": {"remote": "Op afstand", "hybrid": "Hybride", "onsite": "Op locatie"},
+        "visa_yes": "Visumsponsoring genoemd", "visa_no": "Geen visumsponsoring",
+        "enrol": "Voor ingeschreven studenten", "salary": "€{lo} – €{hi} per jaar",
+        "salary_from": "vanaf €{lo} per jaar",
+        "skills": "Gevraagde skills", "nice": "Pluspunten",
+    },
+}
+
+
+def _paragraphs(text: str) -> str:
+    """The stored plain text (blank line between blocks, line breaks inside) as escaped HTML paragraphs."""
+    blocks = [b.strip() for b in re.split(r"\n\s*\n", text or "") if b.strip()]
+    return "".join("<p>" + "<br>".join(escape(line) for line in b.splitlines()) + "</p>" for b in blocks)
+
+
+def render_job(p, lang: str = "en") -> str:
+    """The listing page: what the radar read from the posting, then the employer's own text with credit and links
+    back to the original. `p` is a radar.models.Posting."""
+    from urllib.parse import urlparse
+
+    from radar.seo import city_nl
+    from radar.stats import experience_band
+
+    lang = "nl" if lang == "nl" else "en"
+    t = _JOB_TEXT[lang]
+    ex = p.extraction or {}
+    base = settings.site_url.rstrip("/")
+    host = urlparse(p.url).netloc.removeprefix("www.") or p.url
+    sep = "." if lang == "nl" else ","
+
+    def money(v):
+        return f"{int(v):,}".replace(",", sep)
+
+    city = (city_nl(p.city) if lang == "nl" else p.city) if p.city else (t["remote"] if p.remote else "")
+    when = p.posted_at or p.first_seen
+    meta = " · ".join(x for x in (
+        f'<a href="{company_path(slugify(p.company), lang)}">{escape(p.company)}</a>',
+        escape(city) if city else "",
+        escape(t["posted"].format(d=when.strftime("%d-%m-%Y"))) if when else "",
+    ) if x)
+
+    facts = []
+    if ex.get("seniority") in t["level"]:
+        facts.append(t["level"][ex["seniority"]])
+    years = ex.get("years_experience")
+    if years:
+        facts.append(t["years"].format(n=years))
+    elif experience_band(ex, p.title) == "none":
+        facts.append(t["no_exp"])
+    if ex.get("degree_required") in t["degree"]:
+        facts.append(t["degree"][ex["degree_required"]])
+    facts.append(t["english"] if ex.get("english_only") else t["dutch"] if ex.get("dutch_required") else "")
+    facts.append(t["policy"].get(ex.get("remote_policy") or "", ""))
+    if ex.get("visa_sponsorship") is True:
+        facts.append(t["visa_yes"])
+    elif ex.get("visa_sponsorship") is False:
+        facts.append(t["visa_no"])
+    if ex.get("enrollment_required") is True:
+        facts.append(t["enrol"])
+    lo, hi = ex.get("salary_min_eur"), ex.get("salary_max_eur")
+    if lo and hi and hi > lo:
+        facts.append(t["salary"].format(lo=money(lo), hi=money(hi)))
+    elif lo:
+        facts.append(t["salary_from"].format(lo=money(lo)))
+    facts_html = "".join(f'<span class="chip">{escape(f)}</span>' for f in facts if f)
+
+    req, nice = ex.get("skills_required") or [], ex.get("skills_nice") or []
+    skills_html = ""
+    if req:
+        skills_html += f'<p class="small mb-1"><b>{t["skills"]}</b></p><div class="chips">' + "".join(
+            f'<span class="chip have">{escape(s)}</span>' for s in req) + "</div>"
+    if nice:
+        skills_html += f'<p class="small mb-1"><b>{t["nice"]}</b></p><div class="chips">' + "".join(
+            f'<span class="chip">{escape(s)}</span>' for s in nice) + "</div>"
+
+    text = p.description or ""
+    title = t["title"].format(t=p.title, c=p.company)
+    summary = " ".join(text.split())
+    desc = (title + (t["in"].format(x=city) if city else "") + ". " + summary)[:155].rstrip() + ("…" if summary else "")
+    url_link = f'<a href="{escape(p.url)}" rel="noopener" target="_blank">{escape(host)}</a>'
+    credit = escape(t["credit"]).replace("{c}", escape(p.company)).replace("{h}", escape(host)).replace("{u}", url_link)
+    self_path = job_path(p.id, p.title, lang)
+    closed = p.closed_at is not None
+
+    # schema.org JobPosting, so the page can appear in Google's job search; left out once the vacancy is closed
+    ld = ""
+    if not closed and text:
+        posting = {
+            "@context": "https://schema.org", "@type": "JobPosting", "title": p.title,
+            "description": _paragraphs(text), "datePosted": when.date().isoformat() if when else None,
+            "hiringOrganization": {"@type": "Organization", "name": p.company},
+            "jobLocation": {"@type": "Place", "address": {"@type": "PostalAddress", "addressCountry": "NL",
+                                                          **({"addressLocality": p.city} if p.city else {})}},
+            "url": base + self_path, "identifier": {"@type": "PropertyValue", "name": p.company,
+                                                     "value": str(p.external_id)},
+            "directApply": False,
+        }
+        if p.valid_through:
+            posting["validThrough"] = p.valid_through.isoformat()
+        if ex.get("remote_policy") == "remote" or p.remote:
+            posting["jobLocationType"] = "TELECOMMUTE"
+            posting["applicantLocationRequirements"] = {"@type": "Country", "name": "NL"}
+        if lo:
+            posting["baseSalary"] = {"@type": "MonetaryAmount", "currency": "EUR", "value": {
+                "@type": "QuantitativeValue", "unitText": "YEAR", "minValue": lo, **({"maxValue": hi} if hi else {})}}
+        posting = {k: v for k, v in posting.items() if v is not None}
+        ld = ('<script type="application/ld+json">' + json.dumps(posting, ensure_ascii=False).replace("</", "<\\/")
+              + "</script>")
+
+    html = _template("job.html")
+    for key, value in t.items():
+        if isinstance(value, str):
+            html = html.replace("{{L_" + key.upper() + "}}", escape(value))
+    return _brand(html).replace("{{LANG}}", lang) \
+        .replace("{{TITLE}}", escape(title)) \
+        .replace("{{DESCRIPTION}}", escape(desc)) \
+        .replace("{{SELF_PATH}}", self_path) \
+        .replace("{{EN_PATH}}", job_path(p.id, p.title, "en")).replace("{{NL_PATH}}", job_path(p.id, p.title, "nl")) \
+        .replace("{{EN_ON}}", " on" if lang == "en" else "").replace("{{NL_ON}}", " on" if lang == "nl" else "") \
+        .replace("{{ROBOTS}}", '<meta name="robots" content="noindex, follow">' if closed else "") \
+        .replace("{{JSONLD}}", ld) \
+        .replace("{{HOME}}", "/nl/" if lang == "nl" else "/") \
+        .replace("{{COMPANIES}}", "/companies") \
+        .replace("{{CLOSED}}", f'<p class="card bad">{escape(t["closed"])}</p>' if closed else "") \
+        .replace("{{JOB_TITLE}}", escape(p.title)) \
+        .replace("{{META}}", meta) \
+        .replace("{{FACTS}}", facts_html) \
+        .replace("{{SKILLS}}", skills_html) \
+        .replace("{{URL}}", escape(p.url)) \
+        .replace("{{HOST}}", escape(host)) \
+        .replace("{{COMPANY_PATH}}", company_path(slugify(p.company), lang)) \
+        .replace("{{COMPANY}}", escape(p.company)) \
+        .replace("{{CREDIT}}", credit) \
+        .replace("{{TEXT}}", _paragraphs(text) or f'<p class="muted">{escape(t["no_text"])}</p>')
 
 
 def render_companies(rows: list[Row]) -> str:

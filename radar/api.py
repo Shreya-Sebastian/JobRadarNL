@@ -103,7 +103,7 @@ async def _http_error(request: Request, exc: StarletteHTTPException):
     page = (f'<!doctype html><html lang="{lang}"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">'
             f'<title>{escape(title)} · {escape(settings.site_name)}</title>'
-            '<link rel="stylesheet" href="/static/app.css?v=3"></head><body>'
+            '<link rel="stylesheet" href="/static/app.css?v=4"></head><body>'
             f'<main class="wrap" style="padding-top:4rem;padding-bottom:4rem"><h1>{escape(title)}</h1>'
             f'<p class="muted">{escape(text)}</p>'
             f'<p><a class="btn primary" href="{home}">{escape(back)}</a></p></main></body></html>')
@@ -479,6 +479,9 @@ def sitemap(session: Session = Depends(db)):
             if n >= pages.MIN_INDEXED_POSTINGS:
                 day = lastmod(pages.company_rows(tech, slug))
                 urls += [(f"{base}/company/{slug}", day), (f"{base}/nl/bedrijf/{slug}", day)]
+        for r in tech:  # one page per live listing, in both languages
+            day = (r.posted_at or r.first_seen).date().isoformat()
+            urls += [(base + pages.job_path(r.id, r.title, lang), day) for lang in ("en", "nl")]
         body = "".join(f"<url><loc>{xml_escape(u)}</loc>" + (f"<lastmod>{d}</lastmod>" if d else "") + "</url>"
                        for u, d in urls)
         return (f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
@@ -510,6 +513,34 @@ def company_page(slug: str, session: Session = Depends(db), lang: str = "en"):
         raise HTTPException(404, "no employer with live tech postings under that name")
     return Response(cached(f"page:company:{lang}:{slug}", lambda: pages.render_company(name, rows, lang), ttl=3600),
                     media_type="text/html")
+
+
+@app.get("/job/{posting_id}", include_in_schema=False)
+@app.get("/job/{posting_id}/{slug}", include_in_schema=False)
+def job_page(posting_id: int, slug: str = "", session: Session = Depends(db), lang: str = "en"):
+    """One listing: what the radar read from it and the employer's own text, credited and linked to the original."""
+    from fastapi.responses import RedirectResponse
+
+    from radar import pages
+    from radar.models import Posting
+
+    p = session.get(Posting, posting_id)
+    if p is not None and p.duplicate_of:
+        p = session.get(Posting, p.duplicate_of)  # a merged copy: the page of the posting it was merged into
+    if p is None or not p.is_tech:
+        raise HTTPException(404, "no such listing")
+    path = pages.job_path(p.id, p.title, lang)
+    if path != (f"/nl/vacature/{posting_id}/{slug}" if lang == "nl" else f"/job/{posting_id}/{slug}"):
+        return RedirectResponse(path, status_code=301)  # the title changed, or a merged copy: one address per job
+    html = cached(f"page:job:{lang}:{p.id}:{p.content_hash}:{p.closed_at is None}",
+                  lambda: pages.render_job(p, lang), ttl=3600)
+    return Response(html, media_type="text/html")
+
+
+@app.get("/nl/vacature/{posting_id}", include_in_schema=False)
+@app.get("/nl/vacature/{posting_id}/{slug}", include_in_schema=False)
+def job_page_nl(posting_id: int, slug: str = "", session: Session = Depends(db)):
+    return job_page(posting_id, slug, session, lang="nl")
 
 
 def _seo_pages(session: Session):

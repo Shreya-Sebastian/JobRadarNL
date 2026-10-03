@@ -28,7 +28,7 @@ AI_CRAWLERS = ("GPTBot", "ChatGPT-User", "OAI-SearchBot", "CCBot", "ClaudeBot", 
                "Diffbot", "ImagesiftBot", "Omgili", "Timpibot")
 
 _EXEMPT = ("/healthz", "/readyz", "/metrics", "/robots.txt", "/static/", "/favicon")
-_DETAIL = re.compile(r"^/api/postings|^/(?:nl/)?(?:jobs|vacatures|company|bedrijf)/")
+_DETAIL = re.compile(r"^/api/postings|^/(?:nl/)?(?:jobs|job|vacatures|vacature|company|bedrijf)/")
 
 _local: dict[str, int] = {}
 _local_lock = threading.Lock()

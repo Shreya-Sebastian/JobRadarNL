@@ -12,7 +12,7 @@
 {{ROBOTS}}
 <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/static/app.css?v=4">
-<script type="application/ld+json">{{JSONLD}}</script>
+{{JSONLD}}
 </head>
 <body>
 <header class="top">
@@ -21,30 +21,26 @@
     <div class="langswitch"><a class="btn{{NL_ON}}" href="{{NL_PATH}}">NL</a><a class="btn{{EN_ON}}" href="{{EN_PATH}}">EN</a></div>
   </div>
   <nav class="tabs wrap">
-    <a href="{{HOME}}">{{L_OVERVIEW}}</a><a href="{{HOME}}#jobs">{{L_JOBS}}</a><a href="{{HOME}}#market">{{L_MARKET}}</a><a href="{{COMPANIES}}" class="on">{{L_EMPLOYERS}}</a>
+    <a href="{{HOME}}">{{L_OVERVIEW}}</a><a href="{{HOME}}#jobs" class="on">{{L_JOBS}}</a><a href="{{HOME}}#market">{{L_MARKET}}</a><a href="{{COMPANIES}}">{{L_EMPLOYERS}}</a>
   </nav>
 </header>
-<main class="wrap pt-1">
-  <p class="tag mt-4 mb-0">{{TAGLINE}}</p>
-  <div class="card">
-    <h2>{{COMPANY}} <span class="hint">{{L_SUBTITLE}}</span></h2>
-    <div class="kpis">
-      <div class="kpi"><b>{{COUNT}}</b><span>{{L_OPEN}}</span></div>
-      <div class="kpi"><b>{{ENGLISH}}</b><span>{{L_NODUTCH}}</span></div>
-      <div class="kpi"><b>{{VISA}}</b><span>{{L_VISA}}</span></div>
-      {{EMPLOYEES_KPI}}
-    </div>
-    <p class="small"><b>{{L_CITIES}}:</b> {{CITIES}}</p>
-    <p class="small"><b>{{L_SKILLS}}:</b></p>
-    <div class="chips">{{SKILLS}}</div>
-    <p class="small"><a class="btn primary" href="{{HOME}}#company={{COMPANY_URLENC}}">{{L_INTERACTIVE}}</a></p>
-  </div>
-  <div class="card">
-    <h2>{{L_ROLES}}</h2>
-    <table class="table"><thead><tr><th>{{L_AGE}}</th><th>{{L_T_TITLE}}</th><th>{{L_CITY}}</th><th>{{L_LEVEL}}</th><th>{{L_SKILLS_COL}}</th><th>{{L_LANGUAGE}}</th></tr></thead>
-    <tbody>{{ROWS}}</tbody></table>
-  </div>
-  <p class="muted small"><a href="{{COMPANIES}}">{{L_ALL}}</a></p>
+<main class="wrap pt-1 job-page">
+  <p class="mt-4 mb-0 small"><a href="{{HOME}}#jobs">{{L_BACK}}</a></p>
+  {{CLOSED}}
+  <article class="card">
+    <h1 class="job-title">{{JOB_TITLE}}</h1>
+    <p class="job-meta">{{META}}</p>
+    <div class="chips job-facts">{{FACTS}}</div>
+    {{SKILLS}}
+    <p class="job-actions"><a class="btn primary" href="{{URL}}" rel="noopener" target="_blank">{{L_APPLY}} {{HOST}} ↗</a>
+      <a class="btn" href="{{COMPANY_PATH}}">{{L_MORE_AT}} {{COMPANY}}</a></p>
+  </article>
+  <section class="card">
+    <h2>{{L_DESCRIPTION}}</h2>
+    <p class="muted small job-credit">{{CREDIT}}</p>
+    <div class="job-text">{{TEXT}}</div>
+    <p class="job-actions"><a class="btn primary" href="{{URL}}" rel="noopener" target="_blank">{{L_APPLY}} {{HOST}} ↗</a></p>
+  </section>
 </main>
 <footer class="site-footer"><div class="wrap py-8"><p><b class="text-ink">{{SITE_NAME}}</b> {{L_FOOTER}}</p></div></footer>
 </body>
