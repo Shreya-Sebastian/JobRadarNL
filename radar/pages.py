@@ -176,6 +176,7 @@ def render_company(name: str, rows: list[Row], lang: str = "en") -> str:
         .replace("{{EN_PATH}}", company_path(slug, "en")).replace("{{NL_PATH}}", company_path(slug, "nl")) \
         .replace("{{EN_ON}}", " on" if lang != "nl" else "").replace("{{NL_ON}}", " on" if lang == "nl" else "") \
         .replace("{{COMPANY}}", escape(name)) \
+        .replace("{{SECTOR}}", escape(_sector_label(mine, lang))) \
         .replace("{{ROBOTS}}", "" if len(mine) >= MIN_INDEXED_POSTINGS
                  else '<meta name="robots" content="noindex, follow">') \
         .replace("{{COUNT}}", str(len(mine))) \
@@ -251,7 +252,7 @@ def _body(p) -> str:
     return clean_html(p.description_html) or text_to_html(p.description or "")
 
 
-def render_job(p, lang: str = "en") -> str:
+def render_job(p, lang: str = "en", sector: str | None = None) -> str:
     """The listing page: what the radar read from the posting, then the employer's own text with credit and links
     back to the original. `p` is a radar.models.Posting."""
     from urllib.parse import urlparse
@@ -300,6 +301,10 @@ def render_job(p, lang: str = "en") -> str:
         facts.append(t["salary"].format(lo=money(lo), hi=money(hi)))
     elif lo:
         facts.append(t["salary_from"].format(lo=money(lo)))
+    if sector and sector != "other":
+        from radar.sectors import LABELS
+
+        facts.insert(0, LABELS[lang][sector])
     facts_html = "".join(f'<span class="chip">{escape(f)}</span>' for f in facts if f)
 
     req, nice = ex.get("skills_required") or [], ex.get("skills_nice") or []
@@ -370,6 +375,13 @@ def render_job(p, lang: str = "en") -> str:
         .replace("{{COMPANY}}", escape(p.company)) \
         .replace("{{CREDIT}}", credit) \
         .replace("{{TEXT}}", _body(p) or f'<p class="muted">{escape(t["no_text"])}</p>')
+
+
+def _sector_label(rows: list[Row], lang: str) -> str:
+    from radar.sectors import LABELS
+
+    sector = next((r.sector for r in rows if r.sector and r.sector != "other"), None)
+    return LABELS["nl" if lang == "nl" else "en"][sector] if sector else ""
 
 
 def render_companies(rows: list[Row]) -> str:

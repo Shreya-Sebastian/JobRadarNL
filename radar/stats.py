@@ -44,6 +44,7 @@ class Row:
     valid_through: datetime | None = None
     also_in: list[str] = field(default_factory=list)  # other cities of the same vacancy
     employees: int | None = None  # headcount where known (radar/sizes.py), else None
+    sector: str = "other"  # the employer's sector (radar/sectors.py)
 
     @property
     def confirmed_at(self) -> datetime | None:
@@ -150,6 +151,7 @@ class Filters:
     confirmed_days: int | None = None  # only postings confirmed live within this many days
     degree: str | None = None  # comma list of DEGREE_GROUPS: the minimum degree the posting asks for
     employees: str | None = None  # comma list of radar.sizes.EMPLOYEE_BANDS: headcount of the organisation
+    sector: str | None = None  # comma list of radar.sectors.SECTORS: the employer's sector
 
     def apply(self, rows: list[Row]) -> list[Row]:
         out = rows
@@ -184,6 +186,9 @@ class Filters:
         heads = _csv(self.employees)
         if heads:
             out = [r for r in out if r.employee_band in heads]
+        sectors = _csv(self.sector)
+        if sectors:
+            out = [r for r in out if r.sector in sectors]
         if self.confirmed_days:
             since = datetime.utcnow() - timedelta(days=self.confirmed_days)
             out = [r for r in out if r.confirmed_at and r.confirmed_at >= since]
@@ -316,8 +321,10 @@ def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
         .where(Posting.is_tech.is_(True), Posting.duplicate_of.is_(None))
         .where((Posting.closed_at.is_(None)) | (Posting.closed_at >= cutoff))
     )
+    from radar.sectors import load_map
     from radar.sizes import employees
 
+    sector_of = load_map(session)
     open_roles = dict(session.execute(
         select(Posting.company, func.count())
         .where(Posting.closed_at.is_(None), Posting.duplicate_of.is_(None))
@@ -347,6 +354,7 @@ def load_rows(session: Session, include_closed_days: int = 90) -> list[Row]:
                 p.valid_through,
                 p.also_in or [],
                 employees(p.company),
+                sector_of.get(p.company, "other"),
             )
         )
     return rows
@@ -473,6 +481,8 @@ def breakdown(rows: list[Row], key: str, top: int = 20) -> list[dict[str, Any]]:
             v = r.org_size
         elif key == "ats":
             v = r.ats
+        elif key == "sector":
+            v = r.sector
         else:
             v = str(r.ex.get(key, "unknown"))
         c[v] += 1

@@ -107,7 +107,7 @@
      
       "f.exp": "Experience asked", "p.exp": "Experience asked", "mk.exp": "Experience asked", "yrs": "yrs",
       "f.size": "Hiring activity (open roles)", "f.sort.small": "Smaller organisations first", "f.sort.large": "Larger organisations first",
-      "f.emp": "Company size (employees)",
+      "f.emp": "Company size (employees)", "f.sector": "Sector", "mk.sector": "Sectors", "sector.software": "Software & internet", "sector.consultancy": "Consultancy & IT services", "sector.hardware": "Semiconductors & hardware", "sector.finance": "Banking, finance & insurance", "sector.pharma": "Pharma & life sciences", "sector.health": "Healthcare", "sector.government": "Government & public sector", "sector.education": "Education & research", "sector.energy": "Energy & utilities", "sector.transport": "Transport & logistics", "sector.engineering": "Engineering & construction", "sector.industry": "Industry & manufacturing", "sector.retail": "Retail & consumer goods", "sector.telecom_media": "Telecom & media", "sector.staffing": "Recruitment agencies", "sector.other": "Other",
       "emp.1-49": "under 50", "emp.50-249": "50-249", "emp.250-4999": "250-4,999", "emp.5000+": "5,000+", "emp.unknown": "unknown",
      
       "size.small": "a few openings (under 10)", "size.medium": "10-99 openings", "size.large": "100+ openings",
@@ -214,7 +214,7 @@
      
       "f.exp": "Gevraagde ervaring", "p.exp": "Gevraagde ervaring", "mk.exp": "Gevraagde ervaring", "yrs": "jr",
       "f.size": "Wervingsactiviteit (open vacatures)", "f.sort.small": "Kleinere organisaties eerst", "f.sort.large": "Grotere organisaties eerst",
-      "f.emp": "Bedrijfsgrootte (medewerkers)",
+      "f.emp": "Bedrijfsgrootte (medewerkers)", "f.sector": "Sector", "mk.sector": "Sectoren", "sector.software": "Software & internet", "sector.consultancy": "Consultancy & IT-dienstverlening", "sector.hardware": "Halfgeleiders & hardware", "sector.finance": "Bank, financiën & verzekeringen", "sector.pharma": "Farma & life sciences", "sector.health": "Zorg", "sector.government": "Overheid & publieke sector", "sector.education": "Onderwijs & onderzoek", "sector.energy": "Energie & nutsbedrijven", "sector.transport": "Transport & logistiek", "sector.engineering": "Ingenieursdiensten & bouw", "sector.industry": "Industrie & productie", "sector.retail": "Retail & consumentengoederen", "sector.telecom_media": "Telecom & media", "sector.staffing": "Werving & detachering", "sector.other": "Overig",
       "emp.1-49": "minder dan 50", "emp.50-249": "50-249", "emp.250-4999": "250-4.999", "emp.5000+": "5.000+", "emp.unknown": "onbekend",
      
       "size.small": "enkele vacatures (minder dan 10)", "size.medium": "10-99 vacatures", "size.large": "100+ vacatures",
@@ -301,6 +301,7 @@
   const degreeLabel = (d) => t("deg." + d);
   const sizeLabel = (z) => t("size." + z);
   const empLabel = (e) => t("emp." + e);
+  const sectorLabel = (s) => t("sector." + s);
   // NL: Dutch is enough; EN: no Dutch needed; NL + EN: both asked for
   const langKey = (i) => (i.english_only ? "en" : i.english_required === false ? "nl" : "both");
   const langCell = (i) => `<span class="lang-${langKey(i)}" title="${t("lang." + langKey(i) + ".title")}">${t("lang." + langKey(i))}</span>`;
@@ -321,7 +322,7 @@
   }
 
   // ---------- state ----------
-  const emptyProfile = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
+  const emptyProfile = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sectors: [], sizes: [], remote: [], cities: [], exclude: [], skills: [],
     language: "", visa: false, agencies: false, noenrol: false });
   const state = {
     tab: "overview", page: 1, size: 40, sort: "newest", skill: null,
@@ -353,6 +354,7 @@
     if (p.exp.length) q.set("experience", p.exp.join(","));
     if (p.degrees.length) q.set("degree", p.degrees.join(","));
     if (p.emps.length) q.set("employees", p.emps.join(","));
+    if (p.sectors && p.sectors.length) q.set("sector", p.sectors.join(","));
     if (p.sizes.length) q.set("org_size", p.sizes.join(","));
     if (p.remote.length) q.set("remote", p.remote.join(","));
     if (p.cities.length) q.set("city", p.cities.join(","));
@@ -524,6 +526,7 @@
     const [o, f] = await Promise.all([api("/api/overview"), api("/api/filters")]);
     state.overview = o;
     state.options.roles = [...f.roles.filter((r) => r !== "other"), ...f.roles.filter((r) => r === "other")]; state.options.cities = f.cities.filter((c) => c !== "Unknown"); state.options.skills = f.skills;
+    state.options.sectors = [...(f.sectors || []).filter((s) => s !== "other"), ...(f.sectors || []).filter((s) => s === "other")];
     renderHeader();
   }
   function renderHeader() {
@@ -606,9 +609,9 @@
   // ---------- JOBS ----------
   function profileJobFilters() {
     const p = state.profile;
-    return { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", savedOnly: false, exclude: [...p.exclude] };
+    return { roles: [...p.roles], levels: [...p.levels], exp: [...p.exp], degrees: [...p.degrees], emps: [...p.emps], sectors: [...(p.sectors || [])], sizes: [...p.sizes], remote: [...p.remote], cities: [...p.cities], language: p.language, visa: p.visa, agencies: p.agencies, noenrol: !!p.noenrol, confirmed: false, q: "", days: "", savedOnly: false, exclude: [...p.exclude] };
   }
-  const emptyJobFilters = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false, exclude: [] });
+  const emptyJobFilters = () => ({ roles: [], levels: [], exp: [], degrees: [], emps: [], sectors: [], sizes: [], remote: [], cities: [], language: "", visa: false, agencies: false, noenrol: false, confirmed: false, q: "", days: "", savedOnly: false, exclude: [] });
   // the Jobs tab opens with the saved profile's filters. "Reset filters" turns that off for this browser (it is
   // remembered, so a reload does not bring them back); "Use my profile" and saving the profile turn it on again.
   function currentJobFilters() {
@@ -623,6 +626,7 @@
     if (f.exp.length) q.set("experience", f.exp.join(","));
     if (f.degrees.length) q.set("degree", f.degrees.join(","));
     if (f.emps.length) q.set("employees", f.emps.join(","));
+    if (f.sectors && f.sectors.length) q.set("sector", f.sectors.join(","));
     if (f.sizes.length) q.set("org_size", f.sizes.join(","));
     if (f.remote.length) q.set("remote", f.remote.join(","));
     if (f.cities.length) q.set("city", f.cities.join(","));
@@ -645,6 +649,7 @@
     toggles($("#f-levels"), LEVELS, f.levels, levelLabel, () => refreshJobs(true));
     toggles($("#f-exp"), EXP, f.exp, expLabel, () => refreshJobs(true));
     toggles($("#f-degree"), DEGREES, f.degrees, degreeLabel, () => refreshJobs(true));
+    toggles($("#f-sector"), state.options.sectors, f.sectors, sectorLabel, () => refreshJobs(true));
     toggles($("#f-emp"), EMPS, f.emps, empLabel, () => refreshJobs(true));
     toggles($("#f-size"), SIZES, f.sizes, sizeLabel, () => refreshJobs(true));
     toggles($("#f-remote"), REMOTE, f.remote, remoteLabel, () => refreshJobs(true));
@@ -717,11 +722,11 @@
   // ---------- MARKET ----------
   async function renderMarket() {
     const p = new URLSearchParams();
-    const [city, sen, role, comp, sal, lang, remote, exp] = await Promise.all([
+    const [city, sen, role, comp, sal, lang, remote, exp, sector] = await Promise.all([
       api("/api/breakdown/city", withParams(p, { top: 12 })), api("/api/breakdown/seniority", p),
       api("/api/breakdown/role_family", p), api("/api/breakdown/company", withParams(p, { top: 20 })),
       api("/api/salary", p), api("/api/breakdown/posting_language", p), api("/api/breakdown/remote_policy", p),
-      api("/api/breakdown/experience", p),
+      api("/api/breakdown/experience", p), api("/api/breakdown/sector", p),
     ]);
     const order = (k) => EXP.indexOf(k);
     exp.items.sort((a, b) => order(a.key) - order(b.key));
@@ -729,6 +734,7 @@
     barChart("mk-city", city.items.map((i) => cityLabel(i.key)), city.items.map((i) => i.count), { color: palette[2] });
     doughnut("mk-seniority", sen.items.map((i) => levelLabel(i.key)), sen.items.map((i) => i.count));
     barChart("mk-role", role.items.map((i) => roleLabel(i.key)), role.items.map((i) => i.count), { color: palette[3] });
+    barChart("mk-sector", sector.items.map((i) => sectorLabel(i.key)), sector.items.map((i) => i.count), { color: palette[4] });
     $("#mk-companies tbody").innerHTML = comp.items.map((i) => `<tr><td>${companyLink(i.key)}</td><td>${i.count}</td><td>${Math.round(i.share * 100)}%</td></tr>`).join("");
     $("#mk-salary").innerHTML = sal.n
       ? [[t("salary.n"), fmt(sal.n)], [t("salary.p25"), "€" + fmt(sal.p25)], [t("salary.median"), "€" + fmt(sal.median)], [t("salary.p75"), "€" + fmt(sal.p75)]].map(([l, v]) => `<div class="kpi"><b>${v}</b><span>${esc(l)}</span></div>`).join("")
@@ -745,6 +751,8 @@
     toggles($("#p-levels"), LEVELS, p.levels, levelLabel);
     toggles($("#p-exp"), EXP, p.exp, expLabel);
     toggles($("#p-degree"), DEGREES, p.degrees, degreeLabel);
+    if (!p.sectors) p.sectors = [];
+    toggles($("#p-sector"), state.options.sectors, p.sectors, sectorLabel);
     toggles($("#p-emp"), EMPS, p.emps, empLabel);
     toggles($("#p-size"), SIZES, p.sizes, sizeLabel);
     toggles($("#p-remote"), REMOTE, p.remote, remoteLabel);

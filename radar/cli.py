@@ -475,6 +475,13 @@ def cmd_eval(args: argparse.Namespace) -> None:
         sys.exit(1)
 
 
+def cmd_sectors(_: argparse.Namespace) -> None:
+    """Recompute every employer's sector now (the worker also does this nightly)."""
+    from radar.tasks import sectors
+
+    print(sectors())
+
+
 def cmd_eval_filters(args: argparse.Namespace) -> None:
     """Score the classifier and extractor on the 500-posting filter test set; --errors lists the misses."""
     from radar.filter_eval import run_filter_eval
@@ -664,6 +671,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--min-nl", type=int, default=1)
     p.set_defaults(fn=cmd_register_probed)
 
+    sub.add_parser("sectors", help="recompute every employer's sector").set_defaults(fn=cmd_sectors)
     p = sub.add_parser("eval-filters", help="score the filters against the 500-posting filter test set")
     p.add_argument("--set", default="data/golden/filters.jsonl")
     p.add_argument("--split", default="all", choices=["all", "dev", "test"],

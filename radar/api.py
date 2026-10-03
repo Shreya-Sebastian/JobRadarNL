@@ -142,10 +142,11 @@ def filters(
     confirmed_days: int | None = Query(None, ge=1, le=90),
     degree: str | None = None,
     employees: str | None = None,
+    sector: str | None = None,
 ) -> stats.Filters:
     return stats.Filters(role, seniority, city, company, english_only, sponsorship, remote, days, q, skill,
                          include_closed, exclude_agencies, exclude_companies, since, skills_any, ids, language,
-                         experience, enrollment, org_size, confirmed_days, degree, employees)
+                         experience, enrollment, org_size, confirmed_days, degree, employees, sector)
 
 
 def _rows(session: Session, f: stats.Filters) -> list[stats.Row]:
@@ -185,7 +186,7 @@ def cooccurrence(request: Request, top: int = Query(30, le=80), f: stats.Filters
 def breakdown(request: Request, key: str, top: int = Query(20, le=100), f: stats.Filters = Depends(filters),
               session: Session = Depends(db)):
     allowed = {"city", "company", "ats", "seniority", "role_family", "remote_policy", "degree_required",
-               "posting_language", "experience", "org_size", "degree", "employees"}
+               "posting_language", "experience", "org_size", "degree", "employees", "sector"}
     if key not in allowed:
         raise HTTPException(400, f"key must be one of {sorted(allowed)}")
 
@@ -268,6 +269,7 @@ def filter_options(request: Request, session: Session = Depends(db)):
             "companies": [d["key"] for d in stats.breakdown(rows, "company", 300)],
             "roles": [d["key"] for d in stats.breakdown(rows, "role_family", 20)],
             "seniorities": [d["key"] for d in stats.breakdown(rows, "seniority", 10)],
+            "sectors": [d["key"] for d in stats.breakdown(rows, "sector", 30)],
             "skills": [d["skill"] for d in stats.skill_counts(rows, 120)],
         }
 
@@ -532,8 +534,12 @@ def job_page(posting_id: int, slug: str = "", session: Session = Depends(db), la
     path = pages.job_path(p.id, p.title, lang)
     if path != (f"/nl/vacature/{posting_id}/{slug}" if lang == "nl" else f"/job/{posting_id}/{slug}"):
         return RedirectResponse(path, status_code=301)  # the title changed, or a merged copy: one address per job
-    html = cached(f"page:job:{lang}:{p.id}:{p.content_hash}:{p.closed_at is None}",
-                  lambda: pages.render_job(p, lang), ttl=3600)
+    from radar.models import Employer
+
+    emp = session.get(Employer, p.company)
+    sector = emp.sector if emp else None
+    html = cached(f"page:job:{lang}:{p.id}:{p.content_hash}:{p.closed_at is None}:{sector}",
+                  lambda: pages.render_job(p, lang, sector), ttl=3600)
     return Response(html, media_type="text/html")
 
 

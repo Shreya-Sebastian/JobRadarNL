@@ -78,6 +78,17 @@ class Posting(Base):
     source: Mapped[Source] = relationship(back_populates="postings")
 
 
+class Employer(Base):
+    """Per employer on the radar: its sector (radar/sectors.py), rebuilt nightly from the employer lists and the
+    employer's own postings. `sector_source` says how it was found: list, list+text, source, text or none."""
+
+    __tablename__ = "employers"
+
+    company: Mapped[str] = mapped_column(String(200), primary_key=True)
+    sector: Mapped[str] = mapped_column(String(30), default="other")
+    sector_source: Mapped[str] = mapped_column(String(20), default="none")
+
+
 class Meta(Base):
     """Small key/value table: the data version that tells API processes to reload, and similar flags."""
 

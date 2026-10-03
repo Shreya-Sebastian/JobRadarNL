@@ -160,6 +160,19 @@ def linkcheck() -> dict:
     return out
 
 
+def sectors() -> dict:
+    """Nightly: every employer's sector, from the employer lists and its own postings (radar/sectors.py)."""
+    from radar import sectors as sec
+    from radar.cache import bump_data_version
+
+    init_db()
+    with session_scope() as s:
+        out = sec.refresh(s)
+    bump_data_version()
+    log.info("sectors: %s", out)
+    return out
+
+
 def qualitycheck() -> dict:
     """Nightly: the data-quality report. Threshold violations are logged as errors (the alert)."""
     from radar.integrity import quality_report, violations
