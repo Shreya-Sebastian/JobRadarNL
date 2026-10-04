@@ -77,3 +77,26 @@ def test_curated_company_names_join_one_organisation():
     assert norm_company("Werkenbijadesso") == "adesso"
     assert dedup_key("Metyisag", "AI Solutions Engineer", "Amsterdam") == dedup_key("Metyis", "AI Solutions Engineer",
                                                                                     "Amsterdam")
+
+
+def test_same_job_on_one_board():
+    from radar.crawler import same_job
+
+    body = "We build data platforms for retail and logistics clients across Europe. " * 20
+    ex = {"posting_language": "en", "seniority": "medior", "years_experience": 3, "role_family": "data",
+          "skills_required": ["Python", "SQL"]}
+    brand_a = ("About Metyis. " + body, ex)
+    brand_b = ("About Adaptfy, a Metyis company with its own clients. " + body, ex)
+    assert same_job(brand_a, brand_b)
+    other_team = ("About Metyis. " + body[: len(body) // 2] + "You lead the Kafka streaming team and mentor Java "
+                  "engineers on event-driven services. " * 10, dict(ex, skills_required=["Java", "Kafka"],
+                                                                     seniority="senior"))
+    assert not same_job(brand_a, other_team)
+    # mostly the same template (60-90% of the text) but another level and stack: a different opening
+    template = ("About Metyis. " + body[: len(body) * 3 // 4] + "You lead the Kafka streaming team. " * 6,
+                dict(ex, skills_required=["Java", "Kafka"], seniority="senior"))
+    assert not same_job(brand_a, template)
+    assert same_job(brand_a, (template[0], ex))  # the same text with the same facts is the same job
+    dutch = ("Wij bouwen dataplatforms voor klanten in retail en logistiek. " * 20, dict(ex, posting_language="nl"))
+    assert same_job(brand_a, dutch)
+    assert same_job(brand_a, ("https://example.org/apply", {}))

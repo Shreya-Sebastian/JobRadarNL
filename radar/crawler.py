@@ -217,9 +217,12 @@ def mark_duplicates(session: Session) -> int:
          names, whatever the URL (/vacatures/ and /vacature/, /eu/ and /us/, one page per city, a reposted ad);
          the canonical copy lists any other cities in `also_in`. Different titles with the same text are kept
          apart, since that is often an agency's boilerplate around different jobs,
-      6. the same page in another language: the URL differs only by a language segment (/fr/, /es/, /en-gb/).
-    Same title on the same board with different text, or identical text under a different URL slug (often a
-    different location encoded in the slug), is kept: that is usually a separate requisition."""
+      6. the same page in another language: the URL differs only by a language segment (/fr/, /es/, /en-gb/),
+      7. one board listing one vacancy twice under one title and city: a stub next to the full text, its Dutch and
+         English text, a repost with small edits, or the same job under two of the employer's brands (same facts:
+         level, years, role and skills). The full, English, most recently posted copy is kept.
+    Same title on the same board with different facts (an agency's clients, several teams hiring the same role) is
+    kept apart: that is a separate requisition."""
     rows = session.execute(
         select(Posting.id, Posting.dedup_key, Posting.source_id, Posting.first_seen, Posting.content_hash,
                Posting.url, Source.ats, Source.kind, Posting.company, Posting.title, Posting.city, Posting.posted_at,
@@ -305,6 +308,33 @@ def mark_duplicates(session: Session) -> int:
             for dup in members[1:]:
                 mark(dup, members[0])
 
+    # 7. one vacancy listed twice on one board
+    groups: list[list] = []
+    for members in by_key.values():
+        per_source: dict[int, list] = {}
+        for r in members:
+            if r.id not in canonical_of:
+                per_source.setdefault(r.source_id, []).append(r)
+        groups.extend(g for g in per_source.values() if len(g) > 1)
+    if groups:
+        ids = [r.id for g in groups for r in g]
+        detail: dict[int, tuple[str, dict]] = {}
+        for i in range(0, len(ids), 200):
+            for pid, text, ex in session.execute(select(Posting.id, Posting.description, Posting.extraction)
+                                                 .where(Posting.id.in_(ids[i:i + 200]))):
+                detail[pid] = (text or "", ex or {})
+
+        def keep_first(r):
+            text, ex = detail[r.id]
+            return (len(text) < _STUB, ex.get("posting_language") != "en", -(r.posted_at or r.first_seen).timestamp(),
+                    r.id)
+
+        for g in groups:
+            g = sorted(g, key=keep_first)
+            for other in g[1:]:
+                if same_job(detail[g[0].id], detail[other.id]):
+                    mark(other, g[0])
+
     changes = []
     for r in rows:
         target = root(r.id) if r.id in canonical_of else None
@@ -321,6 +351,37 @@ def mark_duplicates(session: Session) -> int:
         session.connection().execute(stmt, changes[i:i + 1000])
     session.expire_all()
     return len(changes)
+
+
+_STUB = 300  # a description shorter than this is a stub (a link, a title line)
+_NEAR_IDENTICAL = 0.9
+_SAME_FACTS_TEXT = 0.6
+
+
+def same_job(a: tuple[str, dict], b: tuple[str, dict]) -> bool:
+    """Whether two postings with one title on one board are the same vacancy. `a` and `b` are (text, extraction).
+    Thresholds measured on the 264 such pairs live on 4 Oct 2026: reposts and brand variants share at least 60% of
+    their text and every extracted fact; different jobs under a generic title differ in skills, level or years."""
+    import difflib
+
+    (ta, ea), (tb, eb) = a, b
+    if (len(ta) < _STUB) != (len(tb) < _STUB):
+        return True  # a stub (a link, a title line) next to the full text
+    la, lb = ea.get("posting_language"), eb.get("posting_language")
+    if la != lb and {la, lb} <= {"en", "nl"}:
+        return True  # the Dutch and the English text of one vacancy
+    sm = difflib.SequenceMatcher(None, ta[:5000], tb[:5000], autojunk=False)
+    if sm.quick_ratio() < _SAME_FACTS_TEXT:
+        return False
+    ratio = sm.ratio()
+    if ratio >= _NEAR_IDENTICAL:
+        return True
+    if ratio < _SAME_FACTS_TEXT:
+        return False
+    sa, sb = set(ea.get("skills_required") or []), set(eb.get("skills_required") or [])
+    skills = len(sa & sb) / len(sa | sb) if sa | sb else 1.0
+    facts = ("seniority", "years_experience", "role_family")
+    return skills >= 0.8 and all(ea.get(k) == eb.get(k) for k in facts)
 
 
 _LANGS = {"en", "nl", "de", "fr", "es", "it", "pt", "pl", "el", "sv", "da", "fi", "no", "nb", "cs", "hu", "ro", "tr",

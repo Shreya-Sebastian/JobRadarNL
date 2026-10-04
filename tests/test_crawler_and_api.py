@@ -63,16 +63,16 @@ def test_duplicates_same_source_identical_text_and_same_url(fresh_db):
             raw("a", "https://x/backend-engineer", "Python and AWS."),
             raw("b", "https://x/backend-engineer-2", "Python and AWS."),      # repost counter: duplicate
             raw("c", "https://x/backend-engineer-3", "Rust and Kubernetes."),  # same title, other text: keep
-            raw("d", "https://x/backend-engineer-hoorn", "Python and AWS."),   # same text, other slug: keep
+            raw("d", "https://x/backend-engineer-hoorn", "Python and AWS."),   # same text and city: one job shown
             raw("e", "https://x/backend-engineer-4", "Python and AWS."),      # twin of a even though a != canonical
         ])
         other = _source(s, "Acme", "jsonld", "https://acme.nl/careers")
         ingest(s, other, [RawPosting(external_id="z", title="Rust Person", url="https://x/backend-engineer-3?utm=1",
                                      location="Amsterdam", description_text="whatever")])  # same URL as c
-        assert mark_duplicates(s) == 3
+        assert mark_duplicates(s) == 4
         by = lambda ext: s.query(Posting).filter_by(external_id=ext).one()  # noqa: E731
         assert by("b").duplicate_of == by("a").id and by("e").duplicate_of == by("a").id
-        assert by("c").duplicate_of is None and by("d").duplicate_of is None
+        assert by("c").duplicate_of is None and by("d").duplicate_of == by("a").id
         assert by("z").duplicate_of == by("c").id
 
 
