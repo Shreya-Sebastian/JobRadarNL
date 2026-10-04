@@ -211,24 +211,21 @@ def _pretty(slug_or_name: str) -> str:
 def rename_employers(session: Session) -> int:
     """Recompute display names for employer sources and their postings, then apply the curated names
     (data/company_names.tsv) to every source and posting. Returns the number of sources and postings renamed."""
+    from sqlalchemy import update
+
     from radar.models import Posting
     from radar.normalize import company_names
 
+    # UPDATE statements, not loaded postings: a posting row carries its whole description
     renamed = 0
     for src in session.scalars(select(Source).where(Source.kind == "employer")):
         new = pretty_company(src.slug, src.company)
         if new and new != src.company:
-            for p in session.scalars(select(Posting).where(Posting.source_id == src.id)):
-                p.company = new
+            session.execute(update(Posting).where(Posting.source_id == src.id).values(company=new))
             src.company = new
             renamed += 1
-    names = company_names()
-    if names:
-        for src in session.scalars(select(Source).where(Source.company.in_(list(names)))):
-            src.company = names[src.company]
-            renamed += 1
-        for p in session.scalars(select(Posting).where(Posting.company.in_(list(names)))):
-            p.company = names[p.company]
-            renamed += 1
+    for old, new in company_names().items():
+        renamed += session.execute(update(Source).where(Source.company == old).values(company=new)).rowcount or 0
+        renamed += session.execute(update(Posting).where(Posting.company == old).values(company=new)).rowcount or 0
     session.flush()
     return renamed
