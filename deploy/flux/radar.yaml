@@ -33,4 +33,4 @@ spec:
       strategy: rollback
   values:
     image:
-      tag: sha-adebb38a1ea1  # set by .github/workflows/deploy.yml
+      tag: sha-7acf30f15ddb  # set by .github/workflows/deploy.yml
