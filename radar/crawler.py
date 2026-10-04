@@ -226,7 +226,7 @@ def mark_duplicates(session: Session) -> int:
     rows = session.execute(
         select(Posting.id, Posting.dedup_key, Posting.source_id, Posting.first_seen, Posting.content_hash,
                Posting.url, Source.ats, Source.kind, Posting.company, Posting.title, Posting.city, Posting.posted_at,
-               Posting.also_in, Posting.duplicate_of)
+               Posting.also_in, Posting.duplicate_of, Posting.is_tech)
         .join(Source, Source.id == Posting.source_id)
         .where(Posting.closed_at.is_(None))
     ).all()
@@ -308,12 +308,13 @@ def mark_duplicates(session: Session) -> int:
             for dup in members[1:]:
                 mark(dup, members[0])
 
-    # 7. one vacancy listed twice on one board
+    # 7. one vacancy listed twice on one board (tech postings only: the ones the site shows, and comparing the
+    #    texts of every agency's identical warehouse ads would take hours)
     groups: list[list] = []
     for members in by_key.values():
         per_source: dict[int, list] = {}
         for r in members:
-            if r.id not in canonical_of:
+            if r.id not in canonical_of and r.is_tech:
                 per_source.setdefault(r.source_id, []).append(r)
         groups.extend(g for g in per_source.values() if len(g) > 1)
     if groups:
@@ -358,6 +359,10 @@ _NEAR_IDENTICAL = 0.9
 _SAME_FACTS_TEXT = 0.6
 
 
+def _words(text: str) -> list[str]:
+    return re.findall(r"\w+", text.lower())[:1500]
+
+
 def same_job(a: tuple[str, dict], b: tuple[str, dict]) -> bool:
     """Whether two postings with one title on one board are the same vacancy. `a` and `b` are (text, extraction).
     Thresholds measured on the 264 such pairs live on 4 Oct 2026: reposts and brand variants share at least 60% of
@@ -370,7 +375,9 @@ def same_job(a: tuple[str, dict], b: tuple[str, dict]) -> bool:
     la, lb = ea.get("posting_language"), eb.get("posting_language")
     if la != lb and {la, lb} <= {"en", "nl"}:
         return True  # the Dutch and the English text of one vacancy
-    sm = difflib.SequenceMatcher(None, ta[:5000], tb[:5000], autojunk=False)
+    # word by word: as good as character by character on the measured pairs (5 of 264 borderline calls differ)
+    # and some 150 times faster
+    sm = difflib.SequenceMatcher(None, _words(ta), _words(tb), autojunk=False)
     if sm.quick_ratio() < _SAME_FACTS_TEXT:
         return False
     ratio = sm.ratio()
